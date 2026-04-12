@@ -1,0 +1,29 @@
+{
+  "name": "ld59",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "npm run dev",
+    "build": "vite build",
+    "lint": "tsc && eslint .",
+    "dev": "vite --host",
+    "pack": "npm run build && rm Game.zip && zip -r Game.zip dist"
+  },
+  "dependencies": {
+    "@pixi/sound": "^6.0.1",
+    "@pixi/ui": "^2.3.2",
+    "motion": "^12.38.0",
+    "pixi-filters": "^6.1.5",
+    "pixi.js": "^8.17.1"
+  },
+  "devDependencies": {
+    "@assetpack/core": "^1.7.0",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.0",
+    "prettier": "^3.8.2",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.1",
+    "vite": "^8.0.8"
+  }
+}
