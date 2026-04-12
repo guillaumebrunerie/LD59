@@ -66,4 +66,12 @@ export class Container<
 			}
 		}
 	}
+
+	resize(width: number, height: number) {
+		for (const child of this.children) {
+			if (child instanceof Container) {
+				child.resize(width, height);
+			}
+		}
+	}
 }

@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"useDefineForClassFields": true,
-		"lib": ["dom"],
+		"lib": ["esnext", "dom"],
 		"skipLibCheck": true,
 		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,
@@ -13,5 +13,5 @@
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true
 	},
-	"include": ["src", "scripts"]
+	"include": ["src"]
 }

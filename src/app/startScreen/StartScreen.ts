@@ -1,10 +1,10 @@
 import { Container } from "../../PausableContainer";
 import { FancyButton } from "@pixi/ui";
-import { engine } from "../getEngine";
-import { Background } from "../game/Background";
+import { engine } from "../../getEngine";
+import { Background } from "../gameScreen/Background";
 import { Assets, Graphics, Sprite } from "pixi.js";
-import { TutorialScreen } from "./TutorialScreen";
-import { SoundButton } from "./SoundButton";
+import { SoundButton } from "../ui/SoundButton";
+import { GameScreen } from "../gameScreen/GameScreen";
 
 export class StartScreen extends Container {
 	public static assetBundles = ["main"];
@@ -36,6 +36,7 @@ export class StartScreen extends Container {
 	}
 
 	resize(width: number, height: number) {
+		super.resize(width, height);
 		this.startButton.position.set(width / 2, (3 * height) / 4);
 		this.logo.position.set(width / 2, height / 3);
 		this.background.position.set(width / 2, height / 2);
@@ -45,7 +46,7 @@ export class StartScreen extends Container {
 	async startGame() {
 		engine().audio.playMusic("Music", { volume: 0.3 });
 		engine().audio.playSound("Click");
-		await engine().navigation.showScreen(TutorialScreen);
+		await engine().navigation.showScreen(GameScreen);
 	}
 
 	async hide() {

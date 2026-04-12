@@ -1,10 +1,12 @@
 import "pixi.js/math-extras";
 import { sound } from "@pixi/sound";
-import { setEngine } from "./app/getEngine";
-import { LoadScreen } from "./app/screens/LoadScreen";
-import { userSettings } from "./app/utils/userSettings";
+
 import { CreationEngine } from "./engine/engine";
-import { StartScreen } from "./app/screens/StartScreen";
+
+import { setEngine } from "./getEngine";
+import { LoadScreen } from "./app/loadScreen/LoadScreen";
+import { userSettings } from "./app/utils/userSettings";
+import { StartScreen } from "./app/startScreen/StartScreen";
 
 /**
  * Importing these modules will automatically register their plugins with the engine.
@@ -23,7 +25,7 @@ setEngine(engine);
 	await engine.init({
 		background: "black",
 		backgroundAlpha: 0,
-		resizeOptions: { minWidth: 1080, minHeight: 1920, letterbox: false },
+		resizeOptions: { minWidth: 1080, minHeight: 1920 },
 		// useBackBuffer: true,
 	});
 

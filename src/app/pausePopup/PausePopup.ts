@@ -1,11 +1,8 @@
-import { BlurFilter, Container, Graphics, Point } from "pixi.js";
+import { BlurFilter, Container, Graphics } from "pixi.js";
 
-import { engine } from "../getEngine";
+import { engine } from "../../getEngine";
 import { Label } from "../ui/Label";
 import { FancyButton } from "@pixi/ui";
-import { Thread } from "../game/Thread";
-import { userSettings } from "../utils/userSettings";
-import { GameScreen } from "../screens/GameScreen";
 
 /** Popup that shows up when gameplay is paused */
 export class PausePopup extends Container {
@@ -34,17 +31,6 @@ export class PausePopup extends Container {
 				.fill("#ffffff40"),
 		);
 
-		const a = new Point(x - width / 2, y - height / 2);
-		const b = new Point(x + width / 2, y - height / 2);
-		const c = new Point(x + width / 2, y + height / 2);
-		const d = new Point(x - width / 2, y + height / 2);
-		this.addChild(
-			new Thread({ from: a, to: b }),
-			new Thread({ from: b, to: c }),
-			new Thread({ from: c, to: d }),
-			new Thread({ from: d, to: a }),
-		);
-
 		const resumeButton = this.addChild(
 			new FancyButton({
 				text: new Label({
@@ -60,27 +46,6 @@ export class PausePopup extends Container {
 		);
 		resumeButton.y = -75;
 		resumeButton.on("pointertap", () => engine().navigation.dismissPopup());
-
-		const resetButton = this.addChild(
-			new FancyButton({
-				text: new Label({
-					text: `Reset all progress`,
-					style: {
-						fontFamily: "SueEllenFrancisco",
-						fill: "red",
-						// stroke: { color: "black", width: 6 },
-						fontSize: 70,
-					},
-				}),
-			}),
-		);
-		resetButton.y = 75;
-		resetButton.on("pointertap", () => {
-			engine().audio.playSound("Click");
-			userSettings.resetLevels();
-			engine().navigation.dismissPopup();
-			engine().navigation.showScreen(GameScreen);
-		});
 	}
 
 	/** Resize the popup, fired whenever window size changes */

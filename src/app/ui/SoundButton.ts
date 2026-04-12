@@ -19,7 +19,7 @@ export class SoundButton extends Container {
 	}
 
 	isSoundOn() {
-		return userSettings.getMasterVolume() > 0.5;
+		return userSettings.masterVolume.get() > 0.5;
 	}
 
 	updateButton() {
@@ -34,9 +34,9 @@ export class SoundButton extends Container {
 
 	toggleSound() {
 		if (this.isSoundOn()) {
-			userSettings.setMasterVolume(0);
+			userSettings.masterVolume.set(0);
 		} else {
-			userSettings.setMasterVolume(1);
+			userSettings.masterVolume.set(1);
 		}
 		this.updateButton();
 	}
