@@ -1,10 +1,10 @@
-import { animate, AnimationPlaybackControlsWithThen } from "motion";
+import { animate, type AnimationPlaybackControlsWithThen } from "motion";
 import {
 	Container as PixiContainer,
-	ContainerChild,
-	ContainerOptions,
+	type ContainerChild,
+	type ContainerOptions,
 	AnimatedSprite,
-	DestroyOptions,
+	type DestroyOptions,
 } from "pixi.js";
 
 export class Container<

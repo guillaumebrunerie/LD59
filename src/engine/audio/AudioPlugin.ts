@@ -1,4 +1,4 @@
-import { PlayOptions, sound } from "@pixi/sound";
+import { type PlayOptions, sound } from "@pixi/sound";
 import { ExtensionType } from "pixi.js";
 import type { Application, ExtensionMetadata } from "pixi.js";
 

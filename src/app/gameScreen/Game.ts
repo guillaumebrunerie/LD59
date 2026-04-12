@@ -1,4 +1,4 @@
-import { DestroyOptions, Point, Ticker } from "pixi.js";
+import { type DestroyOptions, Point, Ticker } from "pixi.js";
 import { Container } from "../../PausableContainer";
 import { Player } from "./Player";
 import { Background } from "./Background";

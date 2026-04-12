@@ -1,4 +1,4 @@
-import { ViewContainerOptions, AnimatedSprite } from "pixi.js";
+import { type ViewContainerOptions, AnimatedSprite } from "pixi.js";
 import { Container } from "../../PausableContainer";
 import { Game } from "./Game";
 import { getIdleAnimation } from "../utils/animation";

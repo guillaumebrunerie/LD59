@@ -1,5 +1,5 @@
 import { FancyButton } from "@pixi/ui";
-import { Assets, Container, ViewContainerOptions } from "pixi.js";
+import { Assets, Container, type ViewContainerOptions } from "pixi.js";
 import { engine } from "../../getEngine";
 import { PausePopup } from "../pausePopup/PausePopup";
 

@@ -1,13 +1,11 @@
 {
 	"compilerOptions": {
-		"useDefineForClassFields": true,
 		"lib": ["esnext", "dom"],
 		"skipLibCheck": true,
 		"moduleResolution": "bundler",
-		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
-		"moduleDetection": "force",
 		"noEmit": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,

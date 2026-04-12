@@ -1,5 +1,5 @@
 import { FancyButton } from "@pixi/ui";
-import { Assets, Container, ViewContainerOptions } from "pixi.js";
+import { Assets, Container, type ViewContainerOptions } from "pixi.js";
 import { userSettings } from "../utils/userSettings";
 
 export class SoundButton extends Container {
