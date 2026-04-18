@@ -39,8 +39,8 @@ export class Game extends Container {
 					// 	speed: 2,
 					// 	phaseShift: 0,
 					// },
-					speed: 0,
-					phaseShift: 3,
+					speed: 1,
+					phase: 3,
 				},
 				1000,
 				300,
@@ -57,7 +57,7 @@ export class Game extends Container {
 					amplitude: 4,
 					waves: 2,
 					speed: 0,
-					phaseShift: 0,
+					phase: 0,
 				},
 				1000,
 				300,
@@ -83,10 +83,18 @@ export class Game extends Container {
 				callback(+1);
 			});
 		};
-		makeButtons(-150, (delta) => waveForm.baselineChange(delta));
+		makeButtons(-150, (delta) => {
+			waveForm.baselineChange(delta);
+			console.log(waveForm.waveData);
+			console.log(blueprint.waveData);
+		});
 		makeButtons(0, (delta) => waveForm.amplitudeChange(delta));
 		makeButtons(150, (delta) => waveForm.wavesChange(delta));
-		makeButtons(300, (delta) => waveForm.speedChange(delta));
+		makeButtons(300, (delta) => {
+			waveForm.speedChange(delta);
+			console.log(waveForm.targetWaveData);
+			console.log(blueprint.waveData);
+		});
 	}
 
 	start() {

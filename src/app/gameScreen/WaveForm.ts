@@ -1,34 +1,31 @@
 import { Color, Graphics, Ticker } from "pixi.js";
 import { Container } from "../../PausableContainer";
+import { mod } from "../utils/maths";
 
 type WaveData = {
 	baseline: number;
 	amplitude: number | WaveData;
 	waves: number | WaveData;
 	speed: number | WaveData;
-	phaseShift: number;
+	phase: number;
 };
 
-const frequencyValue = (waves: number) => {
+const getFrequency = (waves: number) => {
 	return Math.sqrt((waves * 10) / (11 - waves));
 };
 
-const waveValue = (
-	waveData: number | WaveData,
-	u: number,
-	t: number,
-): number => {
+const waveValue = (waveData: number | WaveData, gt: number, u = 0): number => {
 	if (typeof waveData == "number") {
 		return waveData;
 	}
-	const { baseline, amplitude, waves, speed, phaseShift } = waveData;
+	const { baseline, amplitude, waves, speed, phase } = waveData;
 
 	const a = baseline / 5;
-	const b = waveValue(amplitude, 0, t) / 5;
-	const c = phaseShift;
-	const d = 2 * Math.PI * frequencyValue(waveValue(waves, 0, t));
-	const e = waveValue(speed, 0, t) * 2 * Math.PI;
-	return a + b * Math.cos((u + c) * d - t * e);
+	const b = waveValue(amplitude, gt) / 5;
+	const c = phase / 5;
+	const d = getFrequency(waveValue(waves, gt)) * 2 * Math.PI;
+	const e = waveValue(speed, gt) * 2 * Math.PI;
+	return a + b * Math.cos(u * d + c * 2 * Math.PI - gt * e);
 };
 
 const interpolate = <T extends string>(
@@ -71,41 +68,42 @@ export class WaveForm extends Container {
 	update(ticker: Ticker) {
 		this.t += ticker.deltaMS / 1000;
 
+		const speed = 5;
 		interpolate(
 			"baseline",
 			this.waveData,
 			this.targetWaveData,
-			3,
+			speed,
 			ticker.deltaMS / 1000,
 		);
 		interpolate(
 			"amplitude",
 			this.waveData,
 			this.targetWaveData,
-			3,
+			speed,
 			ticker.deltaMS / 1000,
 		);
 		interpolate(
 			"waves",
 			this.waveData,
 			this.targetWaveData,
-			3,
+			speed,
 			ticker.deltaMS / 1000,
 		);
-		// interpolate(
-		// 	"speed",
-		// 	this.waveData,
-		// 	this.targetWaveData,
-		// 	8,
-		// 	ticker.deltaMS / 1000,
-		// );
-		// interpolate(
-		// 	"phaseShift",
-		// 	this.waveData,
-		// 	this.targetWaveData,
-		// 	8,
-		// 	ticker.deltaMS / 1000,
-		// );
+		interpolate(
+			"speed",
+			this.waveData,
+			this.targetWaveData,
+			Infinity,
+			ticker.deltaMS / 1000,
+		);
+		interpolate(
+			"phase",
+			this.waveData,
+			this.targetWaveData,
+			Infinity,
+			ticker.deltaMS / 1000,
+		);
 
 		this.draw();
 	}
@@ -115,7 +113,7 @@ export class WaveForm extends Container {
 		for (let i = -STEPS; i <= STEPS; i++) {
 			const u = i / STEPS;
 			const x = u * this.w;
-			const y = waveValue(this.waveData, u, this.t) * this.h;
+			const y = waveValue(this.waveData, this.t, u) * this.h;
 			if (i == -STEPS) {
 				this.curve.moveTo(x, y);
 			} else {
@@ -141,13 +139,15 @@ export class WaveForm extends Container {
 	}
 
 	speedChange(delta: number) {
-		this.waveData.speed += delta;
-		this.waveData.phaseShift =
-			Math.round(
-				(this.waveData.phaseShift +
-					(this.t * delta) / frequencyValue(this.waveData.waves)) *
-					10,
-			) / 10;
+		const valueBefore =
+			this.waveData.phase / 5 -
+			this.t * waveValue(this.waveData.speed, this.t);
+		this.targetWaveData.speed += delta;
+		const newPhase =
+			(valueBefore +
+				this.t * waveValue(this.targetWaveData.speed, this.t)) *
+			5;
+		this.targetWaveData.phase = newPhase;
 		this.draw();
 	}
 }
