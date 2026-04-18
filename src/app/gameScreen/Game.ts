@@ -1,8 +1,9 @@
-import { Color, type DestroyOptions, Graphics, Point, Ticker } from "pixi.js";
+import { Color, type DestroyOptions, Graphics, Ticker } from "pixi.js";
 import { Container } from "../../PausableContainer";
 import { engine } from "../../getEngine";
 import { WaveForm } from "./WaveForm";
 import { MapScreen } from "../mapScreen/MapScreen";
+import { Label } from "../ui/Label";
 
 export const gameWidth = 1000;
 export const gameHeight = 1000;
@@ -18,25 +19,35 @@ export class Game extends Container {
 		const blueprint = this.addChild(
 			new WaveForm(
 				{
-					baseline: -2,
-					amplitude: 3,
-					waves: 4,
-					// amplitude: {
-					// 	baseline: 10,
-					// 	amplitude: 3,
-					// 	waves: 2,
-					// 	speed: 1,
-					// 	phaseShift: 0,
-					// },
-					// waves: {
-					// 	baseline: 15,
-					// 	amplitude: 1,
-					// 	waves: 5,
-					// 	speed: 2,
-					// 	phaseShift: 0,
-					// },
-					speed: 1,
-					phase: 3,
+					baseline: 0,
+					wave1: {
+						amplitude: {
+							base: 2,
+							amplitude: 1,
+							speed: 3,
+						},
+						waves: {
+							base: 5,
+							amplitude: 2,
+							speed: 2,
+						},
+						speed: 0,
+						phase: 0,
+					},
+					wave2: {
+						amplitude: {
+							base: 0,
+							amplitude: 0,
+							speed: 3,
+						},
+						waves: {
+							base: 0,
+							amplitude: 0,
+							speed: 2,
+						},
+						speed: 0,
+						phase: 0,
+					},
 				},
 				1000,
 				300,
@@ -49,11 +60,39 @@ export class Game extends Container {
 		const waveForm = this.addChild(
 			new WaveForm(
 				{
-					baseline: 0,
-					amplitude: 4,
-					waves: 2,
-					speed: 0,
-					phase: 0,
+					baseline: 1,
+					wave1: {
+						amplitude: {
+							base: 1,
+							amplitude: 0,
+							speed: 0,
+							phase: 0,
+						},
+						waves: {
+							base: 3,
+							amplitude: 0,
+							speed: 0,
+							phase: 0,
+						},
+						speed: 0,
+						phase: 0,
+					},
+					wave2: {
+						amplitude: {
+							base: 0,
+							amplitude: 0,
+							speed: 0,
+							phase: 0,
+						},
+						waves: {
+							base: 0,
+							amplitude: 0,
+							speed: 0,
+							phase: 0,
+						},
+						speed: 0,
+						phase: 0,
+					},
 				},
 				1000,
 				300,
@@ -71,26 +110,64 @@ export class Game extends Container {
 			button.interactive = true;
 			button.on("pointerdown", callback);
 		};
-		const makeButtons = (y: number, callback: (delta: number) => void) => {
+		const makeButtons = (
+			y: number,
+			callback: (delta: number) => void,
+			getValue: () => number,
+		) => {
+			const label = this.addChild(
+				new Label({ x: 0, y, text: String(getValue()) }),
+			);
 			makeButton(-150, y, () => {
 				callback(-1);
+				label.text = String(getValue());
 			});
 			makeButton(150, y, () => {
 				callback(+1);
+				label.text = String(getValue());
 			});
 		};
-		makeButtons(-150, (delta) => {
-			waveForm.baselineChange(delta);
-			console.log(waveForm.waveData);
-			console.log(blueprint.waveData);
-		});
-		makeButtons(0, (delta) => waveForm.amplitudeChange(delta));
-		makeButtons(150, (delta) => waveForm.wavesChange(delta));
-		makeButtons(300, (delta) => {
-			waveForm.speedChange(delta);
-			console.log(waveForm.targetWaveData);
-			console.log(blueprint.waveData);
-		});
+		const makeBasicButtons = <T extends string>(
+			y: number,
+			key: T,
+			object: Record<T, number>,
+		) => {
+			makeButtons(
+				y,
+				(delta) => {
+					object[key] += delta;
+				},
+				() => object[key],
+			);
+		};
+
+		makeBasicButtons(-150, "baseline", waveForm.targetWaveData);
+		makeBasicButtons(0, "base", waveForm.targetWaveData.wave1.amplitude);
+		makeBasicButtons(
+			125,
+			"amplitude",
+			waveForm.targetWaveData.wave1.amplitude,
+		);
+		makeButtons(
+			250,
+			(delta) => waveForm.amplitudeSpeedChange1(delta),
+			() => waveForm.targetWaveData.wave1.amplitude.speed,
+		);
+		makeBasicButtons(400, "base", waveForm.targetWaveData.wave1.waves);
+		makeBasicButtons(525, "amplitude", waveForm.targetWaveData.wave1.waves);
+		makeButtons(
+			650,
+			(delta) => waveForm.wavesSpeedChange1(delta),
+			() => waveForm.targetWaveData.wave1.waves.speed,
+		);
+		makeButtons(
+			800,
+			(delta) => {
+				waveForm.speedChange1(delta);
+			},
+			() => waveForm.targetWaveData.wave1.speed,
+		);
+		// makeBasicButtons(350, "speed", waveForm.targetWaveData.wave1.amplitude);
 
 		const button = this.addChild(
 			new Graphics().rect(-300, 700, 100, 100).fill("red"),
@@ -132,14 +209,4 @@ export class Game extends Container {
 	}
 
 	update() {}
-
-	click(position: Point) {
-		if (!this.ticker.started) {
-			return;
-		}
-
-		engine().audio.playSound("WebStart");
-
-		this.player.position = position;
-	}
 }
