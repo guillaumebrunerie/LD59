@@ -1,7 +1,6 @@
 import { Container } from "../../PausableContainer";
 import { FancyButton } from "@pixi/ui";
 import { engine } from "../../getEngine";
-import { Background } from "../gameScreen/Background";
 import { Assets, Graphics, Sprite } from "pixi.js";
 import { SoundButton } from "../ui/SoundButton";
 import { GameScreen } from "../gameScreen/GameScreen";
@@ -9,7 +8,6 @@ import { GameScreen } from "../gameScreen/GameScreen";
 export class StartScreen extends Container {
 	public static assetBundles = ["main"];
 
-	background: Background;
 	logo: Sprite;
 	startButton: FancyButton;
 	soundButton: SoundButton;
@@ -17,7 +15,6 @@ export class StartScreen extends Container {
 	constructor() {
 		super();
 
-		this.background = this.addChild(new Background());
 		this.logo = this.addChild(
 			new Sprite({
 				texture: Assets.get("Logo.png"),
@@ -39,7 +36,7 @@ export class StartScreen extends Container {
 		super.resize(width, height);
 		this.startButton.position.set(width / 2, (3 * height) / 4);
 		this.logo.position.set(width / 2, height / 3);
-		this.background.position.set(width / 2, height / 2);
+		// this.background.position.set(width / 2, height / 2);
 		this.soundButton.resize(width, height);
 	}
 

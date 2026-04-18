@@ -13,6 +13,7 @@ import { StartScreen } from "./app/startScreen/StartScreen";
  */
 import "@pixi/sound";
 import { GameScreen } from "./app/gameScreen/GameScreen";
+import { MapScreen } from "./app/mapScreen/MapScreen";
 // import "pixi.js/advanced-blend-modes";
 // import "@esotericsoftware/spine-pixi-v8";
 sound.disableAutoPause = true;
@@ -36,5 +37,5 @@ setEngine(engine);
 	// Show the load screen
 	await engine.navigation.showScreen(LoadScreen);
 	// Show the main screen once the load screen is dismissed
-	await engine.navigation.showScreen(GameScreen);
+	await engine.navigation.showScreen(MapScreen);
 })();

@@ -1,18 +1,23 @@
 import { Color, type DestroyOptions, Graphics, Point, Ticker } from "pixi.js";
 import { Container } from "../../PausableContainer";
+import { Player } from "./Player";
+import { Background } from "./Background";
 import { engine } from "../../getEngine";
 import { WaveForm } from "./WaveForm";
-import { MapScreen } from "../mapScreen/MapScreen";
+import { Tile } from "./Tile";
+import { GameMap } from "./GameMap";
 
 export const gameWidth = 1000;
 export const gameHeight = 1000;
 
 export class Game extends Container {
 	ticker: Ticker;
+	player: Player;
 
 	constructor() {
 		super();
 		this.ticker = new Ticker();
+		this.player = this.addChild(new Player({ game: this, scale: 0.3 }));
 		this.addToTicker(this);
 
 		const blueprint = this.addChild(
@@ -90,15 +95,6 @@ export class Game extends Container {
 			waveForm.speedChange(delta);
 			console.log(waveForm.targetWaveData);
 			console.log(blueprint.waveData);
-		});
-
-		const button = this.addChild(
-			new Graphics().rect(-300, 700, 100, 100).fill("red"),
-		);
-		button.pivot = 50;
-		button.interactive = true;
-		button.on("pointerdown", () => {
-			engine().navigation.showScreen(MapScreen);
 		});
 	}
 
