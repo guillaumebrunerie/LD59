@@ -19,31 +19,35 @@ export class Game extends Container {
 		const blueprint = this.addChild(
 			new WaveForm(
 				{
-					baseline: 0,
+					baseline: 1,
 					wave1: {
 						amplitude: {
-							base: 2,
+							base: 3,
 							amplitude: 1,
 							speed: 3,
+							phase: 0,
 						},
 						waves: {
-							base: 5,
-							amplitude: 2,
-							speed: 2,
+							base: 3,
+							amplitude: 0,
+							speed: 0,
+							phase: 0,
 						},
-						speed: 0,
+						speed: 1,
 						phase: 0,
 					},
 					wave2: {
 						amplitude: {
 							base: 0,
 							amplitude: 0,
-							speed: 3,
+							speed: 0,
+							phase: 0,
 						},
 						waves: {
 							base: 0,
 							amplitude: 0,
-							speed: 2,
+							speed: 0,
+							phase: 0,
 						},
 						speed: 0,
 						phase: 0,
