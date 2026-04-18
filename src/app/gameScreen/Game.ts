@@ -1,12 +1,48 @@
-import { Color, type DestroyOptions, Graphics, Ticker } from "pixi.js";
+import { type DestroyOptions, Graphics, Ticker } from "pixi.js";
 import { Container } from "../../PausableContainer";
 import { engine } from "../../getEngine";
-import { WaveForm } from "./WaveForm";
 import { MapScreen } from "../mapScreen/MapScreen";
-import { Label } from "../ui/Label";
+import { Device } from "./Device";
+import { randomInt } from "../../engine/utils/random";
 
 export const gameWidth = 1000;
 export const gameHeight = 1000;
+
+const randomBasicWaveData = () => ({
+	baseline: randomInt(-2, 2),
+	wave1: {
+		amplitude: {
+			base: randomInt(1, 10),
+			amplitude: 0,
+			speed: 1,
+			phase: 0,
+		},
+		waves: {
+			base: randomInt(1, 7),
+			amplitude: 0,
+			speed: 0,
+			phase: 0,
+		},
+		speed: randomInt(-5, 5),
+		phase: 0,
+	},
+	wave2: {
+		amplitude: {
+			base: 0,
+			amplitude: 0,
+			speed: 0,
+			phase: 0,
+		},
+		waves: {
+			base: 0,
+			amplitude: 0,
+			speed: 0,
+			phase: 0,
+		},
+		speed: 0,
+		phase: 0,
+	},
+});
 
 export class Game extends Container {
 	ticker: Ticker;
@@ -16,162 +52,14 @@ export class Game extends Container {
 		this.ticker = new Ticker();
 		this.addToTicker(this);
 
-		const blueprint = this.addChild(
-			new WaveForm(
-				{
-					baseline: 1,
-					wave1: {
-						amplitude: {
-							base: 3,
-							amplitude: 1,
-							speed: 3,
-							phase: 0,
-						},
-						waves: {
-							base: 3,
-							amplitude: 0,
-							speed: 0,
-							phase: 0,
-						},
-						speed: 1,
-						phase: 0,
-					},
-					wave2: {
-						amplitude: {
-							base: 0,
-							amplitude: 0,
-							speed: 0,
-							phase: 0,
-						},
-						waves: {
-							base: 0,
-							amplitude: 0,
-							speed: 0,
-							phase: 0,
-						},
-						speed: 0,
-						phase: 0,
-					},
-				},
-				1000,
-				300,
-				new Color("grey"),
-			),
+		const device = this.addChild(
+			new Device({
+				scale: 1.7,
+				targetWaveData: randomBasicWaveData(),
+				initialWaveData: randomBasicWaveData(),
+			}),
 		);
-		blueprint.y = -500;
-		this.addToTicker(blueprint);
-
-		const waveForm = this.addChild(
-			new WaveForm(
-				{
-					baseline: 1,
-					wave1: {
-						amplitude: {
-							base: 1,
-							amplitude: 0,
-							speed: 0,
-							phase: 0,
-						},
-						waves: {
-							base: 3,
-							amplitude: 0,
-							speed: 0,
-							phase: 0,
-						},
-						speed: 0,
-						phase: 0,
-					},
-					wave2: {
-						amplitude: {
-							base: 0,
-							amplitude: 0,
-							speed: 0,
-							phase: 0,
-						},
-						waves: {
-							base: 0,
-							amplitude: 0,
-							speed: 0,
-							phase: 0,
-						},
-						speed: 0,
-						phase: 0,
-					},
-				},
-				1000,
-				300,
-				new Color("red"),
-			),
-		);
-		waveForm.y = -500;
-		this.addToTicker(waveForm);
-
-		const makeButton = (x: number, y: number, callback: () => void) => {
-			const button = this.addChild(
-				new Graphics().rect(x, y, 100, 100).fill("blue"),
-			);
-			button.pivot = 50;
-			button.interactive = true;
-			button.on("pointerdown", callback);
-		};
-		const makeButtons = (
-			y: number,
-			callback: (delta: number) => void,
-			getValue: () => number,
-		) => {
-			const label = this.addChild(
-				new Label({ x: 0, y, text: String(getValue()) }),
-			);
-			makeButton(-150, y, () => {
-				callback(-1);
-				label.text = String(getValue());
-			});
-			makeButton(150, y, () => {
-				callback(+1);
-				label.text = String(getValue());
-			});
-		};
-		const makeBasicButtons = <T extends string>(
-			y: number,
-			key: T,
-			object: Record<T, number>,
-		) => {
-			makeButtons(
-				y,
-				(delta) => {
-					object[key] += delta;
-				},
-				() => object[key],
-			);
-		};
-
-		makeBasicButtons(-150, "baseline", waveForm.targetWaveData);
-		makeBasicButtons(0, "base", waveForm.targetWaveData.wave1.amplitude);
-		makeBasicButtons(
-			125,
-			"amplitude",
-			waveForm.targetWaveData.wave1.amplitude,
-		);
-		makeButtons(
-			250,
-			(delta) => waveForm.amplitudeSpeedChange1(delta),
-			() => waveForm.targetWaveData.wave1.amplitude.speed,
-		);
-		makeBasicButtons(400, "base", waveForm.targetWaveData.wave1.waves);
-		makeBasicButtons(525, "amplitude", waveForm.targetWaveData.wave1.waves);
-		makeButtons(
-			650,
-			(delta) => waveForm.wavesSpeedChange1(delta),
-			() => waveForm.targetWaveData.wave1.waves.speed,
-		);
-		makeButtons(
-			800,
-			(delta) => {
-				waveForm.speedChange1(delta);
-			},
-			() => waveForm.targetWaveData.wave1.speed,
-		);
-		// makeBasicButtons(350, "speed", waveForm.targetWaveData.wave1.amplitude);
+		this.addToTicker(device);
 
 		const button = this.addChild(
 			new Graphics().rect(-300, 700, 100, 100).fill("red"),

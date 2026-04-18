@@ -1,5 +1,6 @@
-import { Color, Graphics, Ticker } from "pixi.js";
+import { Color, Graphics, Ticker, type ViewContainerOptions } from "pixi.js";
 import { Container } from "../../PausableContainer";
+import type { Param } from "./Device";
 
 type BasicWaveData = {
 	base: number;
@@ -10,12 +11,12 @@ type BasicWaveData = {
 
 type WaveData = {
 	amplitude: BasicWaveData;
-	waves: BasicWaveData;
+	waves: BasicWaveData; // Maybe should be number
 	speed: number;
 	phase: number;
 };
 
-type CombinedWaveData = {
+export type CombinedWaveData = {
 	baseline: number;
 	wave1: WaveData;
 	wave2: WaveData;
@@ -37,10 +38,10 @@ const waveValue = (
 	gt: number,
 	u = 0,
 ): number => {
-	const b = basicWaveValue(amplitude, gt) / 5;
+	const b = basicWaveValue(amplitude, gt) / 10;
 	const c = phase;
 	const d = getFrequency(basicWaveValue(waves, gt)) * 2 * Math.PI;
-	const e = speed * 2 * Math.PI;
+	const e = (speed / 2) * 2 * Math.PI;
 	return b * Math.cos(u * d + c * 2 * Math.PI - gt * e);
 };
 
@@ -49,7 +50,7 @@ const combinedWaveValue = (
 	gt: number,
 	u = 0,
 ): number => {
-	return -baseline / 5 + waveValue(wave1, gt, u) + waveValue(wave2, gt, u);
+	return -baseline / 10 + waveValue(wave1, gt, u) + waveValue(wave2, gt, u);
 };
 
 const interpolate = <T extends string>(
@@ -106,32 +107,42 @@ const interpolateCombinedWaveData = (
 
 const STEPS = 100;
 
-export class WaveForm extends Container {
+export class Waveform extends Container {
 	curve: Graphics;
+	waveData: CombinedWaveData;
 	targetWaveData: CombinedWaveData;
 	t = 0;
+	w: number;
+	h: number;
+	color: Color;
 
 	constructor(
-		public waveData: CombinedWaveData,
-		public w: number,
-		public h: number,
-		public color: Color,
+		options: ViewContainerOptions & {
+			waveData: CombinedWaveData;
+			w: number;
+			h: number;
+			color: Color;
+		},
 	) {
-		super();
+		super(options);
 		this.curve = new Graphics();
 		this.addChild(this.curve);
-		this.targetWaveData = structuredClone(waveData);
+		this.waveData = structuredClone(options.waveData);
+		this.targetWaveData = structuredClone(options.waveData);
+		this.w = options.w;
+		this.h = options.h;
+		this.color = options.color;
 		this.draw();
 	}
 
+	updateSpeed = 8;
 	update(ticker: Ticker) {
 		this.t += ticker.deltaMS / 1000;
 
-		const speed = 8;
 		interpolateCombinedWaveData(
 			this.waveData,
 			this.targetWaveData,
-			speed,
+			this.updateSpeed,
 			ticker.deltaMS / 1000,
 		);
 		this.draw();
@@ -149,8 +160,48 @@ export class WaveForm extends Container {
 				this.curve.lineTo(x, y);
 			}
 		}
-		this.curve.stroke({ width: 10, color: this.color });
+		this.curve.stroke({ width: 5, color: this.color });
 	}
+
+	baselineParam: Param = {
+		minValue: -5,
+		maxValue: 5,
+		get: () => this.targetWaveData.baseline,
+		change: (delta: number, updateSpeed: number) => {
+			this.updateSpeed = updateSpeed;
+			this.targetWaveData.baseline += delta;
+		},
+	};
+
+	amplitude1Param: Param = {
+		minValue: 0,
+		maxValue: 10,
+		get: () => this.targetWaveData.wave1.amplitude.base,
+		change: (delta: number, updateSpeed: number) => {
+			this.updateSpeed = updateSpeed;
+			this.targetWaveData.wave1.amplitude.base += delta;
+		},
+	};
+
+	frequency1Param: Param = {
+		minValue: 1,
+		maxValue: 7,
+		get: () => this.targetWaveData.wave1.waves.base,
+		change: (delta: number, updateSpeed: number) => {
+			this.updateSpeed = updateSpeed;
+			this.targetWaveData.wave1.waves.base += delta;
+		},
+	};
+
+	speed1Param: Param = {
+		minValue: -5,
+		maxValue: 5,
+		get: () => this.targetWaveData.wave1.speed,
+		change: (delta: number, updateSpeed: number) => {
+			this.updateSpeed = updateSpeed;
+			this.speedChange1(delta);
+		},
+	};
 
 	amplitudeSpeedChange1(delta: number) {
 		this.targetWaveData.wave1.amplitude.speed += delta;
@@ -174,6 +225,6 @@ export class WaveForm extends Container {
 
 	speedChange1(delta: number) {
 		this.targetWaveData.wave1.speed += delta;
-		this.targetWaveData.wave1.phase += this.t * delta;
+		this.targetWaveData.wave1.phase += (this.t * delta) / 2;
 	}
 }
