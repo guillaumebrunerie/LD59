@@ -1,8 +1,9 @@
-import { type DestroyOptions, Point, Ticker } from "pixi.js";
+import { Color, type DestroyOptions, Graphics, Point, Ticker } from "pixi.js";
 import { Container } from "../../PausableContainer";
 import { Player } from "./Player";
 import { Background } from "./Background";
 import { engine } from "../../getEngine";
+import { WaveForm } from "./WaveForm";
 
 export const gameWidth = 1000;
 export const gameHeight = 1000;
@@ -17,6 +18,75 @@ export class Game extends Container {
 		this.addChild(new Background());
 		this.player = this.addChild(new Player({ game: this, scale: 0.3 }));
 		this.addToTicker(this);
+
+		const blueprint = this.addChild(
+			new WaveForm(
+				{
+					baseline: -2,
+					amplitude: 3,
+					waves: 4,
+					// amplitude: {
+					// 	baseline: 10,
+					// 	amplitude: 3,
+					// 	waves: 2,
+					// 	speed: 1,
+					// 	phaseShift: 0,
+					// },
+					// waves: {
+					// 	baseline: 15,
+					// 	amplitude: 1,
+					// 	waves: 5,
+					// 	speed: 2,
+					// 	phaseShift: 0,
+					// },
+					speed: 0,
+					phaseShift: 3,
+				},
+				1000,
+				300,
+				new Color("grey"),
+			),
+		);
+		blueprint.y = -500;
+		this.addToTicker(blueprint);
+
+		const waveForm = this.addChild(
+			new WaveForm(
+				{
+					baseline: 0,
+					amplitude: 4,
+					waves: 2,
+					speed: 0,
+					phaseShift: 0,
+				},
+				1000,
+				300,
+				new Color("red"),
+			),
+		);
+		waveForm.y = -500;
+		this.addToTicker(waveForm);
+
+		const makeButton = (x: number, y: number, callback: () => void) => {
+			const button = this.addChild(
+				new Graphics().rect(x, y, 100, 100).fill("blue"),
+			);
+			button.pivot = 50;
+			button.interactive = true;
+			button.on("pointerdown", callback);
+		};
+		const makeButtons = (y: number, callback: (delta: number) => void) => {
+			makeButton(-150, y, () => {
+				callback(-1);
+			});
+			makeButton(150, y, () => {
+				callback(+1);
+			});
+		};
+		makeButtons(-150, (delta) => waveForm.baselineChange(delta));
+		makeButtons(0, (delta) => waveForm.amplitudeChange(delta));
+		makeButtons(150, (delta) => waveForm.wavesChange(delta));
+		makeButtons(300, (delta) => waveForm.speedChange(delta));
 	}
 
 	start() {

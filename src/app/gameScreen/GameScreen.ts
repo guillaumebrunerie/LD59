@@ -24,7 +24,7 @@ export class GameScreen extends Container {
 		this.touchArea = this.addChild(
 			new Graphics().rect(0, 0, 100, 100).fill("#00000001"),
 		);
-		this.touchArea.interactive = true;
+		// this.touchArea.interactive = true;
 		this.touchArea.on("pointerdown", (e) => this.pointerDown(e));
 
 		this.pauseButton = this.addChild(
@@ -56,6 +56,6 @@ export class GameScreen extends Container {
 	}
 
 	pointerDown(event: FederatedPointerEvent) {
-		this.game.click(event.getLocalPosition(this.game));
+		// this.game.click(event.getLocalPosition(this.game));
 	}
 }
