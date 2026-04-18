@@ -13,8 +13,8 @@ const randomBasicWaveData = () => ({
 	wave1: {
 		amplitude: {
 			base: randomInt(1, 10),
-			amplitude: 0,
-			speed: 1,
+			amplitude: 0, //randomInt(0, 5),
+			speed: 3, //randomInt(0, 5),
 			phase: 0,
 		},
 		waves: {
@@ -23,8 +23,8 @@ const randomBasicWaveData = () => ({
 			speed: 0,
 			phase: 0,
 		},
-		speed: randomInt(-5, 5),
-		phase: 0,
+		speed: 0,
+		phase: randomInt(0, 9),
 	},
 	wave2: {
 		amplitude: {
@@ -58,6 +58,12 @@ export class Game extends Container {
 				// angle: -2,
 				targetWaveData: randomBasicWaveData(),
 				initialWaveData: randomBasicWaveData(),
+				onMatch: () => {
+					device.reset({
+						targetWaveData: randomBasicWaveData(),
+						initialWaveData: randomBasicWaveData(),
+					});
+				},
 			}),
 		);
 		this.addToTicker(device);

@@ -1,6 +1,7 @@
 import { Color, Graphics, Ticker, type ViewContainerOptions } from "pixi.js";
 import { Container } from "../../PausableContainer";
 import type { Param } from "./Device";
+import { mod } from "../utils/maths";
 
 type BasicWaveData = {
 	base: number;
@@ -30,7 +31,7 @@ const basicWaveValue = (
 	{ base, amplitude, speed, phase }: BasicWaveData,
 	t: number,
 ) => {
-	return base + amplitude * Math.sin(t * speed + phase);
+	return base + ((amplitude * base) / 5) * Math.sin(t * speed * 4 + phase);
 };
 
 const waveValue = (
@@ -39,10 +40,10 @@ const waveValue = (
 	u = 0,
 ): number => {
 	const b = basicWaveValue(amplitude, gt) / 10;
-	const c = phase;
+	const c = phase / 10;
 	const d = getFrequency(basicWaveValue(waves, gt)) * 2 * Math.PI;
 	const e = (speed / 2) * 2 * Math.PI;
-	return b * Math.cos(u * d + c * 2 * Math.PI - gt * e);
+	return b * Math.cos(u * d - c * 2 * Math.PI - gt * e);
 };
 
 const combinedWaveValue = (
@@ -103,6 +104,37 @@ const interpolateCombinedWaveData = (
 	interpolate("baseline", current, target, speed, dt);
 	interpolateWaveData(current.wave1, target.wave1, speed, dt);
 	interpolateWaveData(current.wave2, target.wave2, speed, dt);
+};
+
+const basicWaveDataMatch = (
+	wavedata1: BasicWaveData,
+	wavedata2: BasicWaveData,
+) => {
+	return (
+		wavedata1.base == wavedata2.base &&
+		wavedata1.amplitude == wavedata2.amplitude &&
+		wavedata1.speed == wavedata2.speed
+	); // && mod(wavedata1.phase - wavedata2.phase, 10) == 0;
+};
+
+const waveDataMatch = (wavedata1: WaveData, wavedata2: WaveData) => {
+	return (
+		basicWaveDataMatch(wavedata1.amplitude, wavedata2.amplitude) &&
+		basicWaveDataMatch(wavedata1.waves, wavedata2.waves) &&
+		wavedata1.speed == wavedata2.speed &&
+		mod(wavedata1.phase - wavedata2.phase, 10) == 0
+	);
+};
+
+export const combinedWaveDataMatch = (
+	waveform1: CombinedWaveData,
+	waveform2: CombinedWaveData,
+) => {
+	return (
+		waveform1.baseline == waveform2.baseline &&
+		waveDataMatch(waveform1.wave1, waveform2.wave1) &&
+		waveDataMatch(waveform1.wave2, waveform2.wave2)
+	);
 };
 
 const STEPS = 100;
@@ -193,9 +225,19 @@ export class Waveform extends Container {
 		},
 	};
 
+	phase1Param: Param = {
+		minValue: 0,
+		maxValue: 10,
+		get: () => this.targetWaveData.wave1.phase,
+		change: (delta: number, updateSpeed: number) => {
+			this.updateSpeed = updateSpeed;
+			this.targetWaveData.wave1.phase += delta;
+		},
+	};
+
 	speed1Param: Param = {
-		minValue: -5,
-		maxValue: 5,
+		minValue: -3,
+		maxValue: 3,
 		get: () => this.targetWaveData.wave1.speed,
 		change: (delta: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
@@ -203,9 +245,29 @@ export class Waveform extends Container {
 		},
 	};
 
+	amplitudeMod1Param: Param = {
+		minValue: 0,
+		maxValue: 5,
+		get: () => this.targetWaveData.wave1.amplitude.amplitude,
+		change: (delta: number, updateSpeed: number) => {
+			this.updateSpeed = updateSpeed;
+			this.targetWaveData.wave1.amplitude.amplitude += delta;
+		},
+	};
+
+	amplitudeModFrequency1Param: Param = {
+		minValue: 0,
+		maxValue: 5,
+		get: () => this.targetWaveData.wave1.amplitude.speed,
+		change: (delta: number, updateSpeed: number) => {
+			this.updateSpeed = updateSpeed;
+			this.amplitudeSpeedChange1(delta);
+		},
+	};
+
 	amplitudeSpeedChange1(delta: number) {
 		this.targetWaveData.wave1.amplitude.speed += delta;
-		this.targetWaveData.wave1.amplitude.phase -= this.t * delta;
+		this.targetWaveData.wave1.amplitude.phase -= this.t * delta * 4;
 	}
 
 	amplitudeSpeedChange2(delta: number) {

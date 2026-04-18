@@ -9,20 +9,27 @@ import {
 	type ViewContainerOptions,
 } from "pixi.js";
 import { Container } from "../../PausableContainer";
-import { Waveform, type CombinedWaveData } from "./Waveform";
+import {
+	combinedWaveDataMatch,
+	Waveform,
+	type CombinedWaveData,
+} from "./Waveform";
 import { Label } from "../ui/Label";
 
 export class Device extends Container {
 	blueprint: Waveform;
 	waveform: Waveform;
+	onMatch: () => void;
 
 	constructor(
 		options: ViewContainerOptions & {
 			targetWaveData: CombinedWaveData;
 			initialWaveData: CombinedWaveData;
+			onMatch: () => void;
 		},
 	) {
 		super(options);
+		this.onMatch = options.onMatch;
 		this.addChild(
 			new Sprite({
 				anchor: 0.5,
@@ -85,80 +92,50 @@ export class Device extends Container {
 		this.addChild(
 			new Slider({
 				y: 300,
-				param: this.waveform.speed1Param,
+				param: this.waveform.phase1Param,
 				orientation: "horizontal",
 			}),
 		);
-
-		// // Baseline
-		// this.addChild(
-		// 	new BasicButtons({
-		// 		y: -150,
-		// 		key: "baseline",
-		// 		object: this.waveform.targetWaveData,
-		// 	}),
-		// );
-
-		// // Amplitude
-		// this.addChild(
-		// 	new BasicButtons({
-		// 		y: 0,
-		// 		key: "base",
-		// 		object: this.waveform.targetWaveData.wave1.amplitude,
-		// 	}),
-		// );
-		// this.addChild(
-		// 	new BasicButtons({
-		// 		y: 125,
-		// 		key: "amplitude",
-		// 		object: this.waveform.targetWaveData.wave1.amplitude,
-		// 	}),
-		// );
-		// this.addChild(
-		// 	new TestButtons({
-		// 		y: 250,
-		// 		callback: (delta) => this.waveform.amplitudeSpeedChange1(delta),
-		// 		getValue: () =>
-		// 			this.waveform.targetWaveData.wave1.amplitude.speed,
-		// 	}),
-		// );
-
-		// // Waves
-		// this.addChild(
-		// 	new BasicButtons({
-		// 		y: 400,
-		// 		key: "base",
-		// 		object: this.waveform.targetWaveData.wave1.waves,
-		// 	}),
-		// );
-		// this.addChild(
-		// 	new BasicButtons({
-		// 		y: 525,
-		// 		key: "amplitude",
-		// 		object: this.waveform.targetWaveData.wave1.waves,
-		// 	}),
-		// );
-		// this.addChild(
-		// 	new TestButtons({
-		// 		y: 650,
-		// 		callback: (delta) => this.waveform.wavesSpeedChange1(delta),
-		// 		getValue: () => this.waveform.targetWaveData.wave1.waves.speed,
-		// 	}),
-		// );
-
-		// // Speed
-		// this.addChild(
-		// 	new TestButtons({
-		// 		y: 800,
-		// 		callback: (delta) => this.waveform.speedChange1(delta),
-		// 		getValue: () => this.waveform.targetWaveData.wave1.speed,
-		// 	}),
-		// );
 	}
 
+	isMatching = false;
+	matchedSince = 0;
 	update(ticker: Ticker) {
+		if (this.isMatching) {
+			this.matchedSince += ticker.deltaMS / 1000;
+			if (this.matchedSince > 1) {
+				this.onMatch();
+			}
+		}
 		this.blueprint.update(ticker);
 		this.waveform.update(ticker);
+		if (
+			combinedWaveDataMatch(
+				this.waveform.targetWaveData,
+				this.blueprint.targetWaveData,
+			)
+		) {
+			this.waveform.color = new Color("green");
+			this.eventMode = "none";
+			this.isMatching = true;
+		}
+	}
+
+	reset({
+		targetWaveData,
+		initialWaveData,
+	}: {
+		targetWaveData: CombinedWaveData;
+		initialWaveData: CombinedWaveData;
+	}) {
+		this.blueprint.updateSpeed = 20;
+		this.blueprint.targetWaveData = structuredClone(targetWaveData);
+		this.waveform.updateSpeed = 20;
+		this.waveform.targetWaveData = structuredClone(initialWaveData);
+		this.waveform.color = new Color("#6d3813");
+		this.eventMode = "auto";
+		this.isMatching = false;
+		this.matchedSince = 0;
 	}
 }
 
@@ -407,14 +384,14 @@ export class Knob extends AbstractSlider {
 			90;
 	}
 
-	onclick = (this.ontap = (event: FederatedPointerEvent) => {
-		const clickedY = event.getLocalPosition(this).y;
-		const value = this.param.get();
-		if (clickedY > 0 && value >= this.param.minValue + 1) {
-			this.param.change(-1, 8);
-		} else if (clickedY < 0 && value <= this.param.maxValue - 1) {
-			this.param.change(1, 8);
-		}
-		this.update();
-	});
+	// onclick = (this.ontap = (event: FederatedPointerEvent) => {
+	// 	const clickedY = event.getLocalPosition(this).y;
+	// 	const value = this.param.get();
+	// 	if (clickedY > 0 && value >= this.param.minValue + 1) {
+	// 		this.param.change(-1, 8);
+	// 	} else if (clickedY < 0 && value <= this.param.maxValue - 1) {
+	// 		this.param.change(1, 8);
+	// 	}
+	// 	this.update();
+	// });
 }
