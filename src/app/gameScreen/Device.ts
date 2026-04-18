@@ -62,6 +62,7 @@ export class Device extends Container {
 				texture: Assets.get("Device.png"),
 			}),
 		);
+		this.addChild(new Battery({ x: -165, y: -420 }));
 
 		this.addChild(
 			new Slider({
@@ -119,6 +120,9 @@ export class Device extends Container {
 			this.eventMode = "none";
 			this.isMatching = true;
 		}
+		for (const child of this.children) {
+			child.update?.(ticker);
+		}
 	}
 
 	reset({
@@ -128,7 +132,7 @@ export class Device extends Container {
 		targetWaveData: CombinedWaveData;
 		initialWaveData: CombinedWaveData;
 	}) {
-		this.blueprint.updateSpeed = 20;
+		this.blueprint.updateSpeed = 8;
 		this.blueprint.targetWaveData = structuredClone(targetWaveData);
 		this.waveform.updateSpeed = 20;
 		this.waveform.targetWaveData = structuredClone(initialWaveData);
@@ -394,4 +398,46 @@ export class Knob extends AbstractSlider {
 	// 	}
 	// 	this.update();
 	// });
+}
+
+class Battery extends Container {
+	constructor(options: ViewContainerOptions) {
+		super(options);
+		this.addChild(
+			new Sprite({
+				anchor: 0.5,
+				texture: Assets.get("BatteryBody.png"),
+			}),
+		);
+		this.addChild(
+			new Sprite({
+				anchor: 0.5,
+				texture: Assets.get("Battery01.png"),
+			}),
+		);
+		this.addChild(
+			new Sprite({
+				anchor: 0.5,
+				texture: Assets.get("Battery02.png"),
+			}),
+		);
+		this.addChild(
+			new Sprite({
+				anchor: 0.5,
+				texture: Assets.get("Battery03.png"),
+			}),
+		);
+		this.addChild(
+			new Sprite({
+				anchor: 0.5,
+				texture: Assets.get("Battery04.png"),
+			}),
+		);
+		this.addChild(
+			new Sprite({
+				anchor: 0.5,
+				texture: Assets.get("Battery05.png"),
+			}),
+		);
+	}
 }

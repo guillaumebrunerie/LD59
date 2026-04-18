@@ -42,7 +42,8 @@ const waveValue = (
 	const b = basicWaveValue(amplitude, gt) / 10;
 	const c = phase / 10;
 	const d = getFrequency(basicWaveValue(waves, gt)) * 2 * Math.PI;
-	const e = (speed / 2) * 2 * Math.PI;
+	const e =
+		getFrequency(basicWaveValue(waves, gt)) * (speed / 2) * 2 * Math.PI;
 	return b * Math.cos(u * d - c * 2 * Math.PI - gt * e);
 };
 
@@ -198,7 +199,7 @@ export class Waveform extends Container {
 	baselineParam: Param = {
 		minValue: -5,
 		maxValue: 5,
-		get: () => this.targetWaveData.baseline,
+		get: () => this.waveData.baseline,
 		change: (delta: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
 			this.targetWaveData.baseline += delta;
@@ -208,7 +209,7 @@ export class Waveform extends Container {
 	amplitude1Param: Param = {
 		minValue: 0,
 		maxValue: 10,
-		get: () => this.targetWaveData.wave1.amplitude.base,
+		get: () => this.waveData.wave1.amplitude.base,
 		change: (delta: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
 			this.targetWaveData.wave1.amplitude.base += delta;
@@ -218,7 +219,7 @@ export class Waveform extends Container {
 	frequency1Param: Param = {
 		minValue: 1,
 		maxValue: 7,
-		get: () => this.targetWaveData.wave1.waves.base,
+		get: () => this.waveData.wave1.waves.base,
 		change: (delta: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
 			this.targetWaveData.wave1.waves.base += delta;
@@ -228,7 +229,7 @@ export class Waveform extends Container {
 	phase1Param: Param = {
 		minValue: 0,
 		maxValue: 10,
-		get: () => this.targetWaveData.wave1.phase,
+		get: () => this.waveData.wave1.phase,
 		change: (delta: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
 			this.targetWaveData.wave1.phase += delta;
@@ -238,7 +239,7 @@ export class Waveform extends Container {
 	speed1Param: Param = {
 		minValue: -3,
 		maxValue: 3,
-		get: () => this.targetWaveData.wave1.speed,
+		get: () => this.waveData.wave1.speed,
 		change: (delta: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
 			this.speedChange1(delta);
@@ -248,7 +249,7 @@ export class Waveform extends Container {
 	amplitudeMod1Param: Param = {
 		minValue: 0,
 		maxValue: 5,
-		get: () => this.targetWaveData.wave1.amplitude.amplitude,
+		get: () => this.waveData.wave1.amplitude.amplitude,
 		change: (delta: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
 			this.targetWaveData.wave1.amplitude.amplitude += delta;
@@ -258,7 +259,7 @@ export class Waveform extends Container {
 	amplitudeModFrequency1Param: Param = {
 		minValue: 0,
 		maxValue: 5,
-		get: () => this.targetWaveData.wave1.amplitude.speed,
+		get: () => this.waveData.wave1.amplitude.speed,
 		change: (delta: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
 			this.amplitudeSpeedChange1(delta);
