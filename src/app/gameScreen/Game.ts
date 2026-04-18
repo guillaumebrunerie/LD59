@@ -55,6 +55,7 @@ export class Game extends Container {
 		const device = this.addChild(
 			new Device({
 				scale: 1.7,
+				// angle: -2,
 				targetWaveData: randomBasicWaveData(),
 				initialWaveData: randomBasicWaveData(),
 			}),

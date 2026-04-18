@@ -284,25 +284,6 @@ export abstract class AbstractSlider extends Container {
 		this.param.change(delta, 8);
 		this.update();
 	});
-
-	onclick = (this.ontap = (event: FederatedPointerEvent) => {
-		const clickedY = event.getLocalPosition(this).y;
-		const clickedValue =
-			this.param.minValue +
-			((clickedY - this.minY) / (this.maxY - this.minY)) *
-				(this.param.maxValue - this.param.minValue);
-
-		const value = this.param.get();
-		if (clickedValue < value - 1 && value >= this.param.minValue + 1) {
-			this.param.change(-1, 8);
-		} else if (
-			clickedValue > value + 1 &&
-			value <= this.param.maxValue - 1
-		) {
-			this.param.change(1, 8);
-		}
-		this.update();
-	});
 }
 
 export class Slider extends AbstractSlider {
@@ -355,6 +336,25 @@ export class Slider extends AbstractSlider {
 				(this.param.maxValue - this.param.minValue)) *
 				(this.maxY - this.minY);
 	}
+
+	onclick = (this.ontap = (event: FederatedPointerEvent) => {
+		const clickedY = event.getLocalPosition(this).y;
+		const clickedValue =
+			this.param.minValue +
+			((clickedY - this.minY) / (this.maxY - this.minY)) *
+				(this.param.maxValue - this.param.minValue);
+
+		const value = this.param.get();
+		if (clickedValue < value - 1 && value >= this.param.minValue + 1) {
+			this.param.change(-1, 8);
+		} else if (
+			clickedValue > value + 1 &&
+			value <= this.param.maxValue - 1
+		) {
+			this.param.change(1, 8);
+		}
+		this.update();
+	});
 }
 
 export class Knob extends AbstractSlider {
@@ -406,4 +406,15 @@ export class Knob extends AbstractSlider {
 				angleRange -
 			90;
 	}
+
+	onclick = (this.ontap = (event: FederatedPointerEvent) => {
+		const clickedY = event.getLocalPosition(this).y;
+		const value = this.param.get();
+		if (clickedY > 0 && value >= this.param.minValue + 1) {
+			this.param.change(-1, 8);
+		} else if (clickedY < 0 && value <= this.param.maxValue - 1) {
+			this.param.change(1, 8);
+		}
+		this.update();
+	});
 }
