@@ -6,7 +6,7 @@ import { PauseButton } from "../ui/PauseButton";
 import { PausePopup } from "../pausePopup/PausePopup";
 import { GameMap } from "./GameMap";
 import { Device } from "../gameScreen/Device";
-import { level2 } from "../gameScreen/levels";
+import { level1 } from "../gameScreen/levels";
 import { generateCity } from "./city";
 
 const TILE_SIZE = 300;
@@ -19,40 +19,42 @@ export class MapScreen extends Container {
 	pauseButton: PauseButton;
 	soundButton: SoundButton;
 	ticker: Ticker;
-	level = level2;
+	level = level1;
 	city = generateCity(this.level);
 
 	constructor() {
 		super();
 		this.ticker = new Ticker();
-		this.addToTicker(this);
 
 		this.gameContainer = this.addChild(new Container());
 		this.gameMap = this.gameContainer.addChild(
 			new GameMap({
 				x: -TILE_SIZE * 5,
 				y: -TILE_SIZE * 4,
+				angle: -10,
 				city: this.city,
 				startLevel: (i: number, j: number) => this.startLevel(i, j),
 			}),
 		);
 
-		this.pauseButton = this.addChild(
+		this.addChild(
 			new PauseButton({
 				x: 60,
 				y: 60,
 			}),
 		);
 		this.soundButton = this.addChild(new SoundButton());
+
+		this.addToTicker(this.gameMap);
+		this.ticker.start();
 	}
 
-	device?: Device;
 	startLevel(i: number, j: number) {
 		const antenna = this.city[i][j].antenna;
 		if (!antenna) {
 			throw new Error("No antenna at this location");
 		}
-		const device = this.addChild(
+		const device = this.addChildAt(
 			new Device({
 				scale: 1.7,
 				//angle: -2,
@@ -69,8 +71,9 @@ export class MapScreen extends Container {
 					}
 				},
 			}),
+			1,
 		);
-		this.device = device;
+		this.addToTicker(device);
 		this.gameMap.interactive = false;
 	}
 
@@ -101,11 +104,6 @@ export class MapScreen extends Container {
 				this.ticker.remove(callback);
 			}
 		});
-	}
-
-	update(ticker: Ticker) {
-		this.gameMap.update(ticker);
-		this.device?.update(ticker);
 	}
 
 	show() {

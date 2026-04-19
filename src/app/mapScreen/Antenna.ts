@@ -54,7 +54,7 @@ export class Antenna extends Container {
 		this.antenna.angle = Math.random() * 360;
 		this.shadow.angle = this.antenna.angle;
 
-		this.shockwave = this.addChild(new Graphics({ y: -50 }));
+		this.shockwave = this.addChild(new Graphics({ y: -30 }));
 		this.shockwaveDistance = Math.random() * SHOCKWAVE_MAX_DISTANCE;
 	}
 
@@ -70,8 +70,8 @@ export class Antenna extends Container {
 		}
 		this.shockwave.clear();
 		this.shockwave.circle(0, 0, this.shockwaveDistance).stroke({
-			width: 2,
-			color: 0xffffff,
+			width: 5,
+			color: "#ffffffc0",
 			alpha: 1 - this.shockwaveDistance / SHOCKWAVE_MAX_DISTANCE,
 		});
 	}

@@ -1,5 +1,6 @@
 import { Assets, Sprite, type ViewContainerOptions } from "pixi.js";
 import { Container } from "../../PausableContainer";
+import { Antenna } from "./Antenna";
 
 export class Building extends Container {
 	buildingId: string;

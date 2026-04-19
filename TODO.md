@@ -1,6 +1,7 @@
-- Preserve state of waveforms
-- Fix glitch when releasing frequency
+- Fix pause bug
 - More levels
+- Screen shake and blink green screen when matching
+- Fix background and moving the map when it’s rotated
 
 - Battery
 - Start screen
