@@ -8,7 +8,6 @@ import { Container } from "../../PausableContainer";
 import { Tile } from "./Tile";
 import { Player } from "./Player";
 import { Building } from "./Building";
-import { level1 } from "../gameScreen/levels";
 import { Antenna } from "./Antenna";
 import { hasBuildingAt, type City } from "./city";
 
@@ -16,7 +15,6 @@ const TILE_SIZE = 300;
 
 export class GameMap extends Container {
 	player: Player;
-	level = level1;
 	startLevel: (i: number, j: number) => void;
 	antennas: (Antenna | undefined)[][] = [];
 	city: City;
@@ -31,6 +29,7 @@ export class GameMap extends Container {
 		this.startLevel = options.startLevel;
 		this.city = options.city;
 		const city = this.city;
+
 		city.forEach((row, j) => {
 			row.forEach((v, i) => {
 				if (!v) {
@@ -144,9 +143,9 @@ export class GameMap extends Container {
 		this.isPressed = true;
 		this.movedBy = 0;
 		this.previousPoint = event.getLocalPosition(this);
-		this.previousParent = event.getLocalPosition(this.parent);
+		this.previousParent = event.getLocalPosition(this.parent!);
 		this.benchTime = performance.now();
-		this.benchPosition = event.getLocalPosition(this.parent);
+		this.benchPosition = event.getLocalPosition(this.parent!);
 		this.deltaX = 0;
 		this.deltaY = 0;
 		this.inertiaX = 0;
@@ -167,7 +166,7 @@ export class GameMap extends Container {
 		}
 
 		if (performance.now() - this.benchTime > 20) {
-			const newBenchPosition = event.getLocalPosition(this.parent);
+			const newBenchPosition = event.getLocalPosition(this.parent!);
 			this.inertiaX =
 				(newBenchPosition.x - this.benchPosition.x) /
 				(performance.now() - this.benchTime);
@@ -178,7 +177,7 @@ export class GameMap extends Container {
 			this.benchPosition = newBenchPosition;
 		}
 
-		const newParentPos = event.getLocalPosition(this.parent);
+		const newParentPos = event.getLocalPosition(this.parent!);
 		const dx = newParentPos.x - this.previousParent.x;
 		const dy = newParentPos.y - this.previousParent.y;
 		this.previousParent = newParentPos;

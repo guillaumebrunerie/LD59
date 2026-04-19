@@ -15,11 +15,11 @@ export type KnobType = {
 		| "amplitude1"
 		| "frequency1"
 		| "speed1"
-		| "phase1"
+		| "offset1"
 		| "amplitude2"
 		| "frequency2"
 		| "speed2"
-		| "phase2";
+		| "offset2";
 };
 
 export type Level = {
@@ -29,9 +29,7 @@ export type Level = {
 			amplitude?: {
 				base?: Range;
 			};
-			waves?: {
-				base?: Range;
-			};
+			waves?: Range;
 			speed?: Range;
 			offset?: Range;
 			phase?: Range;
@@ -40,9 +38,7 @@ export type Level = {
 			amplitude?: {
 				base?: Range;
 			};
-			waves?: {
-				base?: Range;
-			};
+			waves?: Range;
 			speed?: Range;
 			offset?: Range;
 			phase?: Range;
@@ -65,12 +61,7 @@ const zeroWaveData = (): CombinedWaveData => ({
 			speed: 1,
 			phase: 0,
 		},
-		waves: {
-			base: 0,
-			amplitude: 0,
-			speed: 1,
-			phase: 0,
-		},
+		waves: 0,
 		speed: 0,
 		offset: 0,
 		phase: 0,
@@ -82,12 +73,7 @@ const zeroWaveData = (): CombinedWaveData => ({
 			speed: 1,
 			phase: 0,
 		},
-		waves: {
-			base: 0,
-			amplitude: 0,
-			speed: 1,
-			phase: 0,
-		},
+		waves: 0,
 		speed: 0,
 		offset: 0,
 		phase: 0,
@@ -115,13 +101,13 @@ export const pickCombinedWaveData = (level: Level): CombinedWaveData => {
 	pickRange(result, "baseline", data.baseline);
 
 	pickRange(result.wave1.amplitude, "base", data.wave1?.amplitude?.base);
-	pickRange(result.wave1.waves, "base", data.wave1?.waves?.base);
+	pickRange(result.wave1, "waves", data.wave1?.waves);
 	pickRange(result.wave1, "speed", data.wave1?.speed);
 	pickRange(result.wave1, "offset", data.wave1?.offset);
 	pickRange(result.wave1, "phase", data.wave1?.phase);
 
 	pickRange(result.wave2.amplitude, "base", data.wave2?.amplitude?.base);
-	pickRange(result.wave2.waves, "base", data.wave2?.waves?.base);
+	pickRange(result.wave2, "waves", data.wave2?.waves);
 	pickRange(result.wave2, "speed", data.wave2?.speed);
 	pickRange(result.wave2, "offset", data.wave2?.offset);
 	pickRange(result.wave2, "phase", data.wave2?.phase);

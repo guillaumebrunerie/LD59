@@ -1,6 +1,5 @@
 import { Assets, Sprite, type ViewContainerOptions } from "pixi.js";
 import { Container } from "../../PausableContainer";
-import type { Device } from "../gameScreen/Device";
 
 export class Tile extends Container {
 	tileId: string;

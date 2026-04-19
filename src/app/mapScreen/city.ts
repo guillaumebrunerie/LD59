@@ -1,8 +1,4 @@
-import {
-	pickBothWaveData,
-	pickCombinedWaveData,
-	type Level,
-} from "../gameScreen/levelsUtils";
+import { pickBothWaveData, type Level } from "../gameScreen/levelsUtils";
 import type { CombinedWaveData } from "../gameScreen/Waveform";
 
 export type City = {

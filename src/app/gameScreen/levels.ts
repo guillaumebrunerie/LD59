@@ -5,7 +5,7 @@ export const level1: Level = {
 		baseline: { min: -5, max: 5 },
 		wave1: {
 			amplitude: { base: { min: 1, max: 10 } },
-			waves: { base: { min: 1, max: 7 } },
+			waves: { min: 1, max: 7 },
 			speed: { min: -2, max: 2 },
 			offset: { min: 0, max: 8, step: 2 },
 		},
@@ -45,20 +45,23 @@ export const level2: Level = {
 	waves: {
 		wave1: {
 			amplitude: { base: { min: 6, max: 10 } },
-			waves: { base: { min: 1, max: 3, step: 0.5 } },
-			speed: { min: -1, max: 1, step: 0.5 },
-			phase: { min: 0, max: 8, step: 2 },
+			waves: { min: 1, max: 3, step: 0.5 },
+			speed: { min: -0.5, max: 0.5, step: 0.2 },
+			offset: { min: 0, max: 8, step: 2 },
 		},
 		wave2: {
 			amplitude: { base: { min: 1, max: 5 } },
-			waves: { base: { min: 8, max: 10, step: 0.5 } },
-			speed: { min: -1, max: 1, step: 0.5 },
-			phase: { min: 0, max: 8, step: 2 },
+			waves: { min: 8, max: 10, step: 0.5 },
+			speed: { min: -0.5, max: 0.5, step: 0.2 },
+			offset: { min: 0, max: 8, step: 2 },
 		},
 	},
 	condition: (waveData) =>
 		(waveData.wave1.speed != 0 || waveData.wave2.speed != 0) &&
 		waveData.wave1.speed != waveData.wave2.speed,
+	conditionInitial: (blueprint, waveData) =>
+		waveData.wave1.speed == blueprint.wave1.speed &&
+		waveData.wave2.speed == blueprint.wave2.speed,
 	device: [
 		{
 			type: "vertical-slider",
@@ -76,7 +79,7 @@ export const level2: Level = {
 			type: "horizontal-slider",
 			x: 50,
 			y: 100,
-			param: "speed1",
+			param: "offset1",
 		},
 
 		{
@@ -95,7 +98,7 @@ export const level2: Level = {
 			type: "horizontal-slider",
 			x: 50,
 			y: 400,
-			param: "speed2",
+			param: "offset2",
 		},
 	],
 };

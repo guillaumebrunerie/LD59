@@ -3,7 +3,7 @@ import { FancyButton } from "@pixi/ui";
 import { engine } from "../../getEngine";
 import { Assets, Graphics, Sprite } from "pixi.js";
 import { SoundButton } from "../ui/SoundButton";
-import { GameScreen } from "../gameScreen/GameScreen";
+import { MapScreen } from "../mapScreen/MapScreen";
 
 export class StartScreen extends Container {
 	public static assetBundles = ["main"];
@@ -43,7 +43,7 @@ export class StartScreen extends Container {
 	async startGame() {
 		engine().audio.playMusic("Music", { volume: 0.3 });
 		engine().audio.playSound("Click");
-		await engine().navigation.showScreen(GameScreen);
+		await engine().navigation.showScreen(MapScreen);
 	}
 
 	async hide() {

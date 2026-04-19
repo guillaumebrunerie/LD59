@@ -6,7 +6,7 @@ import { PauseButton } from "../ui/PauseButton";
 import { PausePopup } from "../pausePopup/PausePopup";
 import { GameMap } from "./GameMap";
 import { Device } from "../gameScreen/Device";
-import { level1 } from "../gameScreen/levels";
+import { level2 } from "../gameScreen/levels";
 import { generateCity } from "./city";
 
 const TILE_SIZE = 300;
@@ -19,7 +19,7 @@ export class MapScreen extends Container {
 	pauseButton: PauseButton;
 	soundButton: SoundButton;
 	ticker: Ticker;
-	level = level1;
+	level = level2;
 	city = generateCity(this.level);
 
 	constructor() {
@@ -55,7 +55,7 @@ export class MapScreen extends Container {
 		const device = this.addChild(
 			new Device({
 				scale: 1.7,
-				angle: -2,
+				//angle: -2,
 				x: 540,
 				y: 1920 / 2,
 				level: this.level,

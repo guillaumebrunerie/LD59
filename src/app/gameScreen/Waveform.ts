@@ -13,7 +13,7 @@ type BasicWaveData = {
 
 type WaveData = {
 	amplitude: BasicWaveData;
-	waves: BasicWaveData; // Maybe should be number
+	waves: number;
 	speed: number;
 	offset: number;
 	phase: number;
@@ -43,8 +43,8 @@ const waveValue = (
 ): number => {
 	const b = basicWaveValue(amplitude, gt) / 10;
 	const c = (offset + phase) / 10;
-	const d = getFrequency(basicWaveValue(waves, gt));
-	const e = getFrequency(basicWaveValue(waves, gt)) * (speed / 4);
+	const d = getFrequency(waves);
+	const e = getFrequency(waves) * (speed / 4);
 	return b * Math.cos((u * d - gt * e - c) * 2 * Math.PI);
 };
 
@@ -70,7 +70,7 @@ const basicWaveDataMatch = (
 const waveDataMatch = (wavedata1: WaveData, wavedata2: WaveData) => {
 	return (
 		basicWaveDataMatch(wavedata1.amplitude, wavedata2.amplitude) &&
-		basicWaveDataMatch(wavedata1.waves, wavedata2.waves) &&
+		wavedata1.waves == wavedata2.waves &&
 		wavedata1.speed == wavedata2.speed &&
 		mod(
 			wavedata1.offset +
@@ -93,12 +93,11 @@ export const combinedWaveDataMatch = (
 	);
 };
 
-const STEPS = 300;
+const STEPS = 100;
 
 export class Waveform extends Container {
 	curve: Graphics;
 	waveData: CombinedWaveData;
-	targetPhase1 = 0;
 	t = 0;
 	w: number;
 	h: number;
@@ -123,25 +122,30 @@ export class Waveform extends Container {
 		this.color = options.color;
 		this.level = options.level;
 		this.draw();
+		// this.filters = [new PixelateFilter(20)];
 	}
 
 	updateSpeed = 8;
 	update(ticker: Ticker) {
-		this.t += ticker.deltaMS / 1000;
-
-		const speed = 3;
 		const dt = ticker.deltaMS / 1000;
-		const targetPhase1 = Math.round(this.waveData.wave1.phase / 2) * 2;
-		let value = this.waveData.wave1.phase;
-		if (value < targetPhase1) {
-			value += dt * speed;
-			value = Math.min(value, targetPhase1);
-		}
-		if (value > targetPhase1) {
-			value -= dt * speed;
-			value = Math.max(value, targetPhase1);
-		}
-		this.waveData.wave1.phase = value;
+		this.t += dt;
+
+		const speed = 5;
+		const snapPhase = (phase: number) => {
+			const target = Math.round(phase / 2) * 2;
+			let value = phase;
+			if (value < target) {
+				value += dt * speed;
+				value = Math.min(value, target);
+			}
+			if (value > target) {
+				value -= dt * speed;
+				value = Math.max(value, target);
+			}
+			return value;
+		};
+		this.waveData.wave1.phase = snapPhase(this.waveData.wave1.phase);
+		this.waveData.wave2.phase = snapPhase(this.waveData.wave2.phase);
 
 		this.draw();
 	}
@@ -158,7 +162,7 @@ export class Waveform extends Container {
 				this.curve.lineTo(x, y);
 			}
 		}
-		this.curve.stroke({ width: 5, color: this.color });
+		this.curve.stroke({ width: 3, color: this.color, join: "round" });
 	}
 
 	baselineParam(): Param {
@@ -183,16 +187,12 @@ export class Waveform extends Container {
 
 	frequencyXParam(key: "wave1" | "wave2"): Param {
 		return {
-			range: assertReturn(this.level.waves[key]?.waves?.base),
-			get: () => this.waveData[key].waves.base,
+			range: assertReturn(this.level.waves[key]?.waves),
+			get: () => this.waveData[key].waves,
 			set: (value: number) => {
-				const oldFrequency = getFrequency(
-					this.waveData[key].waves.base,
-				);
-				this.waveData[key].waves.base = value;
-				const newFrequency = getFrequency(
-					this.waveData[key].waves.base,
-				);
+				const oldFrequency = getFrequency(this.waveData[key].waves);
+				this.waveData[key].waves = value;
+				const newFrequency = getFrequency(this.waveData[key].waves);
 				const delta = newFrequency - oldFrequency;
 				this.waveData[key].phase -=
 					this.t * delta * this.waveData[key].speed * 2.5;
@@ -220,9 +220,7 @@ export class Waveform extends Container {
 				this.waveData[key].phase -=
 					this.t *
 					delta *
-					getFrequency(
-						basicWaveValue(this.waveData[key].waves, this.t),
-					) *
+					getFrequency(this.waveData[key].waves) *
 					2.5;
 				// this.targetWaveData[key].phase =
 				// 	Math.round(this.waveData[key].phase / 2) * 2;

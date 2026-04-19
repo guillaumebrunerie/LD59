@@ -6,13 +6,11 @@ import { CreationEngine } from "./engine/engine";
 import { setEngine } from "./getEngine";
 import { LoadScreen } from "./app/loadScreen/LoadScreen";
 import { userSettings } from "./app/utils/userSettings";
-import { StartScreen } from "./app/startScreen/StartScreen";
 
 /**
  * Importing these modules will automatically register their plugins with the engine.
  */
 import "@pixi/sound";
-import { GameScreen } from "./app/gameScreen/GameScreen";
 import { MapScreen } from "./app/mapScreen/MapScreen";
 // import "pixi.js/advanced-blend-modes";
 // import "@esotericsoftware/spine-pixi-v8";
