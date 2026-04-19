@@ -21,7 +21,8 @@ export class Player extends Container {
 		this.targetPosition = this.position.clone();
 	}
 
-	speed = 1000;
+	minSpeed = 200;
+	maxSpeed = 1000;
 	update(ticker: Ticker) {
 		if (this.targetPosition.equals(this.position)) {
 			return;
@@ -42,10 +43,21 @@ export class Player extends Container {
 			}
 		}
 
+		let speed = this.maxSpeed;
+		const realDistance = this.targetPosition
+			.clone()
+			.subtract(this.position)
+			.magnitude();
+		if (realDistance < 150) {
+			speed =
+				this.minSpeed +
+				(realDistance / 150) * (this.maxSpeed - this.minSpeed);
+		}
+
 		const direction = tmpTargetPosition.clone().subtract(this.position);
 		const distance = direction.magnitude();
 		const stepDistance = Math.min(
-			(ticker.deltaMS / 1000) * this.speed,
+			(ticker.deltaMS / 1000) * speed,
 			distance,
 		);
 		this.position = this.position.add(
