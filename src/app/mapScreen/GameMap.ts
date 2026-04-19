@@ -12,6 +12,7 @@ import { Antenna } from "./Antenna";
 import { hasBuildingAt, type City } from "./city";
 
 const TILE_SIZE = 300;
+const playerOffset = -15;
 
 export class GameMap extends Container {
 	player: Player;
@@ -59,7 +60,7 @@ export class GameMap extends Container {
 		this.player = this.addChild(
 			new Player({
 				x: TILE_SIZE / 2 + TILE_SIZE * 5,
-				y: TILE_SIZE * 4,
+				y: TILE_SIZE * 4 + playerOffset,
 				angle: 90,
 			}),
 		);
@@ -215,7 +216,7 @@ export class GameMap extends Container {
 				return;
 			}
 			this.player.targetPosition = buildingPosition;
-			this.player.targetPosition.y += TILE_SIZE / 2;
+			this.player.targetPosition.y += TILE_SIZE / 2 + playerOffset;
 			this.player.onReachedTarget = () => {
 				this.startLevel(buildingI, buildingJ);
 				this.player.onReachedTarget = undefined;
