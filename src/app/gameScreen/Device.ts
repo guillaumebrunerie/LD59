@@ -104,7 +104,6 @@ export class Device extends Container {
 		this.addChild(
 			new Sprite({
 				anchor: 0.5,
-				y: -340,
 				texture: Assets.get("DeviceScreen.png"),
 			}),
 		);
