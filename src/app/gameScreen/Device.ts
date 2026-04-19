@@ -15,6 +15,61 @@ import {
 	type CombinedWaveData,
 } from "./Waveform";
 import { Label } from "../ui/Label";
+import type { Level, Range } from "./levelsUtils";
+
+const getParamAndTarget = (
+	waveform: Waveform,
+	blueprint: Waveform,
+	paramKey: Level["device"][number]["param"],
+) => {
+	switch (paramKey) {
+		case "baseline":
+			return {
+				param: waveform.baselineParam(),
+				target: blueprint.baselineParam().get(),
+			};
+		case "amplitude1":
+			return {
+				param: waveform.amplitudeXParam("wave1"),
+				target: blueprint.amplitudeXParam("wave1").get(),
+			};
+		case "frequency1":
+			return {
+				param: waveform.frequencyXParam("wave1"),
+				target: blueprint.frequencyXParam("wave1").get(),
+			};
+		case "phase1":
+			return {
+				param: waveform.phaseXParam("wave1"),
+				target: blueprint.phaseXParam("wave1").get(),
+			};
+		case "speed1":
+			return {
+				param: waveform.speedXParam("wave1"),
+				target: blueprint.speedXParam("wave1").get(),
+			};
+		case "amplitude2":
+			return {
+				param: waveform.amplitudeXParam("wave2"),
+				target: blueprint.amplitudeXParam("wave2").get(),
+			};
+		case "frequency2":
+			return {
+				param: waveform.frequencyXParam("wave2"),
+				target: blueprint.frequencyXParam("wave2").get(),
+			};
+		case "phase2":
+			return {
+				param: waveform.phaseXParam("wave2"),
+				target: blueprint.phaseXParam("wave2").get(),
+			};
+		case "speed2":
+			return {
+				param: waveform.speedXParam("wave2"),
+				target: blueprint.speedXParam("wave2").get(),
+			};
+	}
+};
 
 export class Device extends Container {
 	blueprint: Waveform;
@@ -26,6 +81,7 @@ export class Device extends Container {
 			targetWaveData: CombinedWaveData;
 			initialWaveData: CombinedWaveData;
 			onMatch: () => void;
+			level: Level;
 		},
 	) {
 		super(options);
@@ -47,6 +103,7 @@ export class Device extends Container {
 				...waveformOptions,
 				waveData: options.targetWaveData,
 				color: new Color("#6d381340"),
+				level: options.level,
 			}),
 		);
 		this.waveform = this.addChild(
@@ -54,6 +111,7 @@ export class Device extends Container {
 				...waveformOptions,
 				waveData: options.initialWaveData,
 				color: new Color("#6d3813"),
+				level: options.level,
 			}),
 		);
 		this.addChild(
@@ -64,52 +122,46 @@ export class Device extends Container {
 		);
 		this.addChild(new Battery({ x: -165, y: -420 }));
 
-		this.addChild(
-			new Slider({
-				x: -125,
-				y: 100,
-				orientation: "vertical",
-				param: this.waveform.baselineParam,
-				target: this.blueprint.baselineParam.get(),
-			}),
-		);
-
-		this.addChild(
-			new Slider({
-				x: 125,
-				y: 100,
-				orientation: "vertical",
-				param: this.waveform.amplitude1Param,
-				target: this.blueprint.amplitude1Param.get(),
-			}),
-		);
-
-		this.addChild(
-			new Knob({
-				x: 0,
-				y: 100,
-				param: this.waveform.frequency1Param,
-				target: this.blueprint.frequency1Param.get(),
-			}),
-		);
-
-		// this.addChild(
-		// 	new Slider({
-		// 		y: 300,
-		// 		orientation: "horizontal",
-		// 		param: this.waveform.phase1Param,
-		// 		target: this.blueprint.phase1Param.get(),
-		// 	}),
-		// );
-
-		this.addChild(
-			new Slider({
-				y: 300,
-				orientation: "horizontal",
-				param: this.waveform.speed1Param,
-				target: this.blueprint.speed1Param.get(),
-			}),
-		);
+		for (const knobSpec of options.level.device) {
+			const { param, target } = getParamAndTarget(
+				this.waveform,
+				this.blueprint,
+				knobSpec.param,
+			);
+			switch (knobSpec.type) {
+				case "vertical-slider":
+					this.addChild(
+						new Slider({
+							x: knobSpec.x,
+							y: knobSpec.y,
+							orientation: "vertical",
+							param,
+							target,
+						}),
+					);
+					break;
+				case "horizontal-slider":
+					this.addChild(
+						new Slider({
+							x: knobSpec.x,
+							y: knobSpec.y,
+							orientation: "horizontal",
+							param,
+							target,
+						}),
+					);
+					break;
+				case "knob":
+					this.addChild(
+						new Knob({
+							x: knobSpec.x,
+							y: knobSpec.y,
+							param,
+							target,
+						}),
+					);
+			}
+		}
 	}
 
 	isMatching = false;
@@ -209,8 +261,7 @@ export class BasicButtons<T extends string> extends Container {
 }
 
 export type Param = {
-	minValue: number;
-	maxValue: number;
+	range: Range;
 	get: () => number;
 	set: (newValue: number, updateSpeed: number) => void;
 };
@@ -250,15 +301,16 @@ export abstract class AbstractSlider extends Container {
 		const delta = event.getLocalPosition(this).y - this.previousY;
 		const valueDelta =
 			(-delta / (this.minY - this.maxY)) *
-			(this.param.maxValue - this.param.minValue);
+			(this.param.range.max - this.param.range.min);
 		const previousValue = this.param.get();
 		const newValue = Math.max(
-			this.param.minValue,
-			Math.min(this.param.maxValue, previousValue + valueDelta),
+			this.param.range.min,
+			Math.min(this.param.range.max, previousValue + valueDelta),
 		);
 		const actualValueDelta = newValue - previousValue;
 		const actualDelta =
-			(-actualValueDelta / (this.param.maxValue - this.param.minValue)) *
+			(-actualValueDelta /
+				(this.param.range.max - this.param.range.min)) *
 			(this.minY - this.maxY);
 		this.previousY += actualDelta;
 		this.param.set(newValue, Infinity);
@@ -267,14 +319,28 @@ export abstract class AbstractSlider extends Container {
 
 	onpointerup = (this.onpointerupoutside = () => {
 		this.isPressed = false;
-		if (this.param.get() < this.target) {
-			this.param.set(Math.ceil(this.param.get()), 8);
-		} else if (this.param.get() > this.target) {
-			this.param.set(Math.floor(this.param.get()), 8);
-		}
+		this.param.set(
+			snap(this.param.range, this.param.get(), this.target),
+			8,
+		);
 		this.update();
 	});
 }
+
+const snap = (range: Range, value: number, target: number) => {
+	const { min, max, step = 1 } = range;
+	// const nMin = min / step;
+	// const nMax = max / step;
+	const nTarget = target / step;
+
+	let nValue = value / step;
+	if (nValue < nTarget) {
+		nValue = Math.ceil(nValue);
+	} else if (nValue > nTarget) {
+		nValue = Math.floor(nValue);
+	}
+	return nValue * step;
+};
 
 export class Slider extends AbstractSlider {
 	knob: Sprite;
@@ -320,8 +386,8 @@ export class Slider extends AbstractSlider {
 	update() {
 		this.knob.y =
 			this.minY +
-			((this.param.get() - this.param.minValue) /
-				(this.param.maxValue - this.param.minValue)) *
+			((this.param.get() - this.param.range.min) /
+				(this.param.range.max - this.param.range.min)) *
 				(this.maxY - this.minY);
 	}
 
@@ -387,8 +453,8 @@ export class Knob extends AbstractSlider {
 		const angleRange = 120;
 		this.knob.angle =
 			-angleRange / 2 +
-			((this.param.get() - this.param.minValue) /
-				(this.param.maxValue - this.param.minValue)) *
+			((this.param.get() - this.param.range.min) /
+				(this.param.range.max - this.param.range.min)) *
 				angleRange -
 			90;
 	}

@@ -2,6 +2,7 @@ import { Color, Graphics, Ticker, type ViewContainerOptions } from "pixi.js";
 import { Container } from "../../PausableContainer";
 import type { Param } from "./Device";
 import { mod } from "../utils/maths";
+import { assertReturn, type Level } from "./levelsUtils";
 
 type BasicWaveData = {
 	base: number;
@@ -139,7 +140,7 @@ export const combinedWaveDataMatch = (
 	);
 };
 
-const STEPS = 100;
+const STEPS = 300;
 
 export class Waveform extends Container {
 	curve: Graphics;
@@ -149,6 +150,7 @@ export class Waveform extends Container {
 	w: number;
 	h: number;
 	color: Color;
+	level: Level;
 
 	constructor(
 		options: ViewContainerOptions & {
@@ -156,6 +158,7 @@ export class Waveform extends Container {
 			w: number;
 			h: number;
 			color: Color;
+			level: Level;
 		},
 	) {
 		super(options);
@@ -166,6 +169,7 @@ export class Waveform extends Container {
 		this.w = options.w;
 		this.h = options.h;
 		this.color = options.color;
+		this.level = options.level;
 		this.draw();
 	}
 
@@ -197,101 +201,101 @@ export class Waveform extends Container {
 		this.curve.stroke({ width: 5, color: this.color });
 	}
 
-	baselineParam: Param = {
-		minValue: -5,
-		maxValue: 5,
-		get: () => this.targetWaveData.baseline,
-		set: (value: number, updateSpeed: number) => {
-			this.updateSpeed = updateSpeed;
-			this.targetWaveData.baseline = value;
-		},
-	};
-
-	amplitude1Param: Param = {
-		minValue: 0,
-		maxValue: 10,
-		get: () => this.targetWaveData.wave1.amplitude.base,
-		set: (value: number, updateSpeed: number) => {
-			this.updateSpeed = updateSpeed;
-			this.targetWaveData.wave1.amplitude.base = value;
-		},
-	};
-
-	frequency1Param: Param = {
-		minValue: 1,
-		maxValue: 7,
-		get: () => this.targetWaveData.wave1.waves.base,
-		set: (value: number, updateSpeed: number) => {
-			this.updateSpeed = updateSpeed;
-			const oldFrequency = getFrequency(
-				this.targetWaveData.wave1.waves.base,
-			);
-			this.targetWaveData.wave1.waves.base = value;
-			const newFrequency = getFrequency(
-				this.targetWaveData.wave1.waves.base,
-			);
-			const delta = newFrequency - oldFrequency;
-			this.waveData.wave1.phase -=
-				this.t * delta * this.targetWaveData.wave1.speed * 2.5;
-			this.targetWaveData.wave1.phase =
-				Math.round(this.waveData.wave1.phase / 2) * 2;
-		},
-	};
-
-	phase1Param: Param = {
-		minValue: 0,
-		maxValue: 9,
-		get: () => mod(this.targetWaveData.wave1.phase, 10),
-		set: (value: number, updateSpeed: number) => {
-			this.updateSpeed = updateSpeed;
-			this.targetWaveData.wave1.phase = value;
-		},
-	};
-
-	speed1Param: Param = {
-		minValue: -5,
-		maxValue: 5,
-		get: () => this.targetWaveData.wave1.speed,
-		set: (value: number, updateSpeed: number) => {
-			this.updateSpeed = updateSpeed;
-			const delta = value - this.targetWaveData.wave1.speed;
-			this.targetWaveData.wave1.speed = value;
-			this.waveData.wave1.phase -=
-				this.t *
-				delta *
-				getFrequency(
-					basicWaveValue(this.waveData.wave1.waves, this.t),
-				) *
-				2.5;
-			this.targetWaveData.wave1.phase =
-				Math.round(this.waveData.wave1.phase / 2) * 2;
-		},
-	};
-
-	amplitudeMod1Param: Param = {
-		minValue: 0,
-		maxValue: 5,
-		get: () => this.targetWaveData.wave1.amplitude.amplitude,
-		set: (value: number, updateSpeed: number) => {
-			this.updateSpeed = updateSpeed;
-			this.targetWaveData.wave1.amplitude.amplitude = value;
-		},
-	};
-
-	amplitudeModFrequency1Param: Param = {
-		minValue: 0,
-		maxValue: 5,
-		get: () => this.targetWaveData.wave1.amplitude.speed,
-		set: (value: number, updateSpeed: number) => {
-			this.updateSpeed = updateSpeed;
-			const delta = value - this.targetWaveData.wave1.amplitude.speed;
-			this.targetWaveData.wave1.amplitude.speed = value;
-			this.targetWaveData.wave1.amplitude.phase -= this.t * delta * 4;
-		},
-	};
-
-	amplitudeSpeedChange2(delta: number) {
-		this.targetWaveData.wave2.amplitude.speed += delta;
-		this.targetWaveData.wave2.amplitude.phase -= this.t * delta;
+	baselineParam(): Param {
+		return {
+			range: assertReturn(this.level.waves.baseline),
+			get: () => this.targetWaveData.baseline,
+			set: (value: number, updateSpeed: number) => {
+				this.updateSpeed = updateSpeed;
+				this.targetWaveData.baseline = value;
+			},
+		};
 	}
+
+	amplitudeXParam(key: "wave1" | "wave2"): Param {
+		return {
+			range: assertReturn(this.level.waves[key]?.amplitude?.base),
+			get: () => this.targetWaveData[key].amplitude.base,
+			set: (value: number, updateSpeed: number) => {
+				this.updateSpeed = updateSpeed;
+				this.targetWaveData[key].amplitude.base = value;
+			},
+		};
+	}
+
+	frequencyXParam(key: "wave1" | "wave2"): Param {
+		return {
+			range: assertReturn(this.level.waves[key]?.waves?.base),
+			get: () => this.targetWaveData[key].waves.base,
+			set: (value: number, updateSpeed: number) => {
+				this.updateSpeed = updateSpeed;
+				const oldFrequency = getFrequency(
+					this.targetWaveData[key].waves.base,
+				);
+				this.targetWaveData[key].waves.base = value;
+				const newFrequency = getFrequency(
+					this.targetWaveData[key].waves.base,
+				);
+				const delta = newFrequency - oldFrequency;
+				this.waveData[key].phase -=
+					this.t * delta * this.targetWaveData[key].speed * 2.5;
+				this.targetWaveData[key].phase =
+					Math.round(this.waveData[key].phase / 2) * 2;
+			},
+		};
+	}
+
+	phaseXParam(key: "wave1" | "wave2"): Param {
+		return {
+			range: assertReturn(this.level.waves[key]?.phase),
+			get: () => mod(this.targetWaveData[key].phase, 10),
+			set: (value: number, updateSpeed: number) => {
+				this.updateSpeed = updateSpeed;
+				this.targetWaveData[key].phase = value;
+			},
+		};
+	}
+
+	speedXParam(key: "wave1" | "wave2"): Param {
+		return {
+			range: assertReturn(this.level.waves[key]?.speed),
+			get: () => this.targetWaveData[key].speed,
+			set: (value: number, updateSpeed: number) => {
+				this.updateSpeed = updateSpeed;
+				const delta = value - this.targetWaveData[key].speed;
+				this.targetWaveData[key].speed = value;
+				this.waveData[key].phase -=
+					this.t *
+					delta *
+					getFrequency(
+						basicWaveValue(this.waveData[key].waves, this.t),
+					) *
+					2.5;
+				this.targetWaveData[key].phase =
+					Math.round(this.waveData[key].phase / 2) * 2;
+			},
+		};
+	}
+
+	// amplitudeMod1Param: Param = {
+	// 	minValue: 0,
+	// 	maxValue: 5,
+	// 	get: () => this.targetWaveData.wave1.amplitude.amplitude,
+	// 	set: (value: number, updateSpeed: number) => {
+	// 		this.updateSpeed = updateSpeed;
+	// 		this.targetWaveData.wave1.amplitude.amplitude = value;
+	// 	},
+	// };
+
+	// amplitudeModFrequency1Param: Param = {
+	// 	minValue: 0,
+	// 	maxValue: 5,
+	// 	get: () => this.targetWaveData.wave1.amplitude.speed,
+	// 	set: (value: number, updateSpeed: number) => {
+	// 		this.updateSpeed = updateSpeed;
+	// 		const delta = value - this.targetWaveData.wave1.amplitude.speed;
+	// 		this.targetWaveData.wave1.amplitude.speed = value;
+	// 		this.targetWaveData.wave1.amplitude.phase -= this.t * delta * 4;
+	// 	},
+	// };
 }

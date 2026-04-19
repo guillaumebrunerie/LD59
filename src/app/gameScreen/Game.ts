@@ -3,50 +3,16 @@ import { Container } from "../../PausableContainer";
 import { engine } from "../../getEngine";
 import { MapScreen } from "../mapScreen/MapScreen";
 import { Device } from "./Device";
-import { randomInt } from "../../engine/utils/random";
+import { level1, level2 } from "./levels";
+import { pickCombinedWaveData } from "./levelsUtils";
 
 export const gameWidth = 1000;
 export const gameHeight = 1000;
 
-const randomBasicWaveData = () => ({
-	baseline: randomInt(-5, 5),
-	wave1: {
-		amplitude: {
-			base: randomInt(1, 10),
-			amplitude: 0, //randomInt(0, 5),
-			speed: 3, //randomInt(0, 5),
-			phase: 0,
-		},
-		waves: {
-			base: randomInt(1, 7),
-			amplitude: 0,
-			speed: 0,
-			phase: 0,
-		},
-		speed: randomInt(-4, 4),
-		phase: randomInt(0, 4) * 2,
-	},
-	wave2: {
-		amplitude: {
-			base: 0,
-			amplitude: 0,
-			speed: 0,
-			phase: 0,
-		},
-		waves: {
-			base: 0,
-			amplitude: 0,
-			speed: 0,
-			phase: 0,
-		},
-		speed: 0,
-		phase: 0,
-	},
-});
-
 export class Game extends Container {
 	ticker: Ticker;
 	device?: Device;
+	level = level2;
 
 	constructor() {
 		super();
@@ -56,7 +22,7 @@ export class Game extends Container {
 		this.resetDevice();
 
 		const button = this.addChild(
-			new Graphics().rect(-300, 700, 100, 100).fill("red"),
+			new Graphics().rect(-400, 700, 100, 100).fill("red"),
 		);
 		button.pivot = 50;
 		button.interactive = true;
@@ -73,8 +39,9 @@ export class Game extends Container {
 			new Device({
 				scale: 1.7,
 				// angle: -2,
-				targetWaveData: randomBasicWaveData(),
-				initialWaveData: randomBasicWaveData(),
+				level: this.level,
+				targetWaveData: pickCombinedWaveData(this.level),
+				initialWaveData: pickCombinedWaveData(this.level),
 				onMatch: () => {
 					device.reset();
 					this.resetDevice();
