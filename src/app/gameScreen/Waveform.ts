@@ -240,8 +240,8 @@ export class Waveform extends Container {
 
 	phase1Param: Param = {
 		minValue: 0,
-		maxValue: 10,
-		get: () => this.targetWaveData.wave1.phase,
+		maxValue: 9,
+		get: () => mod(this.targetWaveData.wave1.phase, 10),
 		set: (value: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
 			this.targetWaveData.wave1.phase = value;

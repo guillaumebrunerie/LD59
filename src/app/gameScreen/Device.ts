@@ -261,7 +261,7 @@ export abstract class AbstractSlider extends Container {
 			(-actualValueDelta / (this.param.maxValue - this.param.minValue)) *
 			(this.minY - this.maxY);
 		this.previousY += actualDelta;
-		this.param.set(newValue, 100);
+		this.param.set(newValue, Infinity);
 		this.update();
 	};
 
