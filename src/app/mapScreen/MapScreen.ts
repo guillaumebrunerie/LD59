@@ -6,8 +6,8 @@ import { PauseButton } from "../ui/PauseButton";
 import { PausePopup } from "../pausePopup/PausePopup";
 import { GameMap } from "./GameMap";
 import { Device } from "../gameScreen/Device";
-import { pickCombinedWaveData } from "../gameScreen/levelsUtils";
 import { level1 } from "../gameScreen/levels";
+import { generateCity } from "./city";
 
 const TILE_SIZE = 300;
 
@@ -20,6 +20,7 @@ export class MapScreen extends Container {
 	soundButton: SoundButton;
 	ticker: Ticker;
 	level = level1;
+	city = generateCity(this.level);
 
 	constructor() {
 		super();
@@ -31,7 +32,8 @@ export class MapScreen extends Container {
 			new GameMap({
 				x: -TILE_SIZE * 5,
 				y: -TILE_SIZE * 4,
-				startLevel: () => this.startLevel(),
+				city: this.city,
+				startLevel: (i: number, j: number) => this.startLevel(i, j),
 			}),
 		);
 
@@ -45,7 +47,11 @@ export class MapScreen extends Container {
 	}
 
 	device?: Device;
-	startLevel() {
+	startLevel(i: number, j: number) {
+		const antenna = this.city[i][j].antenna;
+		if (!antenna) {
+			throw new Error("No antenna at this location");
+		}
 		const device = this.addChild(
 			new Device({
 				scale: 1.7,
@@ -53,12 +59,14 @@ export class MapScreen extends Container {
 				x: 540,
 				y: 1920 / 2,
 				level: this.level,
-				targetWaveData: pickCombinedWaveData(this.level),
-				initialWaveData: pickCombinedWaveData(this.level),
-				onEnd: (_isMatch: boolean) => {
-					device.reset();
+				targetWaveData: antenna.blueprint,
+				initialWaveData: antenna.waveform,
+				onEnd: (isMatch: boolean) => {
 					device.destroy();
 					this.gameMap.interactive = true;
+					if (isMatch) {
+						this.gameMap.levelSolved(i, j);
+					}
 				},
 			}),
 		);

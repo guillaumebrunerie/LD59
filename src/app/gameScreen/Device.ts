@@ -16,7 +16,6 @@ import {
 } from "./Waveform";
 import { Label } from "../ui/Label";
 import type { Level, Range } from "./levelsUtils";
-import { engine } from "../../getEngine";
 
 const getParamAndTarget = (
 	waveform: Waveform,
@@ -210,11 +209,18 @@ export class Device extends Container {
 			combinedWaveDataMatch(
 				this.waveform.targetWaveData,
 				this.blueprint.targetWaveData,
-			)
+			) &&
+			!this.isMatching
 		) {
 			this.waveform.color = new Color("green");
 			this.eventMode = "none";
 			this.isMatching = true;
+			navigator.vibrate?.(200);
+			console.log("MATCH!");
+			console.log(
+				this.waveform.targetWaveData,
+				this.blueprint.targetWaveData,
+			);
 		}
 		for (const child of this.children) {
 			child.update?.(ticker);

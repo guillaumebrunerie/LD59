@@ -1,12 +1,13 @@
-- Can leave level
-- State of the map
-- Edges of the city
 - Preserve state of waveforms
 - Fix glitch when releasing frequency
-- Battery
 - More levels
-- Start screen
 
+- Battery
+- Start screen
+- Landscape
+
+# Refactoring
+- Automatically call .update on children
 
 # End tasks
 - Update game name in index.html

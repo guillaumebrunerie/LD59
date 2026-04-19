@@ -164,7 +164,7 @@ export class Waveform extends Container {
 		super(options);
 		this.curve = new Graphics();
 		this.addChild(this.curve);
-		this.waveData = structuredClone(options.waveData);
+		this.waveData = options.waveData;
 		this.targetWaveData = structuredClone(options.waveData);
 		this.w = options.w;
 		this.h = options.h;
