@@ -55,60 +55,6 @@ const combinedWaveValue = (
 	return -baseline / 10 + waveValue(wave1, gt, u) + waveValue(wave2, gt, u);
 };
 
-const interpolate = <T extends string>(
-	key: T,
-	currentObject: Record<T, number>,
-	targetObject: Record<T, number>,
-	speed: number,
-	dt: number,
-) => {
-	if (currentObject[key] < targetObject[key]) {
-		currentObject[key] += dt * speed;
-		currentObject[key] = Math.min(currentObject[key], targetObject[key]);
-	}
-	if (currentObject[key] > targetObject[key]) {
-		currentObject[key] -= dt * speed;
-		currentObject[key] = Math.max(currentObject[key], targetObject[key]);
-	}
-};
-
-const interpolateBasicWaveData = (
-	current: BasicWaveData,
-	target: BasicWaveData,
-	speed: number,
-	dt: number,
-) => {
-	interpolate("base", current, target, speed, dt);
-	interpolate("amplitude", current, target, speed, dt);
-	interpolate("speed", current, target, Infinity, dt);
-	interpolate("phase", current, target, Infinity, dt);
-};
-
-const interpolateWaveData = (
-	current: WaveData,
-	target: WaveData,
-	speed: number,
-	dt: number,
-) => {
-	interpolateBasicWaveData(current.amplitude, target.amplitude, speed, dt);
-	interpolateBasicWaveData(current.waves, target.waves, speed, dt);
-	interpolate("speed", current, target, Infinity, dt);
-	if (speed < 10) {
-		interpolate("phase", current, target, 5, dt);
-	}
-};
-
-const interpolateCombinedWaveData = (
-	current: CombinedWaveData,
-	target: CombinedWaveData,
-	speed: number,
-	dt: number,
-) => {
-	interpolate("baseline", current, target, speed, dt);
-	interpolateWaveData(current.wave1, target.wave1, speed, dt);
-	interpolateWaveData(current.wave2, target.wave2, speed, dt);
-};
-
 const basicWaveDataMatch = (
 	wavedata1: BasicWaveData,
 	wavedata2: BasicWaveData,
@@ -145,7 +91,7 @@ const STEPS = 300;
 export class Waveform extends Container {
 	curve: Graphics;
 	waveData: CombinedWaveData;
-	targetWaveData: CombinedWaveData;
+	targetPhase1 = 0;
 	t = 0;
 	w: number;
 	h: number;
@@ -165,7 +111,6 @@ export class Waveform extends Container {
 		this.curve = new Graphics();
 		this.addChild(this.curve);
 		this.waveData = options.waveData;
-		this.targetWaveData = structuredClone(options.waveData);
 		this.w = options.w;
 		this.h = options.h;
 		this.color = options.color;
@@ -177,12 +122,20 @@ export class Waveform extends Container {
 	update(ticker: Ticker) {
 		this.t += ticker.deltaMS / 1000;
 
-		interpolateCombinedWaveData(
-			this.waveData,
-			this.targetWaveData,
-			this.updateSpeed,
-			ticker.deltaMS / 1000,
-		);
+		const speed = 3;
+		const dt = ticker.deltaMS / 1000;
+		const targetPhase1 = Math.round(this.waveData.wave1.phase / 2) * 2;
+		let value = this.waveData.wave1.phase;
+		if (value < targetPhase1) {
+			value += dt * speed;
+			value = Math.min(value, targetPhase1);
+		}
+		if (value > targetPhase1) {
+			value -= dt * speed;
+			value = Math.max(value, targetPhase1);
+		}
+		this.waveData.wave1.phase = value;
+
 		this.draw();
 	}
 
@@ -204,10 +157,9 @@ export class Waveform extends Container {
 	baselineParam(): Param {
 		return {
 			range: assertReturn(this.level.waves.baseline),
-			get: () => this.targetWaveData.baseline,
-			set: (value: number, updateSpeed: number) => {
-				this.updateSpeed = updateSpeed;
-				this.targetWaveData.baseline = value;
+			get: () => this.waveData.baseline,
+			set: (value: number) => {
+				this.waveData.baseline = value;
 			},
 		};
 	}
@@ -215,10 +167,9 @@ export class Waveform extends Container {
 	amplitudeXParam(key: "wave1" | "wave2"): Param {
 		return {
 			range: assertReturn(this.level.waves[key]?.amplitude?.base),
-			get: () => this.targetWaveData[key].amplitude.base,
-			set: (value: number, updateSpeed: number) => {
-				this.updateSpeed = updateSpeed;
-				this.targetWaveData[key].amplitude.base = value;
+			get: () => this.waveData[key].amplitude.base,
+			set: (value: number) => {
+				this.waveData[key].amplitude.base = value;
 			},
 		};
 	}
@@ -226,21 +177,18 @@ export class Waveform extends Container {
 	frequencyXParam(key: "wave1" | "wave2"): Param {
 		return {
 			range: assertReturn(this.level.waves[key]?.waves?.base),
-			get: () => this.targetWaveData[key].waves.base,
-			set: (value: number, updateSpeed: number) => {
-				this.updateSpeed = updateSpeed;
+			get: () => this.waveData[key].waves.base,
+			set: (value: number) => {
 				const oldFrequency = getFrequency(
-					this.targetWaveData[key].waves.base,
+					this.waveData[key].waves.base,
 				);
-				this.targetWaveData[key].waves.base = value;
+				this.waveData[key].waves.base = value;
 				const newFrequency = getFrequency(
-					this.targetWaveData[key].waves.base,
+					this.waveData[key].waves.base,
 				);
 				const delta = newFrequency - oldFrequency;
 				this.waveData[key].phase -=
-					this.t * delta * this.targetWaveData[key].speed * 2.5;
-				this.targetWaveData[key].phase =
-					Math.round(this.waveData[key].phase / 2) * 2;
+					this.t * delta * this.waveData[key].speed * 2.5;
 			},
 		};
 	}
@@ -248,10 +196,9 @@ export class Waveform extends Container {
 	phaseXParam(key: "wave1" | "wave2"): Param {
 		return {
 			range: assertReturn(this.level.waves[key]?.phase),
-			get: () => mod(this.targetWaveData[key].phase, 10),
-			set: (value: number, updateSpeed: number) => {
-				this.updateSpeed = updateSpeed;
-				this.targetWaveData[key].phase = value;
+			get: () => mod(this.waveData[key].phase, 10),
+			set: (value: number) => {
+				this.waveData[key].phase = value;
 			},
 		};
 	}
@@ -259,11 +206,10 @@ export class Waveform extends Container {
 	speedXParam(key: "wave1" | "wave2"): Param {
 		return {
 			range: assertReturn(this.level.waves[key]?.speed),
-			get: () => this.targetWaveData[key].speed,
-			set: (value: number, updateSpeed: number) => {
-				this.updateSpeed = updateSpeed;
-				const delta = value - this.targetWaveData[key].speed;
-				this.targetWaveData[key].speed = value;
+			get: () => this.waveData[key].speed,
+			set: (value: number) => {
+				const delta = value - this.waveData[key].speed;
+				this.waveData[key].speed = value;
 				this.waveData[key].phase -=
 					this.t *
 					delta *
@@ -271,8 +217,8 @@ export class Waveform extends Container {
 						basicWaveValue(this.waveData[key].waves, this.t),
 					) *
 					2.5;
-				this.targetWaveData[key].phase =
-					Math.round(this.waveData[key].phase / 2) * 2;
+				// this.targetWaveData[key].phase =
+				// 	Math.round(this.waveData[key].phase / 2) * 2;
 			},
 		};
 	}

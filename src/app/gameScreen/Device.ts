@@ -207,8 +207,8 @@ export class Device extends Container {
 		this.waveform.update(ticker);
 		if (
 			combinedWaveDataMatch(
-				this.waveform.targetWaveData,
-				this.blueprint.targetWaveData,
+				this.waveform.waveData,
+				this.blueprint.waveData,
 			) &&
 			!this.isMatching
 		) {
@@ -217,10 +217,7 @@ export class Device extends Container {
 			this.isMatching = true;
 			navigator.vibrate?.(200);
 			console.log("MATCH!");
-			console.log(
-				this.waveform.targetWaveData,
-				this.blueprint.targetWaveData,
-			);
+			console.log(this.waveform.waveData, this.blueprint.waveData);
 		}
 		for (const child of this.children) {
 			child.update?.(ticker);
@@ -300,12 +297,13 @@ export class BasicButtons<T extends string> extends Container {
 export type Param = {
 	range: Range;
 	get: () => number;
-	set: (newValue: number, updateSpeed: number) => void;
+	set: (newValue: number) => void;
 };
 
 export abstract class AbstractSlider extends Container {
 	param: Param;
 	target: number;
+	target2: number;
 
 	constructor(
 		options: ViewContainerOptions & {
@@ -317,11 +315,29 @@ export abstract class AbstractSlider extends Container {
 		const { param, target } = options;
 		this.param = param;
 		this.target = target;
+		this.target2 = param.get();
 	}
 
 	minY = 115;
 	maxY = -115;
-	abstract update(): void;
+	redraw() {}
+	update(ticker: Ticker) {
+		const dt = ticker.deltaMS / 1000;
+		const speed = 3;
+
+		let value = this.param.get();
+		if (value < this.target2) {
+			value += dt * speed;
+			value = Math.min(value, this.target2);
+			this.param.set(value);
+		}
+		if (value > this.target2) {
+			value -= dt * speed;
+			value = Math.max(value, this.target2);
+			this.param.set(value);
+		}
+		this.redraw();
+	}
 
 	isPressed = false;
 	previousY = 0;
@@ -350,17 +366,13 @@ export abstract class AbstractSlider extends Container {
 				(this.param.range.max - this.param.range.min)) *
 			(this.minY - this.maxY);
 		this.previousY += actualDelta;
-		this.param.set(newValue, Infinity);
-		this.update();
+		this.param.set(newValue);
+		this.target2 = newValue;
 	};
 
 	onpointerup = (this.onpointerupoutside = () => {
 		this.isPressed = false;
-		this.param.set(
-			snap(this.param.range, this.param.get(), this.target),
-			8,
-		);
-		this.update();
+		this.target2 = snap(this.param.range, this.param.get(), this.target);
 	});
 }
 
@@ -414,11 +426,9 @@ export class Slider extends AbstractSlider {
 		// 		.rect(hitArea.x, hitArea.y, hitArea.width, hitArea.height)
 		// 		.fill("#FF00FF20"),
 		// );
-
-		this.update();
 	}
 
-	update() {
+	redraw() {
 		this.knob.y =
 			this.minY +
 			((this.param.get() - this.param.range.min) /
@@ -480,11 +490,9 @@ export class Knob extends AbstractSlider {
 		// 		.rect(hitArea.x, hitArea.y, hitArea.width, hitArea.height)
 		// 		.fill("#FF00FF20"),
 		// );
-
-		this.update();
 	}
 
-	update() {
+	redraw() {
 		const angleRange = 120;
 		this.knob.angle =
 			-angleRange / 2 +
