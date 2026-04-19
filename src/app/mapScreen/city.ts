@@ -52,7 +52,7 @@ export const generateCity = (level: Level): City => {
 
 	map.forEach((row, j) =>
 		row.forEach((data, i) => {
-			if (hasBuildingAt(map, i, j) && Math.random() < 0.1) {
+			if (hasBuildingAt(map, i, j) && Math.random() < 0.2) {
 				data.antenna = pickBothWaveData(level);
 			}
 		}),

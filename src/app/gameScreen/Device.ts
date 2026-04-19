@@ -382,9 +382,9 @@ const snap = (range: Range, value: number, target: number) => {
 
 	let nValue = value / step;
 	if (nValue < nTarget) {
-		nValue = Math.ceil(nValue);
+		nValue = Math.round(nValue);
 	} else if (nValue > nTarget) {
-		nValue = Math.floor(nValue);
+		nValue = Math.round(nValue);
 	}
 	return nValue * step;
 };
