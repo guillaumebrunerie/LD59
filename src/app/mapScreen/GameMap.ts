@@ -63,11 +63,18 @@ export class GameMap extends Container {
 		if (this.movedBy < MOVED_BY_THRESHOLD) {
 			const clickedX = this.previousPoint.x;
 			const clickedY = this.previousPoint.y;
-			const targetX =
-				Math.floor(clickedX / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2;
-			const targetY =
-				Math.floor(clickedY / TILE_SIZE) * TILE_SIZE + TILE_SIZE;
-			this.player.targetPosition = new Point(targetX, targetY);
+			const buildingPosition = new Point(
+				Math.floor(clickedX / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2,
+				Math.floor(clickedY / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2,
+			);
+			if (
+				buildingPosition.subtract(this.previousPoint).magnitude() >
+				TILE_SIZE / 2
+			) {
+				return;
+			}
+			this.player.targetPosition = buildingPosition;
+			this.player.targetPosition.y += TILE_SIZE / 2;
 		}
 		this.movedBy = 0;
 	});
