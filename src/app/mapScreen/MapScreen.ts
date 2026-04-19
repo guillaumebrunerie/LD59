@@ -9,6 +9,8 @@ import { Device } from "../gameScreen/Device";
 import { pickCombinedWaveData } from "../gameScreen/levelsUtils";
 import { level1 } from "../gameScreen/levels";
 
+const TILE_SIZE = 300;
+
 export class MapScreen extends Container {
 	public static assetBundles = ["main"];
 
@@ -26,7 +28,11 @@ export class MapScreen extends Container {
 
 		this.gameContainer = this.addChild(new Container());
 		this.gameMap = this.gameContainer.addChild(
-			new GameMap({ startLevel: () => this.startLevel() }),
+			new GameMap({
+				x: -TILE_SIZE * 5,
+				y: -TILE_SIZE * 4,
+				startLevel: () => this.startLevel(),
+			}),
 		);
 
 		this.pauseButton = this.addChild(

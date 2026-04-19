@@ -13,6 +13,40 @@ import { level1 } from "../gameScreen/levels";
 
 const TILE_SIZE = 300;
 
+// const mapStr = `
+// 0001110000
+// 0111111000
+// 1111111110
+// 1111111111
+// 1111111111
+// 0111111110
+// 0111111110
+// 0011111110
+// 0011111000
+// 0000110000
+// `;
+const mapStr = `
+1111111111
+1111111111
+1111111111
+1111111111
+1111111111
+1111111111
+1111111111
+1111111111
+1111111111
+1111111111
+`;
+const map = mapStr
+	.trim()
+	.split("\n")
+	.map((row) =>
+		row
+			.trim()
+			.split("")
+			.map((v) => v === "1"),
+	);
+
 export class GameMap extends Container {
 	game?: Game;
 	player: Player;
@@ -22,35 +56,59 @@ export class GameMap extends Container {
 	constructor(options: ViewContainerOptions & { startLevel: () => void }) {
 		super(options);
 		this.startLevel = options.startLevel;
-		for (let i = -3; i <= 3; i++) {
-			for (let j = -3; j <= 3; j++) {
+		map.forEach((row, j) => {
+			row.forEach((v, i) => {
+				if (!v) {
+					return;
+				}
+				const hasLeft = i > 0 && map[j][i - 1];
+				const hasRight = i < map[j].length - 1 && map[j][i + 1];
+				const hasUp = j > 0 && map[j - 1][i];
+				const hasDown = j < map.length - 1 && map[j + 1][i];
+
+				const neighbors =
+					(hasLeft ? "1" : "0") +
+					(hasRight ? "1" : "0") +
+					(hasUp ? "1" : "0") +
+					(hasDown ? "1" : "0");
 				this.addChild(
 					new Tile({
 						x: i * TILE_SIZE,
 						y: j * TILE_SIZE,
+						neighbors,
 					}),
 				);
-			}
-		}
+			});
+		});
 		this.interactive = true;
 
 		this.player = this.addChild(
 			new Player({
-				x: TILE_SIZE / 2,
+				x: TILE_SIZE / 2 + TILE_SIZE * 5,
+				y: TILE_SIZE * 4,
 				angle: 90,
 			}),
 		);
 
-		for (let i = -3; i <= 3; i++) {
-			for (let j = -3; j <= 3; j++) {
-				this.addChild(
-					new Building({
-						x: i * TILE_SIZE + TILE_SIZE / 2,
-						y: j * TILE_SIZE + TILE_SIZE / 2,
-					}),
-				);
-			}
-		}
+		map.forEach((row, j) => {
+			row.forEach((v, i) => {
+				if (
+					v &&
+					i > 0 &&
+					j > 0 &&
+					map[j - 1][i] &&
+					map[j][i - 1] &&
+					map[j - 1][i - 1]
+				) {
+					this.addChild(
+						new Building({
+							x: i * TILE_SIZE - TILE_SIZE / 2,
+							y: j * TILE_SIZE - TILE_SIZE / 2,
+						}),
+					);
+				}
+			});
+		});
 	}
 
 	update(ticker: Ticker) {
@@ -82,7 +140,7 @@ export class GameMap extends Container {
 		this.y += event.movementY;
 	};
 
-	onpointerup = () => {
+	onpointerup = (this.onpointerupoutside = () => {
 		this.isPressed = false;
 		if (this.movedBy < MOVED_BY_THRESHOLD) {
 			const clickedX = this.previousPoint.x;
@@ -105,7 +163,7 @@ export class GameMap extends Container {
 			};
 		}
 		this.movedBy = 0;
-	};
+	});
 }
 
 const MOVED_BY_THRESHOLD = 10;
