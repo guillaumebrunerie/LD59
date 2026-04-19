@@ -68,8 +68,9 @@ export class Device extends Container {
 			new Slider({
 				x: -125,
 				y: 100,
-				param: this.waveform.baselineParam,
 				orientation: "vertical",
+				param: this.waveform.baselineParam,
+				target: this.blueprint.baselineParam.get(),
 			}),
 		);
 
@@ -77,8 +78,9 @@ export class Device extends Container {
 			new Slider({
 				x: 125,
 				y: 100,
-				param: this.waveform.amplitude1Param,
 				orientation: "vertical",
+				param: this.waveform.amplitude1Param,
+				target: this.blueprint.amplitude1Param.get(),
 			}),
 		);
 
@@ -87,14 +89,16 @@ export class Device extends Container {
 				x: 0,
 				y: 100,
 				param: this.waveform.frequency1Param,
+				target: this.blueprint.frequency1Param.get(),
 			}),
 		);
 
 		this.addChild(
 			new Slider({
 				y: 300,
-				param: this.waveform.phase1Param,
 				orientation: "horizontal",
+				param: this.waveform.phase1Param,
+				target: this.blueprint.phase1Param.get(),
 			}),
 		);
 	}
@@ -209,20 +213,23 @@ export type Param = {
 	minValue: number;
 	maxValue: number;
 	get: () => number;
-	change: (delta: number, updateSpeed: number) => void;
+	set: (newValue: number, updateSpeed: number) => void;
 };
 
 export abstract class AbstractSlider extends Container {
 	param: Param;
+	target: number;
 
 	constructor(
 		options: ViewContainerOptions & {
 			param: Param;
+			target: number;
 		},
 	) {
 		super(options);
-		const { param } = options;
+		const { param, target } = options;
 		this.param = param;
+		this.target = target;
 	}
 
 	minY = 115;
@@ -255,31 +262,32 @@ export abstract class AbstractSlider extends Container {
 			(-actualValueDelta / (this.param.maxValue - this.param.minValue)) *
 			(this.minY - this.maxY);
 		this.previousY += actualDelta;
-		this.param.change(actualValueDelta, 100);
+		this.param.set(newValue, 100);
 		this.update();
 	};
 
 	onpointerup = (this.onpointerupoutside = () => {
 		this.isPressed = false;
-		const delta = Math.round(this.param.get()) - this.param.get();
-		this.param.change(delta, 8);
+		if (this.param.get() < this.target) {
+			this.param.set(Math.ceil(this.param.get()), 8);
+		} else if (this.param.get() > this.target) {
+			this.param.set(Math.floor(this.param.get()), 8);
+		}
 		this.update();
 	});
 }
 
 export class Slider extends AbstractSlider {
 	knob: Sprite;
-	param: Param;
 
 	constructor(
 		options: ViewContainerOptions & {
 			param: Param;
+			target: number;
 			orientation: "vertical" | "horizontal";
 		},
 	) {
 		super(options);
-		const { param } = options;
-		this.param = param;
 		if (options.orientation === "horizontal") {
 			this.angle += 90;
 		}
@@ -327,12 +335,12 @@ export class Slider extends AbstractSlider {
 
 		const value = this.param.get();
 		if (clickedValue < value - 1 && value >= this.param.minValue + 1) {
-			this.param.change(-1, 8);
+			this.param.set(value - 1, 8);
 		} else if (
 			clickedValue > value + 1 &&
 			value <= this.param.maxValue - 1
 		) {
-			this.param.change(1, 8);
+			this.param.set(value + 1, 8);
 		}
 		this.update();
 	});
@@ -340,16 +348,14 @@ export class Slider extends AbstractSlider {
 
 export class Knob extends AbstractSlider {
 	knob: Sprite;
-	param: Param;
 
 	constructor(
 		options: ViewContainerOptions & {
 			param: Param;
+			target: number;
 		},
 	) {
 		super(options);
-		const { param } = options;
-		this.param = param;
 		this.angle = 90;
 
 		this.addChild(

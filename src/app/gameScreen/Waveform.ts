@@ -200,9 +200,9 @@ export class Waveform extends Container {
 		minValue: -5,
 		maxValue: 5,
 		get: () => this.targetWaveData.baseline,
-		change: (delta: number, updateSpeed: number) => {
+		set: (value: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
-			this.targetWaveData.baseline += delta;
+			this.targetWaveData.baseline = value;
 		},
 	};
 
@@ -210,9 +210,9 @@ export class Waveform extends Container {
 		minValue: 0,
 		maxValue: 10,
 		get: () => this.targetWaveData.wave1.amplitude.base,
-		change: (delta: number, updateSpeed: number) => {
+		set: (value: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
-			this.targetWaveData.wave1.amplitude.base += delta;
+			this.targetWaveData.wave1.amplitude.base = value;
 		},
 	};
 
@@ -220,9 +220,9 @@ export class Waveform extends Container {
 		minValue: 1,
 		maxValue: 7,
 		get: () => this.targetWaveData.wave1.waves.base,
-		change: (delta: number, updateSpeed: number) => {
+		set: (value: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
-			this.targetWaveData.wave1.waves.base += delta;
+			this.targetWaveData.wave1.waves.base = value;
 		},
 	};
 
@@ -230,9 +230,9 @@ export class Waveform extends Container {
 		minValue: 0,
 		maxValue: 10,
 		get: () => this.targetWaveData.wave1.phase,
-		change: (delta: number, updateSpeed: number) => {
+		set: (value: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
-			this.targetWaveData.wave1.phase += delta;
+			this.targetWaveData.wave1.phase = value;
 		},
 	};
 
@@ -240,9 +240,10 @@ export class Waveform extends Container {
 		minValue: -3,
 		maxValue: 3,
 		get: () => this.targetWaveData.wave1.speed,
-		change: (delta: number, updateSpeed: number) => {
+		set: (value: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
-			this.targetWaveData.wave1.speed += delta;
+			const delta = value - this.targetWaveData.wave1.speed;
+			this.targetWaveData.wave1.speed = value;
 			this.targetWaveData.wave1.phase += (this.t * delta) / 2;
 		},
 	};
@@ -251,9 +252,9 @@ export class Waveform extends Container {
 		minValue: 0,
 		maxValue: 5,
 		get: () => this.targetWaveData.wave1.amplitude.amplitude,
-		change: (delta: number, updateSpeed: number) => {
+		set: (value: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
-			this.targetWaveData.wave1.amplitude.amplitude += delta;
+			this.targetWaveData.wave1.amplitude.amplitude = value;
 		},
 	};
 
@@ -261,9 +262,10 @@ export class Waveform extends Container {
 		minValue: 0,
 		maxValue: 5,
 		get: () => this.targetWaveData.wave1.amplitude.speed,
-		change: (delta: number, updateSpeed: number) => {
+		set: (value: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
-			this.targetWaveData.wave1.amplitude.speed += delta;
+			const delta = value - this.targetWaveData.wave1.amplitude.speed;
+			this.targetWaveData.wave1.amplitude.speed = value;
 			this.targetWaveData.wave1.amplitude.phase -= this.t * delta * 4;
 		},
 	};
