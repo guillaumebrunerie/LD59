@@ -1,20 +1,18 @@
 import {
+	AnimatedSprite,
 	Assets,
-	Graphics,
 	Sprite,
 	Ticker,
 	type ViewContainerOptions,
 } from "pixi.js";
 import { Container } from "../../PausableContainer";
-
-const SHOCKWAVE_MAX_DISTANCE = 1000;
-const SHOCKWAVE_SPEED = 0.1;
+import { getIdleAnimation } from "../utils/animation";
 
 export class Antenna extends Container {
 	antennaId: string;
 	antenna: Sprite;
 	shadow: Sprite;
-	shockwave: Graphics;
+	shockwave: AnimatedSprite;
 	shockwaveDistance = 0;
 	isEmitting = true;
 
@@ -54,8 +52,16 @@ export class Antenna extends Container {
 		this.antenna.angle = Math.random() * 360;
 		this.shadow.angle = this.antenna.angle;
 
-		this.shockwave = this.addChild(new Graphics({ y: -30 }));
-		this.shockwaveDistance = Math.random() * SHOCKWAVE_MAX_DISTANCE;
+		this.shockwave = this.addChild(
+			new AnimatedSprite({
+				textures: getIdleAnimation("RadioWave"),
+				animationSpeed: 15 / 60,
+				scale: 1,
+				anchor: 0.5,
+				autoPlay: true,
+				y: -30,
+			}),
+		);
 	}
 
 	update(ticker: Ticker) {
@@ -64,21 +70,10 @@ export class Antenna extends Container {
 		}
 		this.antenna.angle += ticker.deltaMS / 30;
 		this.shadow.angle += ticker.deltaMS / 30;
-		this.shockwaveDistance += ticker.deltaMS * SHOCKWAVE_SPEED;
-		if (this.shockwaveDistance > SHOCKWAVE_MAX_DISTANCE) {
-			this.shockwaveDistance = 0;
-		}
-		this.shockwave.clear();
-		this.shockwave.circle(0, 0, this.shockwaveDistance).stroke({
-			width: 5,
-			color: "#ffffffc0",
-			alpha: 1 - this.shockwaveDistance / SHOCKWAVE_MAX_DISTANCE,
-		});
 	}
 
 	turnOff() {
 		this.isEmitting = false;
 		this.antenna.alpha = 0.5;
-		this.shockwave.clear();
 	}
 }

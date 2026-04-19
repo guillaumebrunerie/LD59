@@ -4,9 +4,9 @@ export function resize(
 	minWidth: number,
 	minHeight: number,
 ) {
-	if (w < h) {
-		return { width: minWidth, height: minHeight };
-	} else {
-		return { width: minHeight, height: minWidth };
-	}
+	// if (w < h) {
+	return { width: minWidth, height: minHeight };
+	// } else {
+	// 	return { width: minHeight, height: minWidth };
+	// }
 }

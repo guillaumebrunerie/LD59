@@ -16,7 +16,6 @@ export class MapScreen extends Container {
 
 	gameContainer: Container;
 	gameMap: GameMap;
-	pauseButton: PauseButton;
 	soundButton: SoundButton;
 	ticker: Ticker;
 	level = level1;
@@ -56,8 +55,10 @@ export class MapScreen extends Container {
 		}
 		const device = this.addChildAt(
 			new Device({
+				// scale: 1,
+				// x: 1400,
+				// y: 1080 / 2,
 				scale: 1.7,
-				//angle: -2,
 				x: 540,
 				y: 1920 / 2,
 				level: this.level,

@@ -18,7 +18,7 @@
 		body {
 			display: grid;
 			place-items: center;
-			background-color: rgb(49 49 49);
+			background-color: #343d3c;
 		}
 		#pixi-container {
 			background-color: #6ea093;
@@ -36,13 +36,13 @@
 			width: min(100vw, 100vh * 9/16);
 			height: min(100vh, 100vw * 16/9);
 		}
-		@media (orientation: landscape) {
-			#pixi-container,
-			canvas {
-				width: min(100vw, 100vh * 16/9);
-				height: min(100vh, 100vw * 9/16);
-			}
-		}
+		/* @media (orientation: landscape) { */
+		/* 	#pixi-container, */
+		/* 	canvas { */
+		/* 		width: min(100vw, 100vh * 16/9); */
+		/* 		height: min(100vh, 100vw * 9/16); */
+		/* 	} */
+		/* } */
 	</style>
 	<body>
 		<div id="pixi-container"></div>

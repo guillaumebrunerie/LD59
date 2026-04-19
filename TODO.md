@@ -2,13 +2,14 @@
 - More levels
 - Screen shake and blink green screen when matching
 - Fix background and moving the map when it’s rotated
-
-- Battery
+- Local storage
 - Start screen
-- Landscape
+- Landscape version
 
 # Refactoring
 - Automatically call .update on children
+
+- Battery?
 
 # End tasks
 - Update game name in index.html

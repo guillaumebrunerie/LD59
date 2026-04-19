@@ -16,7 +16,6 @@ import {
 } from "./Waveform";
 import { Label } from "../ui/Label";
 import type { Level, Range } from "./levelsUtils";
-import { PauseButton } from "../ui/PauseButton";
 
 const getParamAndTarget = (
 	waveform: Waveform,
