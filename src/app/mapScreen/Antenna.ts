@@ -30,14 +30,18 @@ export class Antenna extends Container {
 			antennaIds[Math.floor(Math.random() * antennaIds.length)];
 		this.addChild(
 			new Sprite({
-				texture: Assets.get("AntennasBase_01.png"),
+				texture: Assets.get(
+					this.antennaId.replace("Antennas", "AntennasBase"),
+				),
 				y: -30,
 				anchor: 0.5,
 			}),
 		);
 		this.shadow = this.addChild(
 			new Sprite({
-				texture: Assets.get("AntennasShadow01.png"),
+				texture: Assets.get(
+					this.antennaId.replace("Antennas", "AntennasShadow"),
+				),
 				y: -20,
 				anchor: 0.5,
 			}),
@@ -74,6 +78,9 @@ export class Antenna extends Container {
 
 	turnOff() {
 		this.isEmitting = false;
-		this.antenna.alpha = 0.5;
+		this.shockwave.destroy();
+		this.antenna.texture = Assets.get(
+			this.antennaId.replace("Antennas", "AntennasDead"),
+		);
 	}
 }

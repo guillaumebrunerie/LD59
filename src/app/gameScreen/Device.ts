@@ -133,6 +133,13 @@ export class Device extends Container {
 		this.addChild(
 			new Sprite({
 				anchor: 0.5,
+				texture: Assets.get("DeviceScreenLines.png"),
+				alpha: 0.5,
+			}),
+		);
+		this.addChild(
+			new Sprite({
+				anchor: 0.5,
 				texture: Assets.get("Device.png"),
 				interactive: true,
 				hitArea: new Rectangle(-225, -500, 450, 1000),
