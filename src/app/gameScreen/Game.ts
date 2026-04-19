@@ -9,7 +9,7 @@ export const gameWidth = 1000;
 export const gameHeight = 1000;
 
 const randomBasicWaveData = () => ({
-	baseline: randomInt(-2, 2),
+	baseline: randomInt(-5, 5),
 	wave1: {
 		amplitude: {
 			base: randomInt(1, 10),

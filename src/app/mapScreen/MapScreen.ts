@@ -1,4 +1,9 @@
-import { FederatedPointerEvent, Graphics } from "pixi.js";
+import {
+	FederatedPointerEvent,
+	Graphics,
+	Ticker,
+	type DestroyOptions,
+} from "pixi.js";
 import { Container } from "../../PausableContainer";
 import { engine } from "../../getEngine";
 import { SoundButton } from "../ui/SoundButton";
@@ -6,27 +11,31 @@ import { PauseButton } from "../ui/PauseButton";
 import { PausePopup } from "../pausePopup/PausePopup";
 import { GameMap } from "./GameMap";
 import { GameScreen } from "../gameScreen/GameScreen";
+import { Player } from "./Player";
 
 export class MapScreen extends Container {
 	public static assetBundles = ["main"];
 
 	gameContainer: Container;
-	game: GameMap;
-	touchArea: Graphics;
+	gameMap: GameMap;
+	// touchArea: Graphics;
 	pauseButton: PauseButton;
 	soundButton: SoundButton;
+	ticker: Ticker;
 
 	constructor() {
 		super();
+		this.ticker = new Ticker();
+		this.addToTicker(this);
 
 		this.gameContainer = this.addChild(new Container());
-		this.game = this.gameContainer.addChild(new GameMap());
+		this.gameMap = this.gameContainer.addChild(new GameMap());
 
-		this.touchArea = this.addChild(
-			new Graphics().rect(0, 0, 100, 100).fill("#00000001"),
-		);
-		this.touchArea.interactive = true;
-		this.touchArea.on("pointerdown", (e) => this.pointerDown(e));
+		// this.touchArea = this.addChild(
+		// 	new Graphics().rect(0, 0, 100, 100).fill("#00000001"),
+		// );
+		// this.touchArea.interactive = true;
+		// this.touchArea.on("pointerdown", (e) => this.pointerDown(e));
 
 		this.pauseButton = this.addChild(
 			new PauseButton({
@@ -35,6 +44,39 @@ export class MapScreen extends Container {
 			}),
 		);
 		this.soundButton = this.addChild(new SoundButton());
+	}
+
+	start() {
+		this.ticker.start();
+	}
+
+	pause() {
+		super.pause();
+		this.ticker.stop();
+	}
+
+	resume() {
+		super.resume();
+		this.ticker.start();
+	}
+
+	destroy(options?: DestroyOptions) {
+		this.ticker.destroy();
+		super.destroy(options);
+	}
+
+	addToTicker(container: Container & { update(ticker: Ticker): void }) {
+		const callback = () => container.update(this.ticker);
+		this.ticker.add(callback);
+		container.on("destroyed", () => {
+			if (!this.destroyed) {
+				this.ticker.remove(callback);
+			}
+		});
+	}
+
+	update(ticker: Ticker) {
+		this.gameMap.update(ticker);
 	}
 
 	show() {
@@ -51,12 +93,12 @@ export class MapScreen extends Container {
 	resize(width: number, height: number) {
 		super.resize(width, height);
 		this.gameContainer.position.set(width / 2, height / 2);
-		this.touchArea.clear().rect(0, 0, width, height).fill("#00000001");
+		// this.touchArea.clear().rect(0, 0, width, height).fill("#00000001");
 		this.isLandscape = width > height;
 		this.soundButton.resize(width, height);
 	}
 
 	pointerDown(_event: FederatedPointerEvent) {
-		engine().navigation.showScreen(GameScreen);
+		// engine().navigation.showScreen(GameScreen);
 	}
 }
