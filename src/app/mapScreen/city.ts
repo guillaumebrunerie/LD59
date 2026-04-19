@@ -1,4 +1,8 @@
-import { pickCombinedWaveData, type Level } from "../gameScreen/levelsUtils";
+import {
+	pickBothWaveData,
+	pickCombinedWaveData,
+	type Level,
+} from "../gameScreen/levelsUtils";
 import type { CombinedWaveData } from "../gameScreen/Waveform";
 
 export type City = {
@@ -49,10 +53,7 @@ export const generateCity = (level: Level): City => {
 	map.forEach((row, j) =>
 		row.forEach((data, i) => {
 			if (hasBuildingAt(map, i, j) && Math.random() < 0.1) {
-				data.antenna = {
-					blueprint: pickCombinedWaveData(level),
-					waveform: pickCombinedWaveData(level),
-				};
+				data.antenna = pickBothWaveData(level);
 			}
 		}),
 	);

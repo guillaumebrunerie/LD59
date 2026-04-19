@@ -38,10 +38,10 @@ const getParamAndTarget = (
 				param: waveform.frequencyXParam("wave1"),
 				target: blueprint.frequencyXParam("wave1").get(),
 			};
-		case "phase1":
+		case "offset1":
 			return {
-				param: waveform.phaseXParam("wave1"),
-				target: blueprint.phaseXParam("wave1").get(),
+				param: waveform.offsetXParam("wave1"),
+				target: blueprint.offsetXParam("wave1").get(),
 			};
 		case "speed1":
 			return {
@@ -58,10 +58,10 @@ const getParamAndTarget = (
 				param: waveform.frequencyXParam("wave2"),
 				target: blueprint.frequencyXParam("wave2").get(),
 			};
-		case "phase2":
+		case "offset2":
 			return {
-				param: waveform.phaseXParam("wave2"),
-				target: blueprint.phaseXParam("wave2").get(),
+				param: waveform.offsetXParam("wave2"),
+				target: blueprint.offsetXParam("wave2").get(),
 			};
 		case "speed2":
 			return {
@@ -199,7 +199,7 @@ export class Device extends Container {
 	update(ticker: Ticker) {
 		if (this.isMatching) {
 			this.matchedSince += ticker.deltaMS / 1000;
-			if (this.matchedSince > 1) {
+			if (this.matchedSince > 0.7) {
 				this.onEnd(true);
 			}
 		}
@@ -323,7 +323,7 @@ export abstract class AbstractSlider extends Container {
 	redraw() {}
 	update(ticker: Ticker) {
 		const dt = ticker.deltaMS / 1000;
-		const speed = 3;
+		const speed = 8;
 
 		let value = this.param.get();
 		if (value < this.target2) {

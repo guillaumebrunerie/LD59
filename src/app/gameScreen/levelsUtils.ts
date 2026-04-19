@@ -33,6 +33,7 @@ export type Level = {
 				base?: Range;
 			};
 			speed?: Range;
+			offset?: Range;
 			phase?: Range;
 		};
 		wave2?: {
@@ -43,10 +44,15 @@ export type Level = {
 				base?: Range;
 			};
 			speed?: Range;
+			offset?: Range;
 			phase?: Range;
 		};
 	};
 	condition: (waveData: CombinedWaveData) => boolean;
+	conditionInitial?: (
+		blueprint: CombinedWaveData,
+		waveData: CombinedWaveData,
+	) => boolean;
 	device: KnobType[];
 };
 
@@ -66,6 +72,7 @@ const zeroWaveData = (): CombinedWaveData => ({
 			phase: 0,
 		},
 		speed: 0,
+		offset: 0,
 		phase: 0,
 	},
 	wave2: {
@@ -82,6 +89,7 @@ const zeroWaveData = (): CombinedWaveData => ({
 			phase: 0,
 		},
 		speed: 0,
+		offset: 0,
 		phase: 0,
 	},
 });
@@ -109,11 +117,13 @@ export const pickCombinedWaveData = (level: Level): CombinedWaveData => {
 	pickRange(result.wave1.amplitude, "base", data.wave1?.amplitude?.base);
 	pickRange(result.wave1.waves, "base", data.wave1?.waves?.base);
 	pickRange(result.wave1, "speed", data.wave1?.speed);
+	pickRange(result.wave1, "offset", data.wave1?.offset);
 	pickRange(result.wave1, "phase", data.wave1?.phase);
 
 	pickRange(result.wave2.amplitude, "base", data.wave2?.amplitude?.base);
 	pickRange(result.wave2.waves, "base", data.wave2?.waves?.base);
 	pickRange(result.wave2, "speed", data.wave2?.speed);
+	pickRange(result.wave2, "offset", data.wave2?.offset);
 	pickRange(result.wave2, "phase", data.wave2?.phase);
 
 	if (!level.condition(result)) {
@@ -122,7 +132,25 @@ export const pickCombinedWaveData = (level: Level): CombinedWaveData => {
 	return result;
 };
 
-export const assertReturn = (v?: T): T => {
+const pickSecondWaveData = (
+	level: Level,
+	blueprint: CombinedWaveData,
+): CombinedWaveData => {
+	const result = pickCombinedWaveData(level);
+	if (level.conditionInitial && !level.conditionInitial(blueprint, result)) {
+		return pickSecondWaveData(level, blueprint);
+	}
+	return result;
+};
+export const pickBothWaveData = (
+	level: Level,
+): { blueprint: CombinedWaveData; waveform: CombinedWaveData } => {
+	const blueprint = pickCombinedWaveData(level);
+	const waveform = pickSecondWaveData(level, blueprint);
+	return { blueprint, waveform };
+};
+
+export const assertReturn = <T>(v?: T): T => {
 	if (!v) {
 		throw new Error("no value");
 	}

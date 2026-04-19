@@ -6,11 +6,14 @@ export const level1: Level = {
 		wave1: {
 			amplitude: { base: { min: 1, max: 10 } },
 			waves: { base: { min: 1, max: 7 } },
-			speed: { min: -4, max: 4 },
-			phase: { min: 0, max: 8, step: 2 },
+			speed: { min: -2, max: 2 },
+			// phase: { min: 0, max: 8, step: 2 },
+			offset: { min: 0, max: 9 },
 		},
 	},
 	condition: (waveData) => waveData.wave1.speed != 0,
+	conditionInitial: (blueprint, waveData) =>
+		waveData.wave1.speed == blueprint.wave1.speed,
 	device: [
 		{
 			type: "vertical-slider",
@@ -34,7 +37,7 @@ export const level1: Level = {
 			type: "horizontal-slider",
 			x: 0,
 			y: 300,
-			param: "speed1",
+			param: "offset1",
 		},
 	],
 };
