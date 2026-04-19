@@ -6,6 +6,7 @@ import {
 	Rectangle,
 	Sprite,
 	Ticker,
+	type FederatedEventHandler,
 	type ViewContainerOptions,
 } from "pixi.js";
 import { Container } from "../../PausableContainer";
@@ -328,9 +329,7 @@ export abstract class AbstractSlider extends Container {
 }
 
 const snap = (range: Range, value: number, target: number) => {
-	const { min, max, step = 1 } = range;
-	// const nMin = min / step;
-	// const nMax = max / step;
+	const { step = 1 } = range;
 	const nTarget = target / step;
 
 	let nValue = value / step;

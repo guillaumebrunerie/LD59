@@ -9,6 +9,7 @@ import { Container } from "../../PausableContainer";
 
 export class Player extends Container {
 	targetPosition: Point;
+	onReachedTarget?: () => void;
 
 	constructor(options: ViewContainerOptions) {
 		super(options);
@@ -25,6 +26,8 @@ export class Player extends Container {
 	maxSpeed = 1000;
 	update(ticker: Ticker) {
 		if (this.targetPosition.equals(this.position)) {
+			this.onReachedTarget?.();
+			this.onReachedTarget = undefined;
 			return;
 		}
 

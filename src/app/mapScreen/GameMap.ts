@@ -2,6 +2,9 @@ import { Point, Ticker, type FederatedPointerEvent } from "pixi.js";
 import { Container } from "../../PausableContainer";
 import { Tile } from "./Tile";
 import { Player } from "./Player";
+import { GameScreen } from "../gameScreen/GameScreen";
+import { engine } from "../../getEngine";
+import { Building } from "./Building";
 
 const TILE_SIZE = 300;
 
@@ -28,6 +31,17 @@ export class GameMap extends Container {
 				angle: 90,
 			}),
 		);
+
+		for (let i = -3; i <= 3; i++) {
+			for (let j = -3; j <= 3; j++) {
+				this.addChild(
+					new Building({
+						x: i * TILE_SIZE + TILE_SIZE / 2,
+						y: j * TILE_SIZE + TILE_SIZE / 2,
+					}),
+				);
+			}
+		}
 	}
 
 	update(ticker: Ticker) {
@@ -75,9 +89,16 @@ export class GameMap extends Container {
 			}
 			this.player.targetPosition = buildingPosition;
 			this.player.targetPosition.y += TILE_SIZE / 2;
+			this.player.onReachedTarget = () => {
+				this.startLevel();
+			};
 		}
 		this.movedBy = 0;
 	});
+
+	startLevel() {
+		engine().navigation.presentPopup(GameScreen);
+	}
 }
 
 const MOVED_BY_THRESHOLD = 10;

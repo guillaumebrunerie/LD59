@@ -12,7 +12,7 @@ export const gameHeight = 1000;
 export class Game extends Container {
 	ticker: Ticker;
 	device?: Device;
-	level = level2;
+	level = level1;
 
 	constructor() {
 		super();
@@ -20,15 +20,6 @@ export class Game extends Container {
 		this.addToTicker(this);
 
 		this.resetDevice();
-
-		const button = this.addChild(
-			new Graphics().rect(-400, 700, 100, 100).fill("red"),
-		);
-		button.pivot = 50;
-		button.interactive = true;
-		button.on("pointerdown", () => {
-			engine().navigation.showScreen(MapScreen);
-		});
 	}
 
 	resetDevice() {
@@ -45,6 +36,7 @@ export class Game extends Container {
 				onMatch: () => {
 					device.reset();
 					this.resetDevice();
+					engine().navigation.dismissPopup();
 				},
 			}),
 		);
