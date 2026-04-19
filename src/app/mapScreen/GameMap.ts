@@ -1,18 +1,27 @@
-import { Point, Ticker, type FederatedPointerEvent } from "pixi.js";
+import {
+	Point,
+	Ticker,
+	type FederatedPointerEvent,
+	type ViewContainerOptions,
+} from "pixi.js";
 import { Container } from "../../PausableContainer";
 import { Tile } from "./Tile";
 import { Player } from "./Player";
-import { GameScreen } from "../gameScreen/GameScreen";
-import { engine } from "../../getEngine";
 import { Building } from "./Building";
+import { Game } from "../gameScreen/Game";
+import { level1 } from "../gameScreen/levels";
 
 const TILE_SIZE = 300;
 
 export class GameMap extends Container {
+	game?: Game;
 	player: Player;
+	level = level1;
+	startLevel: () => void;
 
-	constructor() {
-		super();
+	constructor(options: ViewContainerOptions & { startLevel: () => void }) {
+		super(options);
+		this.startLevel = options.startLevel;
 		for (let i = -3; i <= 3; i++) {
 			for (let j = -3; j <= 3; j++) {
 				this.addChild(
@@ -46,6 +55,7 @@ export class GameMap extends Container {
 
 	update(ticker: Ticker) {
 		this.player.update(ticker);
+		this.game?.update(ticker);
 	}
 
 	isPressed = false;
@@ -72,7 +82,7 @@ export class GameMap extends Container {
 		this.y += event.movementY;
 	};
 
-	onpointerup = (this.onpointerupoutside = () => {
+	onpointerup = () => {
 		this.isPressed = false;
 		if (this.movedBy < MOVED_BY_THRESHOLD) {
 			const clickedX = this.previousPoint.x;
@@ -91,14 +101,11 @@ export class GameMap extends Container {
 			this.player.targetPosition.y += TILE_SIZE / 2;
 			this.player.onReachedTarget = () => {
 				this.startLevel();
+				this.player.onReachedTarget = undefined;
 			};
 		}
 		this.movedBy = 0;
-	});
-
-	startLevel() {
-		engine().navigation.presentPopup(GameScreen);
-	}
+	};
 }
 
 const MOVED_BY_THRESHOLD = 10;

@@ -6,7 +6,6 @@ import {
 	Rectangle,
 	Sprite,
 	Ticker,
-	type FederatedEventHandler,
 	type ViewContainerOptions,
 } from "pixi.js";
 import { Container } from "../../PausableContainer";
@@ -17,6 +16,7 @@ import {
 } from "./Waveform";
 import { Label } from "../ui/Label";
 import type { Level, Range } from "./levelsUtils";
+import { engine } from "../../getEngine";
 
 const getParamAndTarget = (
 	waveform: Waveform,
@@ -75,18 +75,27 @@ const getParamAndTarget = (
 export class Device extends Container {
 	blueprint: Waveform;
 	waveform: Waveform;
-	onMatch: () => void;
+	onEnd: (isMatch: boolean) => void;
 
 	constructor(
 		options: ViewContainerOptions & {
 			targetWaveData: CombinedWaveData;
 			initialWaveData: CombinedWaveData;
-			onMatch: () => void;
+			onEnd: (isMatch: boolean) => void;
 			level: Level;
 		},
 	) {
 		super(options);
-		this.onMatch = options.onMatch;
+		this.onEnd = options.onEnd;
+		const darkOverlay = this.addChild(
+			new Graphics().rect(-1000, -1000, 2000, 2000).fill("#20200080"),
+		);
+		darkOverlay.interactive = true;
+		darkOverlay.on("click", (event) => {
+			if (event.target === darkOverlay) {
+				this.onEnd(false);
+			}
+		});
 		this.addChild(
 			new Sprite({
 				anchor: 0.5,
@@ -94,6 +103,8 @@ export class Device extends Container {
 				texture: Assets.get("DeviceScreen.png"),
 			}),
 		);
+		this.addChild(new Battery({ x: -165, y: -420 }));
+
 		const waveformOptions = {
 			y: -340,
 			w: 250,
@@ -121,7 +132,6 @@ export class Device extends Container {
 				texture: Assets.get("Device.png"),
 			}),
 		);
-		this.addChild(new Battery({ x: -165, y: -420 }));
 
 		for (const knobSpec of options.level.device) {
 			const { param, target } = getParamAndTarget(
@@ -171,7 +181,7 @@ export class Device extends Container {
 		if (this.isMatching) {
 			this.matchedSince += ticker.deltaMS / 1000;
 			if (this.matchedSince > 1) {
-				this.onMatch();
+				this.onEnd(true);
 			}
 		}
 		this.blueprint.update(ticker);

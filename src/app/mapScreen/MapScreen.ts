@@ -1,10 +1,13 @@
-import { FederatedPointerEvent, Ticker, type DestroyOptions } from "pixi.js";
+import { Ticker, type DestroyOptions } from "pixi.js";
 import { Container } from "../../PausableContainer";
 import { engine } from "../../getEngine";
 import { SoundButton } from "../ui/SoundButton";
 import { PauseButton } from "../ui/PauseButton";
 import { PausePopup } from "../pausePopup/PausePopup";
 import { GameMap } from "./GameMap";
+import { Device } from "../gameScreen/Device";
+import { pickCombinedWaveData } from "../gameScreen/levelsUtils";
+import { level1 } from "../gameScreen/levels";
 
 export class MapScreen extends Container {
 	public static assetBundles = ["main"];
@@ -14,6 +17,7 @@ export class MapScreen extends Container {
 	pauseButton: PauseButton;
 	soundButton: SoundButton;
 	ticker: Ticker;
+	level = level1;
 
 	constructor() {
 		super();
@@ -21,7 +25,9 @@ export class MapScreen extends Container {
 		this.addToTicker(this);
 
 		this.gameContainer = this.addChild(new Container());
-		this.gameMap = this.gameContainer.addChild(new GameMap());
+		this.gameMap = this.gameContainer.addChild(
+			new GameMap({ startLevel: () => this.startLevel() }),
+		);
 
 		this.pauseButton = this.addChild(
 			new PauseButton({
@@ -30,6 +36,28 @@ export class MapScreen extends Container {
 			}),
 		);
 		this.soundButton = this.addChild(new SoundButton());
+	}
+
+	device?: Device;
+	startLevel() {
+		const device = this.addChild(
+			new Device({
+				scale: 1.7,
+				angle: -2,
+				x: 540,
+				y: 1920 / 2,
+				level: this.level,
+				targetWaveData: pickCombinedWaveData(this.level),
+				initialWaveData: pickCombinedWaveData(this.level),
+				onEnd: (_isMatch: boolean) => {
+					device.reset();
+					device.destroy();
+					this.gameMap.interactive = true;
+				},
+			}),
+		);
+		this.device = device;
+		this.gameMap.interactive = false;
 	}
 
 	start() {
@@ -63,6 +91,7 @@ export class MapScreen extends Container {
 
 	update(ticker: Ticker) {
 		this.gameMap.update(ticker);
+		this.device?.update(ticker);
 	}
 
 	show() {

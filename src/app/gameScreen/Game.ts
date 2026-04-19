@@ -1,9 +1,8 @@
-import { type DestroyOptions, Graphics, Ticker } from "pixi.js";
+import { type DestroyOptions, Ticker } from "pixi.js";
 import { Container } from "../../PausableContainer";
 import { engine } from "../../getEngine";
-import { MapScreen } from "../mapScreen/MapScreen";
 import { Device } from "./Device";
-import { level1, level2 } from "./levels";
+import { level2 } from "./levels";
 import { pickCombinedWaveData } from "./levelsUtils";
 
 export const gameWidth = 1000;
@@ -12,7 +11,7 @@ export const gameHeight = 1000;
 export class Game extends Container {
 	ticker: Ticker;
 	device?: Device;
-	level = level1;
+	level = level2;
 
 	constructor() {
 		super();
@@ -29,7 +28,7 @@ export class Game extends Container {
 		const device = this.addChild(
 			new Device({
 				scale: 1.7,
-				// angle: -2,
+				angle: -2,
 				level: this.level,
 				targetWaveData: pickCombinedWaveData(this.level),
 				initialWaveData: pickCombinedWaveData(this.level),
@@ -73,5 +72,7 @@ export class Game extends Container {
 		});
 	}
 
-	update() {}
+	update(ticker: Ticker) {
+		this.device?.update(this.ticker);
+	}
 }
