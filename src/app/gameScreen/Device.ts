@@ -92,10 +92,16 @@ export class Device extends Container {
 		);
 		darkOverlay.interactive = true;
 		darkOverlay.on("click", (event) => {
-			if (event.target === darkOverlay) {
+			if (event.currentTarget === darkOverlay) {
 				this.onEnd(false);
 			}
 		});
+		darkOverlay.on("tap", (event) => {
+			if (event.currentTarget === darkOverlay) {
+				this.onEnd(false);
+			}
+		});
+
 		this.addChild(
 			new Sprite({
 				anchor: 0.5,
@@ -130,8 +136,22 @@ export class Device extends Container {
 			new Sprite({
 				anchor: 0.5,
 				texture: Assets.get("Device.png"),
+				interactive: true,
+				hitArea: new Rectangle(-225, -500, 450, 1000),
 			}),
 		);
+
+		// Uncomment to visualize hit area
+		// this.addChild(
+		// 	new Graphics()
+		// 		.rect(
+		// 			device.hitArea.x,
+		// 			device.hitArea.y,
+		// 			device.hitArea.width,
+		// 			device.hitArea.height,
+		// 		)
+		// 		.fill("#FF00FF20"),
+		// );
 
 		for (const knobSpec of options.level.device) {
 			const { param, target } = getParamAndTarget(
