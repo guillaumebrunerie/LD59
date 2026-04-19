@@ -13,6 +13,7 @@ const SHOCKWAVE_SPEED = 0.1;
 export class Antenna extends Container {
 	antennaId: string;
 	antenna: Sprite;
+	shadow: Sprite;
 	shockwave: Graphics;
 	shockwaveDistance = 0;
 	isEmitting = true;
@@ -29,13 +30,28 @@ export class Antenna extends Container {
 		}
 		this.antennaId =
 			antennaIds[Math.floor(Math.random() * antennaIds.length)];
-		this.antenna = this.addChild(
+		this.addChild(
 			new Sprite({
-				texture: Assets.get(this.antennaId),
+				texture: Assets.get("AntennasBase_01.png"),
+				y: -30,
 				anchor: 0.5,
 			}),
 		);
-		this.shockwave = this.addChild(new Graphics());
+		this.shadow = this.addChild(
+			new Sprite({
+				texture: Assets.get("AntennasShadow01.png"),
+				y: -20,
+				anchor: 0.5,
+			}),
+		);
+		this.antenna = this.addChild(
+			new Sprite({
+				texture: Assets.get(this.antennaId),
+				y: -30,
+				anchor: 0.5,
+			}),
+		);
+		this.shockwave = this.addChild(new Graphics({ y: -50 }));
 		this.shockwaveDistance = Math.random() * SHOCKWAVE_MAX_DISTANCE;
 	}
 
@@ -43,7 +59,8 @@ export class Antenna extends Container {
 		if (!this.isEmitting) {
 			return;
 		}
-		this.angle += ticker.deltaMS / 10;
+		this.antenna.angle += ticker.deltaMS / 30;
+		this.shadow.angle += ticker.deltaMS / 30;
 		this.shockwaveDistance += ticker.deltaMS * SHOCKWAVE_SPEED;
 		if (this.shockwaveDistance > SHOCKWAVE_MAX_DISTANCE) {
 			this.shockwaveDistance = 0;

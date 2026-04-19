@@ -162,7 +162,7 @@ export class Waveform extends Container {
 				this.curve.lineTo(x, y);
 			}
 		}
-		this.curve.stroke({ width: 3, color: this.color, join: "round" });
+		this.curve.stroke({ width: 4, color: this.color, join: "round" });
 	}
 
 	baselineParam(): Param {
