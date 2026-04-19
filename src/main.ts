@@ -37,5 +37,5 @@ setEngine(engine);
 	// Show the load screen
 	await engine.navigation.showScreen(LoadScreen);
 	// Show the main screen once the load screen is dismissed
-	await engine.navigation.showScreen(GameScreen);
+	await engine.navigation.showScreen(MapScreen);
 })();

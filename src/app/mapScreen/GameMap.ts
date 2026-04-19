@@ -22,7 +22,12 @@ export class GameMap extends Container {
 		}
 		this.interactive = true;
 
-		this.player = this.addChild(new Player({}));
+		this.player = this.addChild(
+			new Player({
+				x: TILE_SIZE / 2,
+				angle: 90,
+			}),
+		);
 	}
 
 	update(ticker: Ticker) {
@@ -31,30 +36,41 @@ export class GameMap extends Container {
 
 	isPressed = false;
 	previousPoint = new Point();
+	movedBy = 0;
 	onpointerdown = (event: FederatedPointerEvent) => {
 		this.isPressed = true;
+		this.movedBy = 0;
 		this.previousPoint = event.getLocalPosition(this);
-		this.player.targetPosition = this.previousPoint.clone();
 	};
 
 	onglobalpointermove = (event: FederatedPointerEvent) => {
 		if (!this.isPressed) {
 			return;
 		}
+		this.movedBy += Math.sqrt(
+			event.movementX * event.movementX +
+				event.movementY * event.movementY,
+		);
+		if (this.movedBy < MOVED_BY_THRESHOLD) {
+			return;
+		}
 		this.x += event.movementX;
 		this.y += event.movementY;
-		// const newPoint = event.getLocalPosition(this);
-		// console.log("BEFORE", newPoint);
-		// const deltaX = newPoint.x - this.previousPoint.x;
-		// const deltaY = newPoint.y - this.previousPoint.y;
-		// // this.previousPoint = newPoint;
-		// this.x += deltaX;
-		// this.y += deltaY;
-		// console.log("AFTER", event.getLocalPosition(this));
-		// console.log(newPoint, deltaX, deltaY);
 	};
 
 	onpointerup = (this.onpointerupoutside = () => {
 		this.isPressed = false;
+		if (this.movedBy < MOVED_BY_THRESHOLD) {
+			const clickedX = this.previousPoint.x;
+			const clickedY = this.previousPoint.y;
+			const targetX =
+				Math.floor(clickedX / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2;
+			const targetY =
+				Math.floor(clickedY / TILE_SIZE) * TILE_SIZE + TILE_SIZE;
+			this.player.targetPosition = new Point(targetX, targetY);
+		}
+		this.movedBy = 0;
 	});
 }
+
+const MOVED_BY_THRESHOLD = 10;
