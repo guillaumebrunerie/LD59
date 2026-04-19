@@ -7,7 +7,7 @@ export type Range = {
 };
 
 export type KnobType = {
-	type: "vertical-slider" | "horizontal-slider" | "knob";
+	type: "vertical-slider" | "horizontal-slider" | "knob" | "buttons";
 	x: number;
 	y: number;
 	param:

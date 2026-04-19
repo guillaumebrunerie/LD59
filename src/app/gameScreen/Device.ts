@@ -190,6 +190,15 @@ export class Device extends Container {
 							target,
 						}),
 					);
+					break;
+				case "buttons":
+					this.addChild(
+						new Buttons({
+							x: knobSpec.x,
+							y: knobSpec.y,
+							param,
+						}),
+					);
 			}
 		}
 	}
@@ -229,68 +238,6 @@ export class Device extends Container {
 		this.eventMode = "auto";
 		this.isMatching = false;
 		this.matchedSince = 0;
-	}
-}
-
-export class TestButton extends Container {
-	constructor(options: ViewContainerOptions & { onClick: () => void }) {
-		super(options);
-		const button = this.addChild(
-			new Graphics().rect(0, 0, 100, 100).fill("blue"),
-		);
-		button.pivot = 50;
-		button.interactive = true;
-		button.on("pointerdown", options.onClick);
-	}
-}
-
-export class TestButtons extends Container {
-	constructor(
-		options: ViewContainerOptions & {
-			callback: (delta: number) => void;
-			getValue: () => number;
-		},
-	) {
-		super(options);
-
-		const label = this.addChild(
-			new Label({ text: String(options.getValue()) }),
-		);
-		this.addChild(
-			new TestButton({
-				x: -150,
-				onClick: () => {
-					options.callback(-1);
-					label.text = String(options.getValue());
-				},
-			}),
-		);
-		this.addChild(
-			new TestButton({
-				x: 150,
-				onClick: () => {
-					options.callback(1);
-					label.text = String(options.getValue());
-				},
-			}),
-		);
-	}
-}
-
-export class BasicButtons<T extends string> extends Container {
-	constructor(
-		options: ViewContainerOptions & { key: T; object: Record<T, number> },
-	) {
-		super(options);
-
-		this.addChild(
-			new TestButtons({
-				callback: (delta) => {
-					options.object[options.key] += delta;
-				},
-				getValue: () => options.object[options.key],
-			}),
-		);
 	}
 }
 
@@ -512,6 +459,67 @@ export class Knob extends AbstractSlider {
 	// 	}
 	// 	this.update();
 	// });
+}
+
+export class Button extends Container {
+	button: Sprite;
+	delta: number;
+
+	constructor(
+		options: ViewContainerOptions & {
+			param: Param;
+			texture: string;
+			delta: number;
+			hitArea: Rectangle;
+		},
+	) {
+		super(options);
+		this.delta = options.delta;
+
+		this.button = this.addChild(
+			new Sprite({
+				anchor: 0.5,
+				texture: Assets.get(options.texture),
+			}),
+		);
+		this.button.interactive = true;
+		const hitArea = options.hitArea;
+		this.button.hitArea = hitArea;
+		this.button.on("pointerdown", () => {
+			options.param.set(options.param.get() + this.delta);
+		});
+
+		// Uncomment to visualize hit area
+		// this.addChild(
+		// 	new Graphics()
+		// 		.rect(hitArea.x, hitArea.y, hitArea.width, hitArea.height)
+		// 		.fill("#FF00FF20"),
+		// );
+	}
+}
+
+export class Buttons extends Container {
+	constructor(options: ViewContainerOptions & { param: Param }) {
+		super(options);
+		this.addChild(
+			new Button({
+				y: 0,
+				param: options.param,
+				texture: "MoveDownBtn.png",
+				delta: -1,
+				hitArea: new Rectangle(-55, 0, 110, 65),
+			}),
+		);
+		this.addChild(
+			new Button({
+				y: 0,
+				param: options.param,
+				texture: "MoveUpBtn.png",
+				delta: 1,
+				hitArea: new Rectangle(-55, -65, 110, 65),
+			}),
+		);
+	}
 }
 
 class Battery extends Container {
