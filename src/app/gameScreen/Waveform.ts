@@ -41,10 +41,9 @@ const waveValue = (
 ): number => {
 	const b = basicWaveValue(amplitude, gt) / 10;
 	const c = phase / 10;
-	const d = getFrequency(basicWaveValue(waves, gt)) * 2 * Math.PI;
-	const e =
-		getFrequency(basicWaveValue(waves, gt)) * (speed / 2) * 2 * Math.PI;
-	return b * Math.cos(u * d - c * 2 * Math.PI - gt * e);
+	const d = getFrequency(basicWaveValue(waves, gt));
+	const e = getFrequency(basicWaveValue(waves, gt)) * (speed / 4);
+	return b * Math.cos((u * d - gt * e - c) * 2 * Math.PI);
 };
 
 const combinedWaveValue = (
@@ -93,7 +92,9 @@ const interpolateWaveData = (
 	interpolateBasicWaveData(current.amplitude, target.amplitude, speed, dt);
 	interpolateBasicWaveData(current.waves, target.waves, speed, dt);
 	interpolate("speed", current, target, Infinity, dt);
-	interpolate("phase", current, target, Infinity, dt);
+	if (speed < 10) {
+		interpolate("phase", current, target, 5, dt);
+	}
 };
 
 const interpolateCombinedWaveData = (
@@ -222,7 +223,18 @@ export class Waveform extends Container {
 		get: () => this.targetWaveData.wave1.waves.base,
 		set: (value: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
+			const oldFrequency = getFrequency(
+				this.targetWaveData.wave1.waves.base,
+			);
 			this.targetWaveData.wave1.waves.base = value;
+			const newFrequency = getFrequency(
+				this.targetWaveData.wave1.waves.base,
+			);
+			const delta = newFrequency - oldFrequency;
+			this.waveData.wave1.phase -=
+				this.t * delta * this.targetWaveData.wave1.speed * 2.5;
+			this.targetWaveData.wave1.phase =
+				Math.round(this.waveData.wave1.phase / 2) * 2;
 		},
 	};
 
@@ -237,14 +249,22 @@ export class Waveform extends Container {
 	};
 
 	speed1Param: Param = {
-		minValue: -3,
-		maxValue: 3,
+		minValue: -5,
+		maxValue: 5,
 		get: () => this.targetWaveData.wave1.speed,
 		set: (value: number, updateSpeed: number) => {
 			this.updateSpeed = updateSpeed;
 			const delta = value - this.targetWaveData.wave1.speed;
 			this.targetWaveData.wave1.speed = value;
-			this.targetWaveData.wave1.phase += (this.t * delta) / 2;
+			this.waveData.wave1.phase -=
+				this.t *
+				delta *
+				getFrequency(
+					basicWaveValue(this.waveData.wave1.waves, this.t),
+				) *
+				2.5;
+			this.targetWaveData.wave1.phase =
+				Math.round(this.waveData.wave1.phase / 2) * 2;
 		},
 	};
 

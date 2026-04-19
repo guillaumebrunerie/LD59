@@ -23,8 +23,8 @@ const randomBasicWaveData = () => ({
 			speed: 0,
 			phase: 0,
 		},
-		speed: 0,
-		phase: randomInt(0, 9),
+		speed: randomInt(-4, 4),
+		phase: randomInt(0, 4) * 2,
 	},
 	wave2: {
 		amplitude: {
@@ -46,27 +46,14 @@ const randomBasicWaveData = () => ({
 
 export class Game extends Container {
 	ticker: Ticker;
+	device?: Device;
 
 	constructor() {
 		super();
 		this.ticker = new Ticker();
 		this.addToTicker(this);
 
-		const device = this.addChild(
-			new Device({
-				scale: 1.7,
-				// angle: -2,
-				targetWaveData: randomBasicWaveData(),
-				initialWaveData: randomBasicWaveData(),
-				onMatch: () => {
-					device.reset({
-						targetWaveData: randomBasicWaveData(),
-						initialWaveData: randomBasicWaveData(),
-					});
-				},
-			}),
-		);
-		this.addToTicker(device);
+		this.resetDevice();
 
 		const button = this.addChild(
 			new Graphics().rect(-300, 700, 100, 100).fill("red"),
@@ -76,6 +63,26 @@ export class Game extends Container {
 		button.on("pointerdown", () => {
 			engine().navigation.showScreen(MapScreen);
 		});
+	}
+
+	resetDevice() {
+		if (this.device) {
+			this.device.destroy();
+		}
+		const device = this.addChild(
+			new Device({
+				scale: 1.7,
+				// angle: -2,
+				targetWaveData: randomBasicWaveData(),
+				initialWaveData: randomBasicWaveData(),
+				onMatch: () => {
+					device.reset();
+					this.resetDevice();
+				},
+			}),
+		);
+		this.device = device;
+		this.addToTicker(this.device);
 	}
 
 	start() {

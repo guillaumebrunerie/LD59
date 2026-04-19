@@ -93,12 +93,21 @@ export class Device extends Container {
 			}),
 		);
 
+		// this.addChild(
+		// 	new Slider({
+		// 		y: 300,
+		// 		orientation: "horizontal",
+		// 		param: this.waveform.phase1Param,
+		// 		target: this.blueprint.phase1Param.get(),
+		// 	}),
+		// );
+
 		this.addChild(
 			new Slider({
 				y: 300,
 				orientation: "horizontal",
-				param: this.waveform.phase1Param,
-				target: this.blueprint.phase1Param.get(),
+				param: this.waveform.speed1Param,
+				target: this.blueprint.speed1Param.get(),
 			}),
 		);
 	}
@@ -129,17 +138,7 @@ export class Device extends Container {
 		}
 	}
 
-	reset({
-		targetWaveData,
-		initialWaveData,
-	}: {
-		targetWaveData: CombinedWaveData;
-		initialWaveData: CombinedWaveData;
-	}) {
-		this.blueprint.updateSpeed = 8;
-		this.blueprint.targetWaveData = structuredClone(targetWaveData);
-		this.waveform.updateSpeed = 20;
-		this.waveform.targetWaveData = structuredClone(initialWaveData);
+	reset() {
 		this.waveform.color = new Color("#6d3813");
 		this.eventMode = "auto";
 		this.isMatching = false;
@@ -326,24 +325,24 @@ export class Slider extends AbstractSlider {
 				(this.maxY - this.minY);
 	}
 
-	onclick = (this.ontap = (event: FederatedPointerEvent) => {
-		const clickedY = event.getLocalPosition(this).y;
-		const clickedValue =
-			this.param.minValue +
-			((clickedY - this.minY) / (this.maxY - this.minY)) *
-				(this.param.maxValue - this.param.minValue);
+	// onclick = (this.ontap = (event: FederatedPointerEvent) => {
+	// 	const clickedY = event.getLocalPosition(this).y;
+	// 	const clickedValue =
+	// 		this.param.minValue +
+	// 		((clickedY - this.minY) / (this.maxY - this.minY)) *
+	// 			(this.param.maxValue - this.param.minValue);
 
-		const value = this.param.get();
-		if (clickedValue < value - 1 && value >= this.param.minValue + 1) {
-			this.param.set(value - 1, 8);
-		} else if (
-			clickedValue > value + 1 &&
-			value <= this.param.maxValue - 1
-		) {
-			this.param.set(value + 1, 8);
-		}
-		this.update();
-	});
+	// 	const value = this.param.get();
+	// 	if (clickedValue < value - 1 && value >= this.param.minValue + 1) {
+	// 		this.param.set(value - 1, 8);
+	// 	} else if (
+	// 		clickedValue > value + 1 &&
+	// 		value <= this.param.maxValue - 1
+	// 	) {
+	// 		this.param.set(value + 1, 8);
+	// 	}
+	// 	this.update();
+	// });
 }
 
 export class Knob extends AbstractSlider {
