@@ -28,7 +28,7 @@ export class MapScreen extends Container {
 		this.gameContainer = this.addChild(new Container());
 		this.gameMap = this.gameContainer.addChild(
 			new GameMap({
-				x: -TILE_SIZE * 5,
+				x: -TILE_SIZE * 6,
 				y: -TILE_SIZE * 4,
 				angle: -5,
 				city: this.city,

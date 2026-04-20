@@ -12,7 +12,6 @@ import { Antenna } from "./Antenna";
 import { addAntenna, hasBuildingAt, type City } from "./city";
 
 const TILE_SIZE = 300;
-const playerOffset = -15;
 
 export class GameMap extends Container {
 	player: Player;
@@ -62,8 +61,10 @@ export class GameMap extends Container {
 		this.player = this.addChild(
 			new Player({
 				x: TILE_SIZE / 2 + TILE_SIZE * 5,
-				y: TILE_SIZE * 4 + playerOffset,
-				angle: 90,
+				y: TILE_SIZE * 4,
+				onMove: (dx, dy) => {
+					this.dragMapBy2(-dx, -dy);
+				},
 			}),
 		);
 
@@ -100,14 +101,14 @@ export class GameMap extends Container {
 		for (const child of this.children) {
 			child.update?.(ticker);
 		}
-		if (!this.isPressed) {
-			this.inertiaX *= Math.pow(1 / 4, ticker.deltaMS / 1000);
-			this.inertiaY *= Math.pow(1 / 4, ticker.deltaMS / 1000);
-			this.dragMapBy(
-				this.inertiaX * ticker.deltaMS,
-				this.inertiaY * ticker.deltaMS,
-			);
-		}
+		// if (!this.isPressed) {
+		// 	this.inertiaX *= Math.pow(1 / 4, ticker.deltaMS / 1000);
+		// 	this.inertiaY *= Math.pow(1 / 4, ticker.deltaMS / 1000);
+		// 	this.dragMapBy(
+		// 		this.inertiaX * ticker.deltaMS,
+		// 		this.inertiaY * ticker.deltaMS,
+		// 	);
+		// }
 	}
 
 	dragMapBy(dx: number, dy: number) {
@@ -142,6 +143,36 @@ export class GameMap extends Container {
 				padding +
 				cityHeight * Math.sin(angle),
 		);
+	}
+
+	delta2X = 0;
+	delta2Y = 0;
+	dragMapBy2(dx: number, dy: number) {
+		if (this.isPressed) {
+			return;
+		}
+		// const globalPlayer = this.toGlobal(this.player.position);
+		// if (globalPlayer.x < 1080 / 2 && dx > 0) {
+		// 	dx = 0;
+		// }
+		// if (globalPlayer.x > 1080 / 2 && dx < 0) {
+		// 	dx = 0;
+		// }
+		// if (globalPlayer.y < 1920 / 2 && dy > 0) {
+		// 	dy = 0;
+		// }
+		// if (globalPlayer.y > 1920 / 2 && dy < 0) {
+		// 	dy = 0;
+		// }
+		this.inertiaX = 0;
+		this.inertiaY = 0;
+		const oldX = this.x;
+		const oldY = this.y;
+		this.dragMapBy(dx + this.delta2X, dy + this.delta2Y);
+		const actualMovementX = this.x - oldX;
+		this.delta2X += dx - actualMovementX;
+		const actualMovementY = this.y - oldY;
+		this.delta2Y += dy - actualMovementY;
 	}
 
 	isPressed = false;
@@ -211,23 +242,21 @@ export class GameMap extends Container {
 		if (this.movedBy < MOVED_BY_THRESHOLD) {
 			const clickedX = this.previousPoint.x;
 			const clickedY = this.previousPoint.y;
-			const buildingI = Math.floor(clickedY / TILE_SIZE) + 1;
-			const buildingJ = Math.floor(clickedX / TILE_SIZE) + 1;
+			const buildingI = Math.round(clickedY / (TILE_SIZE / 2) + 1) / 2;
+			const buildingJ = Math.round(clickedX / (TILE_SIZE / 2) + 1) / 2;
 			const buildingPosition = new Point(
 				buildingJ * TILE_SIZE - TILE_SIZE / 2,
 				buildingI * TILE_SIZE - TILE_SIZE / 2,
 			);
-			if (
-				buildingPosition.subtract(this.previousPoint).magnitude() >
-				TILE_SIZE / 2
-			) {
-				return;
+			this.player.targetPosition = buildingPosition;
+			if (Number.isInteger(buildingI) && Number.isInteger(buildingJ)) {
+				this.player.targetPosition.y += TILE_SIZE / 2;
 			}
+			// this.player.targetPosition.y += // TILE_SIZE / 2 +
+			// 	playerOffset;
 			if (!hasBuildingAt(this.city, buildingI, buildingJ)) {
 				return;
 			}
-			this.player.targetPosition = buildingPosition;
-			this.player.targetPosition.y += TILE_SIZE / 2 + playerOffset;
 			this.player.onReachedTarget = () => {
 				if (
 					this.city.map[buildingI][buildingJ].antenna &&

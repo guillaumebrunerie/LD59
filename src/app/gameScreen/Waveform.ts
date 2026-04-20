@@ -272,6 +272,9 @@ export class Waveform extends Container {
 			set: (value: number) => {
 				this.waveData[key].offset = value;
 			},
+			solve: (target: number) => {
+				return mod(target - Math.round(this.waveData[key].phase), 10);
+			},
 		};
 	}
 

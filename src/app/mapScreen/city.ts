@@ -15,6 +15,7 @@ export type City = {
 	}[][];
 	levelIndex: number;
 	antennaIndex: number;
+	hintsLeft: number;
 };
 
 // const mapStr = `
@@ -59,6 +60,7 @@ export const generateCity = (): City => {
 		map,
 		levelIndex: 0,
 		antennaIndex: 0,
+		hintsLeft: 5,
 	};
 
 	let count = 0;
@@ -94,6 +96,8 @@ export const addAntenna = (
 };
 
 export const hasBuildingAt = (city: City, i: number, j: number) =>
+	Number.isInteger(i) &&
+	Number.isInteger(j) &&
 	i > 0 &&
 	j > 0 &&
 	city.map[i][j].hasTile &&

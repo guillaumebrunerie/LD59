@@ -6,7 +6,7 @@ import {
 	Rectangle,
 	Sprite,
 	Ticker,
-	type ViewContainerOptions,
+	type ContainerOptions,
 } from "pixi.js";
 import { Container } from "../../PausableContainer";
 import {
@@ -16,6 +16,8 @@ import {
 } from "./Waveform";
 import type { Level, Range } from "./levelsUtils";
 import { mod } from "../utils/maths";
+import { userSettings } from "../utils/userSettings";
+import { randomItem } from "../../engine/utils/random";
 
 const getParamAndTarget = (
 	waveform: Waveform,
@@ -27,76 +29,92 @@ const getParamAndTarget = (
 			return {
 				param: waveform.baselineParam(),
 				target: blueprint.baselineParam().get(),
+				hintPriority: -1,
 			};
 		case "amplitude1":
 			return {
 				param: waveform.amplitudeXParam("wave1"),
 				target: blueprint.amplitudeXParam("wave1").get(),
+				hintPriority: 2,
 			};
 		case "am1":
 			return {
 				param: waveform.amXParam("wave1"),
 				target: blueprint.amXParam("wave1").get(),
+				hintPriority: 1,
 			};
 		case "frequency1":
 			return {
 				param: waveform.frequencyXParam("wave1"),
 				target: blueprint.frequencyXParam("wave1").get(),
+				hintPriority: 2,
 			};
 		case "fm1":
 			return {
 				param: waveform.fmXParam("wave1"),
 				target: blueprint.fmXParam("wave1").get(),
+				hintPriority: -1,
 			};
 		case "shape1":
 			return {
 				param: waveform.shapeXParam("wave1"),
 				target: blueprint.shapeXParam("wave1").get(),
+				hintPriority: 1,
 			};
 		case "offset1":
 			return {
 				param: waveform.offsetXParam("wave1"),
 				target: blueprint.offsetXParam("wave1").get(),
+				hintPriority: 0,
 			};
 		case "speed1":
 			return {
 				param: waveform.speedXParam("wave1"),
 				target: blueprint.speedXParam("wave1").get(),
+				hintPriority: 2,
 			};
+
 		case "amplitude2":
 			return {
 				param: waveform.amplitudeXParam("wave2"),
 				target: blueprint.amplitudeXParam("wave2").get(),
+				hintPriority: 2,
 			};
 		case "am2":
 			return {
 				param: waveform.amXParam("wave2"),
 				target: blueprint.amXParam("wave2").get(),
+				hintPriority: 1,
 			};
 		case "frequency2":
 			return {
 				param: waveform.frequencyXParam("wave2"),
 				target: blueprint.frequencyXParam("wave2").get(),
+				hintPriority: 2,
 			};
 		case "fm2":
 			return {
 				param: waveform.fmXParam("wave2"),
 				target: blueprint.fmXParam("wave2").get(),
+				hintPriority: -1,
 			};
 		case "shape2":
 			return {
 				param: waveform.shapeXParam("wave2"),
 				target: blueprint.shapeXParam("wave2").get(),
+				hintPriority: 1,
 			};
 		case "offset2":
 			return {
 				param: waveform.offsetXParam("wave2"),
 				target: blueprint.offsetXParam("wave2").get(),
+				hintPriority: 0,
 			};
 		case "speed2":
 			return {
 				param: waveform.speedXParam("wave2"),
 				target: blueprint.speedXParam("wave2").get(),
+				hintPriority: 2,
 			};
 	}
 };
@@ -109,7 +127,7 @@ export class Device extends Container {
 	knobs: Knob[];
 
 	constructor(
-		options: ViewContainerOptions & {
+		options: ContainerOptions & {
 			targetWaveData: CombinedWaveData;
 			initialWaveData: CombinedWaveData;
 			onEnd: (isMatch: boolean) => void;
@@ -219,12 +237,14 @@ export class Device extends Container {
 				),
 			);
 		}
+		this.redrawBatteryLights();
 
 		this.knobs = [];
 		for (const knobSpec of options.level.device) {
 			const {
-				param: { range, get, set },
+				param: { range, get, set, solve },
 				target: desiredValue,
+				hintPriority,
 			} = getParamAndTarget(
 				this.waveform,
 				this.blueprint,
@@ -233,7 +253,7 @@ export class Device extends Container {
 			if (!range) {
 				continue;
 			}
-			const param = { range, get, set };
+			const param = { range, get, set, solve };
 			switch (knobSpec.type) {
 				case "vertical-slider":
 					this.knobs.push(
@@ -243,6 +263,7 @@ export class Device extends Container {
 								y: knobSpec.y,
 								param,
 								desiredValue,
+								hintPriority,
 								orientation: "vertical",
 								wrapAround: false,
 								id: "",
@@ -258,6 +279,7 @@ export class Device extends Container {
 								y: knobSpec.y,
 								param,
 								desiredValue,
+								hintPriority,
 								orientation: "vertical",
 								wrapAround: false,
 								id: "2",
@@ -273,6 +295,7 @@ export class Device extends Container {
 								y: knobSpec.y,
 								param,
 								desiredValue,
+								hintPriority,
 								orientation: "horizontal",
 								wrapAround: false,
 								id: "",
@@ -288,6 +311,7 @@ export class Device extends Container {
 								y: knobSpec.y,
 								param,
 								desiredValue,
+								hintPriority,
 								orientation: "horizontal",
 							}),
 						),
@@ -301,6 +325,7 @@ export class Device extends Container {
 								y: knobSpec.y,
 								param,
 								desiredValue,
+								hintPriority,
 							}),
 						),
 					);
@@ -313,6 +338,7 @@ export class Device extends Container {
 								y: knobSpec.y,
 								param,
 								desiredValue,
+								hintPriority,
 							}),
 						),
 					);
@@ -321,13 +347,19 @@ export class Device extends Container {
 		}
 	}
 
-	batteryCount = 5;
 	askForHelp() {
-		if (this.batteryCount > 0) {
-			this.batteryCount--;
-			for (const knob of this.knobs) {
-				if (!knob.isSolved()) {
-					knob.solve();
+		userSettings.hintsLeft.set(5);
+		const hintsLeft = userSettings.hintsLeft.get();
+		if (hintsLeft > 0) {
+			userSettings.hintsLeft.set(hintsLeft - 1);
+
+			for (const priority of [2, 1, 0]) {
+				const prioKnobs = this.knobs.filter(
+					(knob) =>
+						knob.hintPriority === priority && !knob.isSolved(),
+				);
+				if (prioKnobs.length > 0) {
+					randomItem(prioKnobs).solve();
 					break;
 				}
 			}
@@ -336,8 +368,9 @@ export class Device extends Container {
 	}
 
 	redrawBatteryLights() {
+		const hintsLeft = userSettings.hintsLeft.get();
 		this.batteryLights.forEach((light, index) => {
-			light.visible = index < this.batteryCount;
+			light.visible = index < hintsLeft;
 		});
 	}
 
@@ -383,30 +416,37 @@ export type OptionalParam = {
 	range?: Range;
 	get: () => number;
 	set: (newValue: number) => void;
+	solve?: (target: number) => void;
 };
 
 export type Param = {
 	range: Range;
 	get: () => number;
 	set: (newValue: number) => void;
+	solve?: (target: number) => void;
 };
 
-type KnobOptions = ViewContainerOptions & {
+type KnobOptions = ContainerOptions & {
 	param: Param;
 	desiredValue: number;
+	hintPriority: number;
 };
 
 export class Knob extends Container {
 	param: Param;
 	desiredValue: number;
+	hinted = false;
+	hintPriority;
 	constructor(options: KnobOptions) {
 		super(options);
 		this.param = options.param;
 		this.desiredValue = options.desiredValue;
+		this.hintPriority = options.hintPriority;
 	}
 
 	solve() {
 		this.param.set(this.desiredValue);
+		this.hinted = true;
 	}
 
 	isSolved() {
@@ -452,13 +492,16 @@ export abstract class AbstractSlider extends Knob {
 
 	solve() {
 		this.target = this.desiredValue;
+		this.hinted = true;
 	}
 
 	isPressed = false;
 	previousY = 0;
 	onpointerdown = (event: FederatedPointerEvent) => {
-		this.isPressed = true;
-		this.previousY = event.getLocalPosition(this).y;
+		if (!this.hinted) {
+			this.isPressed = true;
+			this.previousY = event.getLocalPosition(this).y;
+		}
 	};
 
 	onglobalpointermove = (event: FederatedPointerEvent) => {
@@ -546,6 +589,16 @@ export class Slider extends AbstractSlider {
 				(this.maxY - this.minY);
 	}
 
+	solve() {
+		super.solve();
+		this.addChild(
+			new Sprite({
+				texture: Assets.get("Selection.png"),
+				anchor: 0.5,
+			}),
+		);
+	}
+
 	// onclick = (this.ontap = (event: FederatedPointerEvent) => {
 	// 	const clickedY = event.getLocalPosition(this).y;
 	// 	const clickedValue =
@@ -625,6 +678,16 @@ export class Roller extends AbstractSlider {
 				(this.maxY - this.minY);
 	}
 
+	solve() {
+		this.target = this.param.solve?.(this.desiredValue);
+		// this.hinted = true;
+		// super.solve();
+	}
+
+	isSolved() {
+		return false;
+	}
+
 	// onclick = (this.ontap = (event: FederatedPointerEvent) => {
 	// 	const clickedY = event.getLocalPosition(this).y;
 	// 	const clickedValue =
@@ -650,7 +713,7 @@ export class Button extends Container {
 	delta: number;
 
 	constructor(
-		options: ViewContainerOptions & {
+		options: ContainerOptions & {
 			param: Param;
 			texture: string;
 			delta: number;

@@ -8,7 +8,7 @@ export class Tile extends Container {
 			neighbors: string;
 		},
 	) {
-		super();
+		super(options);
 
 		let tileType = "";
 		let angle = 0;
@@ -68,7 +68,6 @@ export class Tile extends Container {
 		this.tileId = tileIds[Math.floor(Math.random() * tileIds.length)];
 		this.addChild(
 			new Sprite({
-				...options,
 				texture: Assets.get(this.tileId),
 				anchor: 0.5,
 				angle,

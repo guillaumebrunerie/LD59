@@ -47,6 +47,8 @@ class UserSettings {
 		engine().audio.setMasterVolume(value);
 	});
 
+	hintsLeft = new Storage("hints-left", 5);
+
 	public init() {
 		this.masterVolume.init();
 	}
