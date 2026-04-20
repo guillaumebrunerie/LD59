@@ -56,7 +56,7 @@ export class MapScreen extends Container {
 				// scale: 1,
 				// x: 1400,
 				// y: 1080 / 2,
-				scale: 1.7,
+				scale: 1,
 				x: 540,
 				y: 1920 / 2,
 				level: antenna.level,
