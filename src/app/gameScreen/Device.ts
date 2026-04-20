@@ -5,6 +5,7 @@ import {
 	Graphics,
 	Rectangle,
 	Sprite,
+	Texture,
 	Ticker,
 	type ContainerOptions,
 } from "pixi.js";
@@ -18,6 +19,7 @@ import type { Level, Range, ToBeSolved } from "./levelsUtils";
 import { mod } from "../utils/maths";
 import { userSettings } from "../utils/userSettings";
 import { randomItem } from "../../engine/utils/random";
+import { Label } from "../ui/Label";
 
 const getParamAndTarget = (
 	waveform: Waveform,
@@ -354,6 +356,44 @@ export class Device extends Container {
 						),
 					);
 					break;
+				case "pulse":
+					this.knobs.push(
+						this.addChild(
+							new PulseButton({
+								...commonProps,
+							}),
+						),
+					);
+					break;
+				case "shape":
+					this.knobs.push(
+						this.addChild(
+							new ShapeButton({
+								...commonProps,
+							}),
+						),
+					);
+					break;
+				case "speed1":
+					this.knobs.push(
+						this.addChild(
+							new SpeedButtons({
+								...commonProps,
+								id: "01",
+							}),
+						),
+					);
+					break;
+				case "speed2":
+					this.knobs.push(
+						this.addChild(
+							new SpeedButtons({
+								...commonProps,
+								id: "02",
+							}),
+						),
+					);
+					break;
 				case "switch":
 					this.knobs.push(
 						this.addChild(
@@ -495,8 +535,8 @@ export abstract class AbstractSlider extends Knob {
 		this.target = this.param.get();
 	}
 
-	minY = 220;
-	maxY = -220;
+	minY = 160;
+	maxY = -this.minY;
 	redraw() {}
 	update(ticker: Ticker) {
 		const dt = ticker.deltaMS / 1000;
@@ -600,7 +640,7 @@ export class Slider extends AbstractSlider {
 		);
 
 		this.interactive = true;
-		const hitArea = new Rectangle(-60, -275, 120, 550);
+		const hitArea = new Rectangle(-55, -205, 110, 410);
 		this.hitArea = hitArea;
 		// Uncomment to visualize hit area
 		// this.addChild(
@@ -651,8 +691,8 @@ export class Slider extends AbstractSlider {
 export class Roller extends AbstractSlider {
 	knob: Sprite;
 
-	minY = 100;
-	maxY = -100;
+	minY = 50;
+	maxY = -50;
 	constructor(
 		options: KnobOptions & {
 			orientation: "vertical" | "horizontal";
@@ -683,13 +723,13 @@ export class Roller extends AbstractSlider {
 		);
 
 		this.interactive = true;
-		const mask = new Rectangle(-45, -210, 90, 420);
+		const mask = new Rectangle(-45, -120, 90, 260);
 		this.knob.mask = new Graphics()
 			.rect(mask.x, mask.y, mask.width, mask.height)
 			.fill(); //.fill("black");
 		this.addChild(this.knob.mask);
 
-		const hitArea = new Rectangle(-55, -220, 110, 440);
+		const hitArea = new Rectangle(-50, -140, 100, 300);
 		this.hitArea = hitArea;
 		// Uncomment to visualize hit area
 		// this.addChild(
@@ -781,35 +821,6 @@ export class Button extends Container {
 	}
 }
 
-// export class VerticalButtons extends Container {
-// 	constructor(options: ViewContainerOptions & { param: Param }) {
-// 		super(options);
-// 		const {
-// 			param: {
-// 				range: { step = 1 },
-// 			},
-// 		} = options;
-// 		this.addChild(
-// 			new Button({
-// 				y: 0,
-// 				param: options.param,
-// 				texture: "MoveDownBtn.png",
-// 				delta: -step,
-// 				hitArea: new Rectangle(-55, 0, 110, 65),
-// 			}),
-// 		);
-// 		this.addChild(
-// 			new Button({
-// 				y: 0,
-// 				param: options.param,
-// 				texture: "MoveUpBtn.png",
-// 				delta: step,
-// 				hitArea: new Rectangle(-55, -65, 110, 65),
-// 			}),
-// 		);
-// 	}
-// }
-
 export class HorizontalButtons extends Knob {
 	constructor(options: KnobOptions) {
 		super(options);
@@ -874,5 +885,207 @@ export class Switch extends Knob {
 			this.param.get() > 0 ? "ButtonOn.png" : "ButtonOff.png",
 		);
 		this.switch.blendMode = this.param.get() == 2 ? "add" : "normal";
+	}
+}
+
+export class PulseButton extends Knob {
+	lights: Sprite[];
+
+	constructor(options: KnobOptions) {
+		super(options);
+
+		const button = this.addChild(
+			new Sprite({
+				texture: Assets.get("PulseButton.png"),
+				anchor: 0.5,
+			}),
+		);
+		button.interactive = true;
+		const hitArea = new Rectangle(-70, -85, 140, 170);
+		button.hitArea = hitArea;
+		button.on("pointerdown", () => {
+			const value = options.param.get();
+			const newValue = mod(value + 1, options.param.range.max + 1);
+			options.param.set(newValue);
+			this.redraw();
+		});
+		// Uncomment to visualize hit area
+		// this.addChild(
+		// 	new Graphics()
+		// 		.rect(hitArea.x, hitArea.y, hitArea.width, hitArea.height)
+		// 		.fill("#FF00FF80"),
+		// );
+
+		this.lights = [];
+		for (const id of ["01", "02", "03"]) {
+			const light = this.addChild(
+				new Sprite({
+					texture: Assets.get(`PulseLight_${id}.png`),
+					anchor: 0.5,
+				}),
+			);
+			light.visible = false;
+			this.lights.push(light);
+		}
+		this.redraw();
+	}
+
+	redraw() {
+		this.lights.forEach((light, index) => {
+			light.visible = this.param.get() > index;
+		});
+	}
+}
+
+export class ShapeButton extends Knob {
+	button: Sprite;
+	lights: Sprite[];
+
+	constructor(options: KnobOptions) {
+		super(options);
+
+		const base = this.addChild(
+			new Sprite({
+				texture: Assets.get("ShapeButtonBase.png"),
+				anchor: 0.5,
+			}),
+		);
+		base.interactive = true;
+		const hitArea = new Rectangle(-70, -85, 140, 170);
+		base.hitArea = hitArea;
+		base.on("pointerdown", () => {
+			const value = options.param.get();
+			const newValue = mod(value + 1, options.param.range.max + 1);
+			options.param.set(newValue);
+			this.redraw();
+		});
+		// Uncomment to visualize hit area
+		// this.addChild(
+		// 	new Graphics()
+		// 		.rect(hitArea.x, hitArea.y, hitArea.width, hitArea.height)
+		// 		.fill("#FF00FF60"),
+		// );
+
+		this.button = this.addChild(
+			new Sprite({
+				anchor: 0.5,
+			}),
+		);
+
+		this.lights = [];
+		for (const id of ["01", "02", "03"]) {
+			const light = this.addChild(
+				new Sprite({
+					texture: Assets.get(`ShapeButtonLight_${id}.png`),
+					anchor: 0.5,
+				}),
+			);
+			light.visible = false;
+			this.lights.push(light);
+		}
+		this.redraw();
+	}
+
+	redraw() {
+		this.button.texture = Assets.get(
+			`ShapeButton_0${this.param.get() + 1}.png`,
+		);
+		this.lights.forEach((light, index) => {
+			light.visible = this.param.get() == index;
+		});
+	}
+}
+
+export class SpeedButton extends Container {
+	delta: number;
+
+	constructor(
+		options: ContainerOptions & {
+			param: Param;
+			delta: number;
+			hitArea: Rectangle;
+			redraw: () => void;
+		},
+	) {
+		super(options);
+		this.delta = options.delta;
+
+		const button = this.addChild(
+			new Sprite({
+				texture: Texture.EMPTY,
+			}),
+		);
+		button.interactive = true;
+		const hitArea = options.hitArea;
+		button.hitArea = hitArea;
+		button.on("pointerdown", () => {
+			const value = options.param.get();
+			const newValue = value + this.delta;
+			if (
+				newValue >= options.param.range.min &&
+				newValue <= options.param.range.max
+			) {
+				options.param.set(newValue);
+				options.redraw();
+			}
+		});
+
+		// Uncomment to visualize hit area
+		// this.addChild(
+		// 	new Graphics()
+		// 		.rect(hitArea.x, hitArea.y, hitArea.width, hitArea.height)
+		// 		.fill("#FF00FF80"),
+		// );
+	}
+}
+
+export class SpeedButtons extends Knob {
+	labelX: Label;
+	constructor(options: KnobOptions & { id: string }) {
+		super(options);
+		const {
+			param: {
+				range: { step = 1 },
+			},
+		} = options;
+		this.addChild(
+			new Sprite({
+				texture: Assets.get(`SpeedControl_${options.id}.png`),
+				anchor: 0.5,
+			}),
+		);
+		this.addChild(
+			new SpeedButton({
+				param: options.param,
+				delta: -step,
+				hitArea: new Rectangle(-135, -55, 75, 110),
+				redraw: () => this.redraw(),
+			}),
+		);
+		this.addChild(
+			new SpeedButton({
+				param: options.param,
+				delta: step,
+				hitArea: new Rectangle(60, -55, 75, 110),
+				redraw: () => this.redraw(),
+			}),
+		);
+		this.labelX = this.addChild(
+			new Label({
+				x: 1,
+				y: -4,
+				scale: 1.5,
+				style: {
+					fontFamily: "Jersey10",
+					fill: "#0F360A",
+					fontSize: 48,
+				},
+			}),
+		);
+		this.redraw();
+	}
+	redraw() {
+		const v = this.param.get() * 2;
+		this.labelX.text = `${v > 0 ? "+" : ""}${v}`;
 	}
 }
