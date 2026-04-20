@@ -228,13 +228,6 @@ export class Device extends Container {
 				hitArea: new Rectangle(-380, -850, 760, 1700),
 			}),
 		);
-		this.addChild(
-			new Sprite({
-				anchor: 0.5,
-				texture: Assets.get("Device_MOCUP.png"),
-				alpha: 0.5,
-			}),
-		);
 		// Uncomment to visualize hit area
 		// this.addChild(
 		// 	new Graphics()
