@@ -725,6 +725,12 @@ export class Roller extends AbstractSlider {
 				texture: Assets.get(`Slider3Socket.png`),
 			}),
 		);
+		this.addChild(
+			new Sprite({
+				anchor: 0.5,
+				texture: Assets.get(`Slider3WheelShadow.png`),
+			}),
+		);
 
 		this.interactive = true;
 		const mask = new Rectangle(-45, -120, 90, 260);

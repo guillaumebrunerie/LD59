@@ -1,9 +1,10 @@
 - Onboarding
 - More levels
-- Device layout
 - Local storage + reset
 - Start screen
-- Music
+- Music & sounds
+
+- Animate device
 
 - Better movement
 - Screen shake and blink green screen when matching

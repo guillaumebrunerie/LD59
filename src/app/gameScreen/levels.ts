@@ -238,15 +238,15 @@ const levelInfinity: Level = {
 };
 
 export const levels = [
-	// Beginner (16 levels)
-	{ level: level1, count: 5 },
-	{ level: level2, count: 3 },
-	{ level: level3, count: 3 },
-	{ level: level4, count: 5 },
-	// Intermediate (9 levels)
-	{ level: level5, count: 3 },
-	{ level: level6, count: 3 },
-	{ level: level7, count: 3 },
+	// // Beginner (16 levels)
+	// { level: level1, count: 5 },
+	// { level: level2, count: 3 },
+	// { level: level3, count: 3 },
+	// { level: level4, count: 5 },
+	// // Intermediate (9 levels)
+	// { level: level5, count: 3 },
+	// { level: level6, count: 3 },
+	// { level: level7, count: 3 },
 	// Advanced
 	{ level: levelInfinity, count: 25 },
 	// Expert
