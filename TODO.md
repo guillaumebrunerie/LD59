@@ -1,15 +1,15 @@
-- Help + lives
-- Device layout
-- Local storage + reset
 - Onboarding
 - More levels
-
+- Device layout
+- Local storage + reset
+- Start screen
 - Music
+
 - Better movement
 - Screen shake and blink green screen when matching
 - Waves on top of everything
+- Cursor pointers
 
-- Start screen
 - Landscape version
 - Multiple curves
 

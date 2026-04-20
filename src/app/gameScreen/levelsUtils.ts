@@ -62,29 +62,31 @@ export type Ranges = {
 	};
 };
 
+export type ToBeSolved = {
+	baseline?: true;
+	wave1?: {
+		amplitude?: true;
+		frequency?: true;
+		am?: true;
+		fm?: true;
+		shape?: true;
+		speed?: true;
+		offset?: true;
+	};
+	wave2?: {
+		amplitude?: true;
+		frequency?: true;
+		am?: true;
+		fm?: true;
+		shape?: true;
+		speed?: true;
+		offset?: true;
+	};
+};
+
 export type Level = {
 	ranges: Ranges;
-	toBeSolved: {
-		baseline?: true;
-		wave1?: {
-			amplitude?: true;
-			frequency?: true;
-			am?: true;
-			fm?: true;
-			shape?: true;
-			speed?: true;
-			offset?: true;
-		};
-		wave2?: {
-			amplitude?: true;
-			frequency?: true;
-			am?: true;
-			fm?: true;
-			shape?: true;
-			speed?: true;
-			offset?: true;
-		};
-	};
+	toBeSolved: ToBeSolved;
 	condition: (waveData: CombinedWaveData) => boolean;
 	conditionInitial?: (
 		blueprint: CombinedWaveData,

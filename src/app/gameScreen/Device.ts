@@ -14,7 +14,7 @@ import {
 	Waveform,
 	type CombinedWaveData,
 } from "./Waveform";
-import type { Level, Range } from "./levelsUtils";
+import type { Level, Range, ToBeSolved } from "./levelsUtils";
 import { mod } from "../utils/maths";
 import { userSettings } from "../utils/userSettings";
 import { randomItem } from "../../engine/utils/random";
@@ -23,106 +23,137 @@ const getParamAndTarget = (
 	waveform: Waveform,
 	blueprint: Waveform,
 	paramKey: Level["device"][number]["param"],
+	toBeSolved: ToBeSolved,
 ) => {
 	switch (paramKey) {
 		case "baseline":
-			return {
-				param: waveform.baselineParam(),
-				target: blueprint.baselineParam().get(),
-				hintPriority: -1,
-			};
+			return (
+				toBeSolved.baseline && {
+					param: waveform.baselineParam(),
+					target: blueprint.baselineParam().get(),
+					hintPriority: -1,
+				}
+			);
 		case "amplitude1":
-			return {
-				param: waveform.amplitudeXParam("wave1"),
-				target: blueprint.amplitudeXParam("wave1").get(),
-				hintPriority: 2,
-			};
+			return (
+				toBeSolved.wave1?.amplitude && {
+					param: waveform.amplitudeXParam("wave1"),
+					target: blueprint.amplitudeXParam("wave1").get(),
+					hintPriority: 2,
+				}
+			);
 		case "am1":
-			return {
-				param: waveform.amXParam("wave1"),
-				target: blueprint.amXParam("wave1").get(),
-				hintPriority: 1,
-			};
+			return (
+				toBeSolved.wave1?.am && {
+					param: waveform.amXParam("wave1"),
+					target: blueprint.amXParam("wave1").get(),
+					hintPriority: 1,
+				}
+			);
 		case "frequency1":
-			return {
-				param: waveform.frequencyXParam("wave1"),
-				target: blueprint.frequencyXParam("wave1").get(),
-				hintPriority: 2,
-			};
+			return (
+				toBeSolved.wave1?.frequency && {
+					param: waveform.frequencyXParam("wave1"),
+					target: blueprint.frequencyXParam("wave1").get(),
+					hintPriority: 2,
+				}
+			);
 		case "fm1":
-			return {
-				param: waveform.fmXParam("wave1"),
-				target: blueprint.fmXParam("wave1").get(),
-				hintPriority: -1,
-			};
+			return (
+				toBeSolved.wave1?.fm && {
+					param: waveform.fmXParam("wave1"),
+					target: blueprint.fmXParam("wave1").get(),
+					hintPriority: -1,
+				}
+			);
 		case "shape1":
-			return {
-				param: waveform.shapeXParam("wave1"),
-				target: blueprint.shapeXParam("wave1").get(),
-				hintPriority: 1,
-			};
+			return (
+				toBeSolved.wave1?.shape && {
+					param: waveform.shapeXParam("wave1"),
+					target: blueprint.shapeXParam("wave1").get(),
+					hintPriority: 1,
+				}
+			);
 		case "offset1":
-			return {
-				param: waveform.offsetXParam("wave1"),
-				target: blueprint.offsetXParam("wave1").get(),
-				hintPriority: 0,
-			};
+			return (
+				toBeSolved.wave1?.offset && {
+					param: waveform.offsetXParam("wave1"),
+					target: blueprint.offsetXParam("wave1").get(),
+					hintPriority: 0,
+				}
+			);
 		case "speed1":
-			return {
-				param: waveform.speedXParam("wave1"),
-				target: blueprint.speedXParam("wave1").get(),
-				hintPriority: 2,
-			};
+			return (
+				toBeSolved.wave1?.speed && {
+					param: waveform.speedXParam("wave1"),
+					target: blueprint.speedXParam("wave1").get(),
+					hintPriority: 2,
+				}
+			);
 
 		case "amplitude2":
-			return {
-				param: waveform.amplitudeXParam("wave2"),
-				target: blueprint.amplitudeXParam("wave2").get(),
-				hintPriority: 2,
-			};
+			return (
+				toBeSolved.wave2?.amplitude && {
+					param: waveform.amplitudeXParam("wave2"),
+					target: blueprint.amplitudeXParam("wave2").get(),
+					hintPriority: 2,
+				}
+			);
 		case "am2":
-			return {
-				param: waveform.amXParam("wave2"),
-				target: blueprint.amXParam("wave2").get(),
-				hintPriority: 1,
-			};
+			return (
+				toBeSolved.wave2?.am && {
+					param: waveform.amXParam("wave2"),
+					target: blueprint.amXParam("wave2").get(),
+					hintPriority: 1,
+				}
+			);
 		case "frequency2":
-			return {
-				param: waveform.frequencyXParam("wave2"),
-				target: blueprint.frequencyXParam("wave2").get(),
-				hintPriority: 2,
-			};
+			return (
+				toBeSolved.wave2?.frequency && {
+					param: waveform.frequencyXParam("wave2"),
+					target: blueprint.frequencyXParam("wave2").get(),
+					hintPriority: 2,
+				}
+			);
 		case "fm2":
-			return {
-				param: waveform.fmXParam("wave2"),
-				target: blueprint.fmXParam("wave2").get(),
-				hintPriority: -1,
-			};
+			return (
+				toBeSolved.wave2?.fm && {
+					param: waveform.fmXParam("wave2"),
+					target: blueprint.fmXParam("wave2").get(),
+					hintPriority: -1,
+				}
+			);
 		case "shape2":
-			return {
-				param: waveform.shapeXParam("wave2"),
-				target: blueprint.shapeXParam("wave2").get(),
-				hintPriority: 1,
-			};
+			return (
+				toBeSolved.wave2?.shape && {
+					param: waveform.shapeXParam("wave2"),
+					target: blueprint.shapeXParam("wave2").get(),
+					hintPriority: 1,
+				}
+			);
 		case "offset2":
-			return {
-				param: waveform.offsetXParam("wave2"),
-				target: blueprint.offsetXParam("wave2").get(),
-				hintPriority: 0,
-			};
+			return (
+				toBeSolved.wave2?.offset && {
+					param: waveform.offsetXParam("wave2"),
+					target: blueprint.offsetXParam("wave2").get(),
+					hintPriority: 0,
+				}
+			);
 		case "speed2":
-			return {
-				param: waveform.speedXParam("wave2"),
-				target: blueprint.speedXParam("wave2").get(),
-				hintPriority: 2,
-			};
+			return (
+				toBeSolved.wave2?.speed && {
+					param: waveform.speedXParam("wave2"),
+					target: blueprint.speedXParam("wave2").get(),
+					hintPriority: 2,
+				}
+			);
 	}
 };
 
 export class Device extends Container {
 	blueprint: Waveform;
 	waveform: Waveform;
-	onEnd: (isMatch: boolean) => void;
+	onEnd: (isSolved: boolean, isHinted: boolean) => void;
 	batteryLights: Sprite[];
 	knobs: Knob[];
 
@@ -130,7 +161,8 @@ export class Device extends Container {
 		options: ContainerOptions & {
 			targetWaveData: CombinedWaveData;
 			initialWaveData: CombinedWaveData;
-			onEnd: (isMatch: boolean) => void;
+			onEnd: (isSolved: boolean, isHinted: boolean) => void;
+			onMovedSlider: () => void;
 			level: Level;
 		},
 	) {
@@ -142,12 +174,12 @@ export class Device extends Container {
 		darkOverlay.interactive = true;
 		darkOverlay.on("click", (event) => {
 			if (event.currentTarget === darkOverlay) {
-				this.onEnd(false);
+				this.onEnd(false, false);
 			}
 		});
 		darkOverlay.on("tap", (event) => {
 			if (event.currentTarget === darkOverlay) {
-				this.onEnd(false);
+				this.onEnd(false, false);
 			}
 		});
 
@@ -167,7 +199,7 @@ export class Device extends Container {
 			new Waveform({
 				...waveformOptions,
 				waveData: options.targetWaveData,
-				color: new Color("#6d381340"),
+				color: new Color("#6d381380"),
 				level: options.level,
 			}),
 		);
@@ -241,29 +273,37 @@ export class Device extends Container {
 
 		this.knobs = [];
 		for (const knobSpec of options.level.device) {
+			const data = getParamAndTarget(
+				this.waveform,
+				this.blueprint,
+				knobSpec.param,
+				options.level.toBeSolved,
+			);
+			if (!data) {
+				continue;
+			}
 			const {
 				param: { range, get, set, solve },
 				target: desiredValue,
 				hintPriority,
-			} = getParamAndTarget(
-				this.waveform,
-				this.blueprint,
-				knobSpec.param,
-			);
+			} = data;
 			if (!range) {
 				continue;
 			}
-			const param = { range, get, set, solve };
+			const commonProps = {
+				x: knobSpec.x,
+				y: knobSpec.y,
+				param: { range, get, set, solve },
+				desiredValue,
+				onMovedSlider: options.onMovedSlider,
+				hintPriority,
+			};
 			switch (knobSpec.type) {
 				case "vertical-slider":
 					this.knobs.push(
 						this.addChild(
 							new Slider({
-								x: knobSpec.x,
-								y: knobSpec.y,
-								param,
-								desiredValue,
-								hintPriority,
+								...commonProps,
 								orientation: "vertical",
 								wrapAround: false,
 								id: "",
@@ -275,11 +315,7 @@ export class Device extends Container {
 					this.knobs.push(
 						this.addChild(
 							new Slider({
-								x: knobSpec.x,
-								y: knobSpec.y,
-								param,
-								desiredValue,
-								hintPriority,
+								...commonProps,
 								orientation: "vertical",
 								wrapAround: false,
 								id: "2",
@@ -291,11 +327,7 @@ export class Device extends Container {
 					this.knobs.push(
 						this.addChild(
 							new Slider({
-								x: knobSpec.x,
-								y: knobSpec.y,
-								param,
-								desiredValue,
-								hintPriority,
+								...commonProps,
 								orientation: "horizontal",
 								wrapAround: false,
 								id: "",
@@ -307,11 +339,7 @@ export class Device extends Container {
 					this.knobs.push(
 						this.addChild(
 							new Roller({
-								x: knobSpec.x,
-								y: knobSpec.y,
-								param,
-								desiredValue,
-								hintPriority,
+								...commonProps,
 								orientation: "horizontal",
 							}),
 						),
@@ -321,11 +349,7 @@ export class Device extends Container {
 					this.knobs.push(
 						this.addChild(
 							new HorizontalButtons({
-								x: knobSpec.x,
-								y: knobSpec.y,
-								param,
-								desiredValue,
-								hintPriority,
+								...commonProps,
 							}),
 						),
 					);
@@ -334,11 +358,7 @@ export class Device extends Container {
 					this.knobs.push(
 						this.addChild(
 							new Switch({
-								x: knobSpec.x,
-								y: knobSpec.y,
-								param,
-								desiredValue,
-								hintPriority,
+								...commonProps,
 							}),
 						),
 					);
@@ -380,7 +400,10 @@ export class Device extends Container {
 		if (this.isMatching) {
 			this.matchedSince += ticker.deltaMS / 1000;
 			if (this.matchedSince > 0.7) {
-				this.onEnd(true);
+				this.onEnd(
+					true,
+					this.knobs.some((knob) => knob.hinted),
+				);
 			}
 		}
 		this.blueprint.update(ticker);
@@ -416,25 +439,27 @@ export type OptionalParam = {
 	range?: Range;
 	get: () => number;
 	set: (newValue: number) => void;
-	solve?: (target: number) => void;
+	solve?: (target: number) => number;
 };
 
 export type Param = {
 	range: Range;
 	get: () => number;
 	set: (newValue: number) => void;
-	solve?: (target: number) => void;
+	solve?: (target: number) => number;
 };
 
 type KnobOptions = ContainerOptions & {
 	param: Param;
 	desiredValue: number;
 	hintPriority: number;
+	onMovedSlider: () => void;
 };
 
 export class Knob extends Container {
 	param: Param;
 	desiredValue: number;
+	onMovedSlider: () => void;
 	hinted = false;
 	hintPriority;
 	constructor(options: KnobOptions) {
@@ -442,6 +467,7 @@ export class Knob extends Container {
 		this.param = options.param;
 		this.desiredValue = options.desiredValue;
 		this.hintPriority = options.hintPriority;
+		this.onMovedSlider = options.onMovedSlider;
 	}
 
 	solve() {
@@ -532,8 +558,11 @@ export abstract class AbstractSlider extends Knob {
 	};
 
 	onpointerup = (this.onpointerupoutside = () => {
-		this.isPressed = false;
-		this.target = snap(this.param.range, this.param.get());
+		if (this.isPressed) {
+			this.isPressed = false;
+			this.target = snap(this.param.range, this.param.get());
+			this.onMovedSlider();
+		}
 	});
 }
 
@@ -679,8 +708,8 @@ export class Roller extends AbstractSlider {
 	}
 
 	solve() {
-		this.target = this.param.solve?.(this.desiredValue);
-		// this.hinted = true;
+		this.target = this.param.solve!(this.desiredValue);
+		this.hinted = true;
 		// super.solve();
 	}
 

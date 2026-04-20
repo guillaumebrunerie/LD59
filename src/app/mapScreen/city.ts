@@ -4,6 +4,10 @@ import { pickBothWaveData, type Level } from "../gameScreen/levelsUtils";
 import type { CombinedWaveData } from "../gameScreen/Waveform";
 
 export type City = {
+	playerPosition: {
+		x: number;
+		y: number;
+	};
 	map: {
 		hasTile: boolean;
 		antenna?: {
@@ -16,6 +20,12 @@ export type City = {
 	levelIndex: number;
 	antennaIndex: number;
 	hintsLeft: number;
+	onboardingDone: {
+		moveAround: boolean;
+		startLevel: boolean;
+		moveSlider: boolean;
+		solveLevel: boolean;
+	};
 };
 
 // const mapStr = `
@@ -56,20 +66,49 @@ export const generateCity = (): City => {
 					hasTile: v === "1",
 				})),
 		);
-	const city = {
+	const city: City = {
+		playerPosition: {
+			x: 4 * 300 + 150,
+			y: 5 * 300,
+		},
 		map,
 		levelIndex: 0,
 		antennaIndex: 0,
 		hintsLeft: 5,
+		onboardingDone: {
+			moveAround: false,
+			startLevel: false,
+			solveLevel: false,
+		},
 	};
 
-	let count = 0;
-	while (count < 3) {
-		addAntenna(city);
-		count++;
-	}
+	addAntennaAt(city, 6, 6);
+	addAntennaAt(city, 4, 10);
+	addAntennaAt(city, 3, 2);
+
+	// let count = 0;
+	// while (count < 3) {
+	// 	addAntenna(city);
+	// 	count++;
+	// }
 
 	return city;
+};
+
+const addAntennaAt = (city: City, i: number, j: number): boolean => {
+	if (!hasBuildingAt(city, i, j) || city.map[i][j].antenna) {
+		return false;
+	}
+
+	const { level, count } = levels[city.levelIndex];
+	city.map[i][j].antenna = pickBothWaveData(level);
+
+	city.antennaIndex++;
+	if (city.antennaIndex == count) {
+		city.antennaIndex = 0;
+		city.levelIndex++;
+	}
+	return true;
 };
 
 export const addAntenna = (
@@ -79,20 +118,14 @@ export const addAntenna = (
 		return;
 	}
 
-	const { level, count } = levels[city.levelIndex];
 	const i = randomInt(1, city.map.length - 1);
 	const j = randomInt(1, city.map[0].length - 1);
-	if (!hasBuildingAt(city, i, j) || city.map[i][j].antenna) {
+
+	if (addAntennaAt(city, i, j)) {
+		return { i, j };
+	} else {
 		return addAntenna(city);
 	}
-	city.map[i][j].antenna = pickBothWaveData(level);
-
-	city.antennaIndex++;
-	if (city.antennaIndex == count) {
-		city.antennaIndex = 0;
-		city.levelIndex++;
-	}
-	return { i, j };
 };
 
 export const hasBuildingAt = (city: City, i: number, j: number) =>

@@ -1,6 +1,8 @@
 import {
+	AlphaFilter,
 	AnimatedSprite,
 	Assets,
+	Graphics,
 	Sprite,
 	Ticker,
 	type ContainerOptions,
@@ -10,20 +12,55 @@ import { Label } from "../ui/Label";
 
 export class Onboarding extends Container {
 	hand: AnimatedSprite;
-	darkening: Sprite;
+	darkening: Container;
 	text: Label;
 
 	constructor(options: ContainerOptions & { text: string }) {
 		super(options);
 
 		this.darkening = this.addChild(
+			new Container({
+				scale: 2,
+			}),
+		);
+		this.darkening.addChild(
 			new Sprite({
 				texture: Assets.get("OnboardingDarkening.png"),
 				anchor: 0.5,
-				scale: 2,
-				alpha: 0.75,
 			}),
 		);
+		const assetSize = 900;
+		const desiredSize = 3000;
+		this.darkening.addChild(
+			new Graphics()
+				.rect(
+					-desiredSize / 2,
+					-desiredSize / 2,
+					desiredSize / 2 - assetSize / 2,
+					desiredSize,
+				)
+				.rect(
+					assetSize / 2,
+					-desiredSize / 2,
+					desiredSize / 2 - assetSize / 2,
+					desiredSize,
+				)
+				.rect(
+					-assetSize / 2,
+					-desiredSize / 2,
+					assetSize,
+					desiredSize / 2 - assetSize / 2,
+				)
+				.rect(
+					-assetSize / 2,
+					assetSize / 2,
+					assetSize,
+					desiredSize / 2 - assetSize / 2,
+				)
+				.fill(0x000000),
+		);
+		this.darkening.filters = [new AlphaFilter({ alpha: 0.75 })];
+
 		this.hand = this.addChild(
 			new AnimatedSprite({
 				textures:
@@ -45,6 +82,8 @@ export class Onboarding extends Container {
 					fill: "#AAA",
 					fontSize: 48,
 					fontWeight: "bold",
+					wordWrap: true,
+					wordWrapWidth: 800,
 				},
 				anchor: 0.5,
 				y: 400,
@@ -52,7 +91,12 @@ export class Onboarding extends Container {
 		);
 	}
 
+	setText(text: string) {
+		this.text.text = text;
+	}
+
 	update(ticker: Ticker) {
 		this.hand.update(ticker);
+		this.visible = false;
 	}
 }

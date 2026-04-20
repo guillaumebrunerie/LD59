@@ -18,16 +18,19 @@ export class GameMap extends Container {
 	startLevel: (i: number, j: number) => void;
 	antennas: (Antenna | undefined)[][] = [];
 	city: City;
+	onFinishedMoving: (hasAntennaToSolve: boolean) => void;
 
 	constructor(
 		options: ViewContainerOptions & {
 			city: City;
 			startLevel: (i: number, j: number) => void;
+			onFinishedMoving: (hasAntennaToSolve: boolean) => void;
 		},
 	) {
 		super(options);
 		this.startLevel = options.startLevel;
 		this.city = options.city;
+		this.onFinishedMoving = options.onFinishedMoving;
 		const city = this.city;
 
 		city.map.forEach((row, i) => {
@@ -60,8 +63,8 @@ export class GameMap extends Container {
 
 		this.player = this.addChild(
 			new Player({
-				x: TILE_SIZE / 2 + TILE_SIZE * 5,
-				y: TILE_SIZE * 4,
+				x: city.playerPosition.x,
+				y: city.playerPosition.y,
 				onMove: (dx, dy) => {
 					this.dragMapBy2(-dx, -dy);
 				},
@@ -148,6 +151,7 @@ export class GameMap extends Container {
 	delta2X = 0;
 	delta2Y = 0;
 	dragMapBy2(dx: number, dy: number) {
+		return;
 		if (this.isPressed) {
 			return;
 		}
@@ -252,16 +256,13 @@ export class GameMap extends Container {
 			if (Number.isInteger(buildingI) && Number.isInteger(buildingJ)) {
 				this.player.targetPosition.y += TILE_SIZE / 2;
 			}
-			// this.player.targetPosition.y += // TILE_SIZE / 2 +
-			// 	playerOffset;
-			if (!hasBuildingAt(this.city, buildingI, buildingJ)) {
-				return;
-			}
 			this.player.onReachedTarget = () => {
-				if (
-					this.city.map[buildingI][buildingJ].antenna &&
-					!this.city.map[buildingI][buildingJ].antenna.isSolved
-				) {
+				const hasAntennaToSolve =
+					hasBuildingAt(this.city, buildingI, buildingJ) &&
+					!!this.city.map[buildingI][buildingJ].antenna &&
+					!this.city.map[buildingI][buildingJ].antenna.isSolved;
+				this.onFinishedMoving(hasAntennaToSolve);
+				if (hasAntennaToSolve) {
 					this.startLevel(buildingI, buildingJ);
 				}
 				this.player.onReachedTarget = undefined;
@@ -271,10 +272,11 @@ export class GameMap extends Container {
 	});
 
 	solvedAntennas = 0;
-	antennaSolved(i: number, j: number) {
+	onLevelSolved(i: number, j: number) {
 		const antenna = this.antennas[i][j];
 		antenna?.turnOff();
 		this.city.map[i][j].antenna!.isSolved = true;
+		this.city.onboardingDone.solveLevel = true;
 
 		this.solvedAntennas++;
 		const newPos = addAntenna(this.city);
