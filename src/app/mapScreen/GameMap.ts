@@ -10,7 +10,7 @@ import { Player } from "./Player";
 import { Building } from "./Building";
 import { Antenna } from "./Antenna";
 import { addAntenna, hasBuildingAt, type City } from "./city";
-import { level1 } from "../gameScreen/levels";
+import { levels } from "../gameScreen/levels";
 
 const TILE_SIZE = 300;
 const playerOffset = -15;
@@ -32,15 +32,16 @@ export class GameMap extends Container {
 		this.city = options.city;
 		const city = this.city;
 
-		city.forEach((row, j) => {
-			row.forEach((v, i) => {
+		city.map.forEach((row, i) => {
+			row.forEach((v, j) => {
 				if (!v) {
 					return;
 				}
-				const hasLeft = i > 0 && city[j][i - 1];
-				const hasRight = i < city[j].length - 1 && city[j][i + 1];
-				const hasUp = j > 0 && city[j - 1][i];
-				const hasDown = j < city.length - 1 && city[j + 1][i];
+				const hasLeft = j > 0 && city.map[i][j - 1];
+				const hasRight =
+					j < city.map[i].length - 1 && city.map[i][j + 1];
+				const hasUp = i > 0 && city.map[i - 1][j];
+				const hasDown = i < city.map.length - 1 && city.map[i + 1][j];
 
 				const neighbors =
 					(hasLeft ? "1" : "0") +
@@ -66,7 +67,7 @@ export class GameMap extends Container {
 			}),
 		);
 
-		city.forEach((row, j) => {
+		city.map.forEach((row, j) => {
 			row.forEach((_, i) => {
 				if (hasBuildingAt(city, i, j)) {
 					this.addChild(
@@ -79,13 +80,13 @@ export class GameMap extends Container {
 			});
 		});
 
-		this.antennas = city.map((row, j) =>
-			row.map((data, i) => {
+		this.antennas = city.map.map((row, i) =>
+			row.map((data, j) => {
 				if (data.antenna) {
 					return this.addChild(
 						new Antenna({
-							x: i * TILE_SIZE - TILE_SIZE / 2,
-							y: j * TILE_SIZE - TILE_SIZE / 2,
+							x: j * TILE_SIZE - TILE_SIZE / 2,
+							y: i * TILE_SIZE - TILE_SIZE / 2,
 						}),
 					);
 				} else {
@@ -110,24 +111,31 @@ export class GameMap extends Container {
 	}
 
 	dragMapBy(dx: number, dy: number) {
+		const width = 1080;
+		const height = 1920;
+		const angle = (10 / 180) * Math.PI;
+		const padding = TILE_SIZE / 4;
+		const cityWidth = (this.city.map[0].length - 1) * TILE_SIZE;
+		const cityHeight = (this.city.map.length - 1) * TILE_SIZE;
+
 		this.x += dx;
 		this.x = Math.min(
 			Math.max(
 				this.x,
-				1080 / 2 -
-					(this.city[0].length - 1) * TILE_SIZE -
-					TILE_SIZE / 4,
+				width / 2 -
+					cityWidth * Math.sqrt(2) * Math.cos(Math.PI / 4 - angle) -
+					padding,
 			),
-			-1080 / 2 + TILE_SIZE / 4,
+			-width / 2 + padding,
 		);
 
 		this.y += dy;
 		this.y = Math.min(
 			Math.max(
 				this.y,
-				1920 / 2 - (this.city.length - 1) * TILE_SIZE - TILE_SIZE / 4,
+				height / 2 - cityHeight * Math.cos(angle) - padding,
 			),
-			-1920 / 2 + TILE_SIZE / 4,
+			-height / 2 + padding + cityHeight * Math.sin(angle),
 		);
 	}
 
@@ -213,13 +221,13 @@ export class GameMap extends Container {
 			if (!hasBuildingAt(this.city, buildingI, buildingJ)) {
 				return;
 			}
-			// if (!this.city[buildingI][buildingJ].antenna) {
-			// 	return;
-			// }
 			this.player.targetPosition = buildingPosition;
 			this.player.targetPosition.y += TILE_SIZE / 2 + playerOffset;
 			this.player.onReachedTarget = () => {
-				if (this.city[buildingI][buildingJ].antenna) {
+				if (
+					this.city.map[buildingI][buildingJ].antenna &&
+					!this.city.map[buildingI][buildingJ].antenna.isSolved
+				) {
 					this.startLevel(buildingI, buildingJ);
 				}
 				this.player.onReachedTarget = undefined;
@@ -228,14 +236,21 @@ export class GameMap extends Container {
 		this.movedBy = 0;
 	});
 
-	levelSolved(i: number, j: number) {
+	solvedAntennas = 0;
+	antennaSolved(i: number, j: number) {
 		const antenna = this.antennas[i][j];
 		antenna?.turnOff();
-		const newPos = addAntenna(this.city, level1);
-		this.addChild(
+		this.city.map[i][j].antenna!.isSolved = true;
+
+		this.solvedAntennas++;
+		const newPos = addAntenna(this.city);
+		if (!newPos) {
+			return;
+		}
+		this.antennas[newPos.i][newPos.j] = this.addChild(
 			new Antenna({
-				x: newPos.i * TILE_SIZE - TILE_SIZE / 2,
-				y: newPos.j * TILE_SIZE - TILE_SIZE / 2,
+				x: newPos.j * TILE_SIZE - TILE_SIZE / 2,
+				y: newPos.i * TILE_SIZE - TILE_SIZE / 2,
 			}),
 		);
 	}

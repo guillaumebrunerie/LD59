@@ -1,10 +1,10 @@
+- Add new antennas when solving a level
 - Multiple curves
 - Onboarding
-- Add new antennas when solving a level
 - Help
 - More levels
 - Screen shake and blink green screen when matching
-- Fix background and moving the map when it’s rotated
+- Fix background
 - Local storage
 - Start screen
 - Landscape version

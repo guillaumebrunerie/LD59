@@ -500,7 +500,14 @@ export class Button extends Container {
 		const hitArea = options.hitArea;
 		this.button.hitArea = hitArea;
 		this.button.on("pointerdown", () => {
-			options.param.set(options.param.get() + this.delta);
+			const value = options.param.get();
+			const newValue = value + this.delta;
+			if (
+				newValue >= options.param.range.min &&
+				newValue <= options.param.range.max
+			) {
+				options.param.set(newValue);
+			}
 		});
 
 		// Uncomment to visualize hit area
@@ -515,12 +522,17 @@ export class Button extends Container {
 export class Buttons extends Container {
 	constructor(options: ViewContainerOptions & { param: Param }) {
 		super(options);
+		const {
+			param: {
+				range: { step = 1 },
+			},
+		} = options;
 		this.addChild(
 			new Button({
 				y: 0,
 				param: options.param,
 				texture: "MoveDownBtn.png",
-				delta: -1,
+				delta: -step,
 				hitArea: new Rectangle(-55, 0, 110, 65),
 			}),
 		);
@@ -529,7 +541,7 @@ export class Buttons extends Container {
 				y: 0,
 				param: options.param,
 				texture: "MoveUpBtn.png",
-				delta: 1,
+				delta: step,
 				hitArea: new Rectangle(-55, -65, 110, 65),
 			}),
 		);

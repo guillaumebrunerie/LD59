@@ -18,18 +18,18 @@ export class Tile extends Container {
 				break;
 			case "1110":
 				tileType = "MapTileEdge";
-				angle = 180;
+				angle = 90;
 				break;
 			case "1101":
 				tileType = "MapTileEdge";
+				angle = -90;
 				break;
 			case "1011":
 				tileType = "MapTileEdge";
-				angle = 90;
+				angle = 180;
 				break;
 			case "0111":
 				tileType = "MapTileEdge";
-				angle = -90;
 				break;
 			case "1010":
 				tileType = "MapTileCorner";
@@ -37,10 +37,10 @@ export class Tile extends Container {
 				break;
 			case "1001":
 				tileType = "MapTileCorner";
+				angle = 180;
 				break;
 			case "0110":
 				tileType = "MapTileCorner";
-				angle = 180;
 				break;
 			case "0101":
 				tileType = "MapTileCorner";

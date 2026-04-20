@@ -6,7 +6,6 @@ import { PauseButton } from "../ui/PauseButton";
 import { PausePopup } from "../pausePopup/PausePopup";
 import { GameMap } from "./GameMap";
 import { Device } from "../gameScreen/Device";
-import { level1, level2, level3, level4 } from "../gameScreen/levels";
 import { generateCity } from "./city";
 
 const TILE_SIZE = 300;
@@ -18,8 +17,7 @@ export class MapScreen extends Container {
 	gameMap: GameMap;
 	soundButton: SoundButton;
 	ticker: Ticker;
-	level = level1;
-	city = generateCity(this.level);
+	city = generateCity();
 
 	constructor() {
 		super();
@@ -30,7 +28,7 @@ export class MapScreen extends Container {
 			new GameMap({
 				x: -TILE_SIZE * 5,
 				y: -TILE_SIZE * 4,
-				angle: -10,
+				// angle: -10,
 				city: this.city,
 				startLevel: (i: number, j: number) => this.startLevel(i, j),
 			}),
@@ -49,7 +47,7 @@ export class MapScreen extends Container {
 	}
 
 	startLevel(i: number, j: number) {
-		const antenna = this.city[i][j].antenna;
+		const antenna = this.city.map[i][j].antenna;
 		if (!antenna) {
 			throw new Error("No antenna at this location");
 		}
@@ -61,14 +59,14 @@ export class MapScreen extends Container {
 				scale: 1.7,
 				x: 540,
 				y: 1920 / 2,
-				level: this.level,
+				level: antenna.level,
 				targetWaveData: antenna.blueprint,
 				initialWaveData: antenna.waveform,
 				onEnd: (isMatch: boolean) => {
 					device.destroy();
 					this.gameMap.interactive = true;
 					if (isMatch) {
-						this.gameMap.levelSolved(i, j);
+						this.gameMap.antennaSolved(i, j);
 					}
 				},
 			}),

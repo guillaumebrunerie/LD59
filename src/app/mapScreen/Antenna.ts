@@ -62,13 +62,7 @@ export class Antenna extends Container {
 			new AnimatedSprite({
 				textures: randomCyclic([
 					...Assets.get("RadioWave").animations["RadioWave"],
-					Texture.EMPTY,
-					Texture.EMPTY,
-					Texture.EMPTY,
-					Texture.EMPTY,
-					Texture.EMPTY,
-					Texture.EMPTY,
-					Texture.EMPTY,
+					...Array.from({ length: 15 }).fill(Texture.EMPTY),
 				]),
 				animationSpeed: 15 / 60,
 				scale: 5,

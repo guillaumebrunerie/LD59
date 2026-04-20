@@ -24,34 +24,36 @@ export type KnobType = {
 		| "offset2";
 };
 
-export type Level = {
-	ranges: {
-		baseline?: Range;
-		wave1?: {
-			amplitude?: {
-				base?: Range;
-				modulationStrength?: Range;
-				modulationSpeed?: Range;
-				modulationPhase?: Range;
-			};
-			frequency?: Range;
-			speed?: Range;
-			offset?: Range;
-			phase?: Range;
+export type Ranges = {
+	baseline?: Range;
+	wave1?: {
+		amplitude?: {
+			base?: Range;
+			modulationStrength?: Range;
+			modulationSpeed?: Range;
+			modulationPhase?: Range;
 		};
-		wave2?: {
-			amplitude?: {
-				base?: Range;
-				modulationStrength?: Range;
-				modulationSpeed?: Range;
-				modulationPhase?: Range;
-			};
-			frequency?: Range;
-			speed?: Range;
-			offset?: Range;
-			phase?: Range;
-		};
+		frequency?: Range;
+		speed?: Range;
+		offset?: Range;
+		phase?: Range;
 	};
+	wave2?: {
+		amplitude?: {
+			base?: Range;
+			modulationStrength?: Range;
+			modulationSpeed?: Range;
+			modulationPhase?: Range;
+		};
+		frequency?: Range;
+		speed?: Range;
+		offset?: Range;
+		phase?: Range;
+	};
+};
+
+export type Level = {
+	ranges: Ranges;
 	toBeSolved: {
 		baseline?: true;
 		wave1?: {
@@ -115,6 +117,7 @@ const pickRange = <T extends string>(
 	object: Record<T, number>,
 	key: T,
 	range?: Range,
+	toAvoid?: number,
 ) => {
 	if (!range) {
 		return;
@@ -122,7 +125,12 @@ const pickRange = <T extends string>(
 	const { min, max, step = 1 } = range;
 	const steps = Math.round((max - min) / step) + 1;
 	const randomStep = Math.floor(Math.random() * steps);
-	object[key] = range.min + randomStep * step;
+	const value = range.min + randomStep * step;
+	if (value === toAvoid) {
+		pickRange(object, key, range, toAvoid);
+		return;
+	}
+	object[key] = value;
 };
 
 export const pickCombinedWaveData = (level: Level): CombinedWaveData => {
@@ -175,27 +183,32 @@ const pickSecondWaveData = (
 			"base",
 			level.toBeSolved[key]?.amplitude?.base &&
 				ranges[key]?.amplitude?.base,
+			blueprint[key].amplitude.base,
 		);
 		pickRange(
 			result[key].amplitude,
 			"amplitude",
 			level.toBeSolved[key]?.amplitude?.modulationStrength &&
 				ranges[key]?.amplitude?.modulationStrength,
+			blueprint[key].amplitude.amplitude,
 		);
 		pickRange(
 			result[key],
 			"frequency",
 			level.toBeSolved[key]?.frequency && ranges[key]?.frequency,
+			blueprint[key].frequency,
 		);
 		pickRange(
 			result[key],
 			"speed",
 			level.toBeSolved[key]?.speed && ranges[key]?.speed,
+			blueprint[key].speed,
 		);
 		pickRange(
 			result[key],
 			"offset",
 			level.toBeSolved[key]?.offset && ranges[key]?.offset,
+			blueprint[key].offset,
 		);
 	}
 
@@ -206,10 +219,15 @@ const pickSecondWaveData = (
 };
 export const pickBothWaveData = (
 	level: Level,
-): { blueprint: CombinedWaveData; waveform: CombinedWaveData } => {
+): {
+	level: Level;
+	blueprint: CombinedWaveData;
+	waveform: CombinedWaveData;
+	isSolved: false;
+} => {
 	const blueprint = pickCombinedWaveData(level);
 	const waveform = pickSecondWaveData(level, blueprint);
-	return { blueprint, waveform };
+	return { level, blueprint, waveform, isSolved: false };
 };
 
 export const assertReturn = <T>(v?: T): T => {
