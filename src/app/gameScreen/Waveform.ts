@@ -30,20 +30,33 @@ const getFrequency = (waves: number) => {
 	return Math.sqrt((waves * 10) / (11 - waves));
 };
 
-const triangleCos = (x: number) =>
-	1 - (2 * Math.abs(mod(x + Math.PI, 2 * Math.PI) - Math.PI)) / Math.PI;
+const curves = [
+	(x: number) => Math.cos(x),
+	(x: number) => Math.pow(Math.cos(x), 4) * Math.sign(Math.cos(x)),
+	(x: number) => Math.tanh(4 * Math.cos(x)),
+];
 
-const triangleSin = (x: number) => triangleCos(x - Math.PI / 2);
+// const triangleCos = (x: number) =>
+// 	1 - (2 * Math.abs(mod(x + Math.PI, 2 * Math.PI) - Math.PI)) / Math.PI;
 
-const sawtoothSin = (x: number) =>
-	(mod(x + Math.PI, 2 * Math.PI) - Math.PI) / Math.PI;
+// const triangleSin = (x: number) => triangleCos(x - Math.PI / 2);
+
+// const sawtoothSin = (x: number) =>
+// 	(mod(x + Math.PI, 2 * Math.PI) - Math.PI) / Math.PI;
 
 const basicWaveValue = (
 	{ base, amplitude, speed, phase }: BasicWaveData,
 	t: number,
 ) => {
-	return base + amplitude * Math.sin(t * speed * 4 + phase);
+	return base * (1 + (amplitude / 6) * (Math.sin(t * speed * 4 + phase) - 1));
 };
+
+/*
+
+amplitude: 0 -> base (average 6/6 base)
+amplitude: 1 -> 2/3 base to base (average 5/6 base)
+amplitude: 2 -> 1/3 base to base (average 4/6 base)
+ */
 
 const waveValue = (
 	{ amplitude, frequency, speed, offset, phase, shape }: WaveData,
@@ -54,7 +67,7 @@ const waveValue = (
 	const c = (offset + phase) / 10;
 	const d = getFrequency(basicWaveValue(frequency, gt));
 	const e = getFrequency(basicWaveValue(frequency, gt)) * (speed / 4);
-	const fn = shape == 1 ? sawtoothSin : Math.cos;
+	const fn = curves[shape];
 	return -b * fn((u * d - gt * e - c) * 2 * Math.PI);
 };
 

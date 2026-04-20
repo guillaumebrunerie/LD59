@@ -15,6 +15,7 @@ import {
 	type CombinedWaveData,
 } from "./Waveform";
 import type { Level, Range } from "./levelsUtils";
+import { mod } from "../utils/maths";
 
 const getParamAndTarget = (
 	waveform: Waveform,
@@ -648,7 +649,7 @@ export class Switch extends Container {
 		this.switch.hitArea = hitArea;
 		this.switch.on("pointerdown", () => {
 			const value = options.param.get();
-			const newValue = 1 - value;
+			const newValue = mod(value + 1, options.param.range.max + 1);
 			options.param.set(newValue);
 			this.redraw();
 		});
@@ -663,7 +664,8 @@ export class Switch extends Container {
 
 	redraw() {
 		this.switch.texture = Assets.get(
-			this.param.get() == 1 ? "ButtonOn.png" : "ButtonOff.png",
+			this.param.get() > 0 ? "ButtonOn.png" : "ButtonOff.png",
 		);
+		this.switch.blendMode = this.param.get() == 2 ? "add" : "normal";
 	}
 }

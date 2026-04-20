@@ -13,8 +13,8 @@ const ranges2: Ranges = {
 	wave1: {
 		amplitude: { min: 1, max: 10 },
 		frequency: { min: 1, max: 7 },
-		am: { min: 0, max: 1 },
-		shape: { min: 0, max: 1 },
+		am: { min: 0, max: 2 },
+		shape: { min: 0, max: 2 },
 		speed: { min: -1.5, max: 1.5, step: 0.5 },
 		offset: { min: 0, max: 8, step: 2 },
 	},
@@ -23,19 +23,17 @@ const ranges2: Ranges = {
 const ranges3: Ranges = {
 	wave1: {
 		amplitude: { min: 1, max: 10 },
-		am: { min: 0, max: 1 },
+		am: { min: 0, max: 2 },
 		frequency: { min: 1, max: 7 },
-		fm: { min: 0, max: 0 },
-		shape: { min: 0, max: 1 },
+		shape: { min: 0, max: 2 },
 		speed: { min: -1.5, max: 1.5, step: 0.5 },
 		offset: { min: 0, max: 8, step: 2 },
 	},
 	wave2: {
 		amplitude: { min: 0, max: 4 },
-		am: { min: 0, max: 1 },
+		am: { min: 0, max: 2 },
 		frequency: { min: 7, max: 10 },
-		fm: { min: 0, max: 0 },
-		shape: { min: 0, max: 1 },
+		shape: { min: 0, max: 2 },
 		speed: { min: -1.5, max: 1.5, step: 0.5 },
 		offset: { min: 0, max: 8, step: 2 },
 	},
@@ -211,10 +209,10 @@ const level6: Level = {
 };
 
 export const levels = [
-	{ level: level1, count: 5 },
-	{ level: level2, count: 3 },
-	{ level: level3, count: 3 },
-	{ level: level4, count: 5 },
+	// { level: level1, count: 5 },
+	// { level: level2, count: 3 },
+	// { level: level3, count: 3 },
+	// { level: level4, count: 5 },
 	{ level: level5, count: 10 },
 	{ level: level6, count: 10 },
 ];
