@@ -66,6 +66,7 @@ export const generateCity = (): City => {
 					hasTile: v === "1",
 				})),
 		);
+	const skipOnboarding = true;
 	const city: City = {
 		playerPosition: {
 			x: 4 * 300 + 150,
@@ -76,9 +77,10 @@ export const generateCity = (): City => {
 		antennaIndex: 0,
 		hintsLeft: 5,
 		onboardingDone: {
-			moveAround: false,
-			startLevel: false,
-			solveLevel: false,
+			moveAround: skipOnboarding,
+			startLevel: skipOnboarding,
+			moveSlider: skipOnboarding,
+			solveLevel: skipOnboarding,
 		},
 	};
 

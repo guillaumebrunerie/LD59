@@ -97,6 +97,6 @@ export class Onboarding extends Container {
 
 	update(ticker: Ticker) {
 		this.hand.update(ticker);
-		this.visible = false;
+		// this.visible = false;
 	}
 }
