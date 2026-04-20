@@ -3,8 +3,6 @@
 - Local storage + reset
 - Start screen
 - Music & sounds
-- Make progress work
-- Bug with wave
 
 - Animate device
 - Better movement

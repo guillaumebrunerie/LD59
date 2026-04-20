@@ -459,8 +459,8 @@ export class Device extends Container {
 			this.eventMode = "none";
 			this.isMatching = true;
 			navigator.vibrate?.(200);
-			console.log("MATCH!");
-			console.log(this.waveform.waveData, this.blueprint.waveData);
+			// console.log("MATCH!");
+			// console.log(this.waveform.waveData, this.blueprint.waveData);
 		}
 		for (const child of this.children) {
 			child.update?.(ticker);
@@ -543,6 +543,16 @@ export abstract class AbstractSlider extends Knob {
 		const speed = 8;
 
 		let value = this.param.get();
+		if (this.wrapAround) {
+			const targets = [
+				this.target,
+				this.target - this.param.range.max,
+				this.target + this.param.range.max,
+			];
+			targets.sort((a, b) => Math.abs(a - value) - Math.abs(b - value));
+			this.target = targets[0];
+		}
+
 		if (value < this.target) {
 			value += dt * speed;
 			value = Math.min(value, this.target);
@@ -597,7 +607,7 @@ export abstract class AbstractSlider extends Knob {
 			this.factor;
 		this.previousY += actualDelta;
 		this.param.set(newValue);
-		this.target = newValue;
+		this.target = this.param.get();
 	};
 
 	onpointerup = (this.onpointerupoutside = () => {
