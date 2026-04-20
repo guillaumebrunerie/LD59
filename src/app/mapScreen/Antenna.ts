@@ -65,6 +65,7 @@ export class Antenna extends Container {
 				anchor: 0.5,
 				autoPlay: true,
 				y: -30,
+				angle: Math.random() * 360,
 			}),
 		);
 	}
