@@ -18,7 +18,7 @@ export class MapScreen extends Container {
 	gameMap: GameMap;
 	soundButton: SoundButton;
 	ticker: Ticker;
-	level = level4;
+	level = level1;
 	city = generateCity(this.level);
 
 	constructor() {

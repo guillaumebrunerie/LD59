@@ -9,7 +9,8 @@ import { Tile } from "./Tile";
 import { Player } from "./Player";
 import { Building } from "./Building";
 import { Antenna } from "./Antenna";
-import { hasBuildingAt, type City } from "./city";
+import { addAntenna, hasBuildingAt, type City } from "./city";
+import { level1 } from "../gameScreen/levels";
 
 const TILE_SIZE = 300;
 const playerOffset = -15;
@@ -230,6 +231,13 @@ export class GameMap extends Container {
 	levelSolved(i: number, j: number) {
 		const antenna = this.antennas[i][j];
 		antenna?.turnOff();
+		const newPos = addAntenna(this.city, level1);
+		this.addChild(
+			new Antenna({
+				x: newPos.i * TILE_SIZE - TILE_SIZE / 2,
+				y: newPos.j * TILE_SIZE - TILE_SIZE / 2,
+			}),
+		);
 	}
 }
 
