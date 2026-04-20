@@ -27,8 +27,9 @@ export type CombinedWaveData = {
 };
 
 const getFrequency = (waves: number) => {
-	return Math.sqrt((waves * 10) / (11 - waves));
-};
+	return Math.pow(waves / 15, 2) * 10 + 0.5;
+	// return Math.sqrt((waves * 10) / (11 - waves));
+}; // waves goes from 1 to 10, so this goes from 1 to 10
 
 const curves = [
 	(x: number) => Math.cos(x),
@@ -48,15 +49,8 @@ const basicWaveValue = (
 	{ base, amplitude, speed, phase }: BasicWaveData,
 	t: number,
 ) => {
-	return base * (1 + (amplitude / 6) * (Math.sin(t * speed * 4 + phase) - 1));
+	return base * (1 + (amplitude / 5) * (Math.sin(t * speed * 4 + phase) - 1));
 };
-
-/*
-
-amplitude: 0 -> base (average 6/6 base)
-amplitude: 1 -> 2/3 base to base (average 5/6 base)
-amplitude: 2 -> 1/3 base to base (average 4/6 base)
- */
 
 const waveValue = (
 	{ amplitude, frequency, speed, offset, phase, shape }: WaveData,

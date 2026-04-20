@@ -28,7 +28,7 @@ export class MapScreen extends Container {
 			new GameMap({
 				x: -TILE_SIZE * 5,
 				y: -TILE_SIZE * 4,
-				// angle: -10,
+				angle: -5,
 				city: this.city,
 				startLevel: (i: number, j: number) => this.startLevel(i, j),
 			}),

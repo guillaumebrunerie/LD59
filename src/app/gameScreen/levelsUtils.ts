@@ -10,6 +10,7 @@ export type KnobType = {
 	type:
 		| "vertical-slider"
 		| "horizontal-slider"
+		| "horizontal-roller"
 		| "knob"
 		| "horizontal-buttons"
 		| "vertical-buttons"

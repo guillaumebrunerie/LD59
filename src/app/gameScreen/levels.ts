@@ -11,9 +11,9 @@ const ranges1: Ranges = {
 
 const ranges2: Ranges = {
 	wave1: {
-		amplitude: { min: 1, max: 10 },
+		amplitude: { min: 2, max: 10 },
 		frequency: { min: 1, max: 7 },
-		am: { min: 0, max: 2 },
+		am: { min: 0, max: 3 },
 		shape: { min: 0, max: 2 },
 		speed: { min: -1.5, max: 1.5, step: 0.5 },
 		offset: { min: 0, max: 8, step: 2 },
@@ -47,7 +47,7 @@ const device: DeviceSpecification = [
 		param: "amplitude1",
 	},
 	{
-		type: "horizontal-slider",
+		type: "horizontal-roller",
 		x: 80,
 		y: 0,
 		param: "offset1",
@@ -84,7 +84,7 @@ const device: DeviceSpecification = [
 		param: "amplitude2",
 	},
 	{
-		type: "horizontal-slider",
+		type: "horizontal-roller",
 		x: 80,
 		y: 300,
 		param: "offset2",

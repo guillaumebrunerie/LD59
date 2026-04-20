@@ -112,7 +112,7 @@ export class GameMap extends Container {
 	dragMapBy(dx: number, dy: number) {
 		const width = 1080;
 		const height = 1920;
-		const angle = (10 / 180) * Math.PI;
+		const angle = (5 / 180) * Math.PI;
 		const padding = TILE_SIZE / 4;
 		const cityWidth = (this.city.map[0].length - 1) * TILE_SIZE;
 		const cityHeight = (this.city.map.length - 1) * TILE_SIZE;
