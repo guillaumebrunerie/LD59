@@ -9,6 +9,7 @@ import { Device } from "../gameScreen/Device";
 import { generateCity } from "./city";
 import { Onboarding } from "./Onboarding";
 import { Label } from "../ui/Label";
+import { levelCount } from "../gameScreen/levels";
 
 const TILE_SIZE = 300;
 
@@ -21,6 +22,7 @@ export class MapScreen extends Container {
 	ticker: Ticker;
 	onboarding: Onboarding;
 	city = generateCity();
+	progress: Label;
 
 	constructor() {
 		super();
@@ -48,23 +50,23 @@ export class MapScreen extends Container {
 		);
 		this.soundButton = this.addChild(new SoundButton());
 
-		this.addChild(
+		this.progress = this.addChild(
 			new Label({
-				text: "PROGRESS: 20%",
 				x: 1080 / 2,
 				y: 60,
 				style: {
-					fontFamily: "sans",
+					fontFamily: "Roboto",
 					fill: "#DDD",
 					fontSize: 48,
 					fontWeight: "bold",
-					stroke: {
-						color: "#000",
-						width: 6,
-					},
+					// stroke: {
+					// 	color: "#000",
+					// 	width: 6,
+					// },
 				},
 			}),
 		);
+		this.redrawProgress();
 
 		this.onboarding = this.gameMap.addChild(
 			new Onboarding({
@@ -121,8 +123,8 @@ export class MapScreen extends Container {
 		const device = this.addChildAt(
 			new Device({
 				scale: 1,
-				x: 540,
-				y: 1920 / 2,
+				x: 520,
+				y: 1010,
 				angle: 2,
 				level: antenna.level,
 				targetWaveData: antenna.blueprint,
@@ -136,6 +138,7 @@ export class MapScreen extends Container {
 						if (!isHinted) {
 							this.city.hintsLeft++;
 						}
+						this.redrawProgress();
 					}
 				},
 				onMovedSlider: () => {
@@ -158,6 +161,13 @@ export class MapScreen extends Container {
 			this.onboarding.visible = true;
 			// this.onboarding.darkening.visible = false;
 		}
+	}
+
+	redrawProgress() {
+		const progress = Math.floor(
+			(this.city.levelsSolved / levelCount) * 100,
+		);
+		this.progress.text = `PROGRESS: ${progress.toFixed(0)}%`;
 	}
 
 	start() {

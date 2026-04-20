@@ -3,9 +3,10 @@
 - Local storage + reset
 - Start screen
 - Music & sounds
+- Make progress work
+- Bug with wave
 
 - Animate device
-
 - Better movement
 - Screen shake and blink green screen when matching
 - Waves on top of everything

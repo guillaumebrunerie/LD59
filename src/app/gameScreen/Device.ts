@@ -616,6 +616,7 @@ const snap = (range: Range, value: number) => {
 
 export class Slider extends AbstractSlider {
 	knob: Sprite;
+	id: string;
 
 	constructor(
 		options: KnobOptions & {
@@ -625,6 +626,7 @@ export class Slider extends AbstractSlider {
 		},
 	) {
 		super(options);
+		this.id = options.id;
 		if (options.orientation === "horizontal") {
 			this.angle += 90;
 		}
@@ -663,11 +665,12 @@ export class Slider extends AbstractSlider {
 
 	solve() {
 		super.solve();
-		this.addChild(
+		this.addChildAt(
 			new Sprite({
-				texture: Assets.get("Selection.png"),
+				texture: Assets.get(`Slider${this.id}Lock.png`),
 				anchor: 0.5,
 			}),
+			1,
 		);
 	}
 
@@ -760,7 +763,12 @@ export class Roller extends AbstractSlider {
 	solve() {
 		this.target = this.param.solve!(this.desiredValue);
 		this.hinted = true;
-		// super.solve();
+		this.addChild(
+			new Sprite({
+				texture: Assets.get(`Slider3Lock.png`),
+				anchor: 0.5,
+			}),
+		);
 	}
 
 	isSolved() {
@@ -945,6 +953,16 @@ export class PulseButton extends Knob {
 			light.visible = this.param.get() > index;
 		});
 	}
+
+	solve() {
+		super.solve();
+		this.addChild(
+			new Sprite({
+				texture: Assets.get(`PulseLock.png`),
+				anchor: 0.5,
+			}),
+		);
+	}
 }
 
 export class ShapeButton extends Knob {
@@ -1003,6 +1021,16 @@ export class ShapeButton extends Knob {
 		this.lights.forEach((light, index) => {
 			light.visible = this.param.get() == index;
 		});
+	}
+
+	solve() {
+		super.solve();
+		this.addChild(
+			new Sprite({
+				texture: Assets.get(`ShapeLock.png`),
+				anchor: 0.5,
+			}),
+		);
 	}
 }
 
@@ -1094,8 +1122,19 @@ export class SpeedButtons extends Knob {
 		);
 		this.redraw();
 	}
+
 	redraw() {
 		const v = this.param.get() * 2;
 		this.labelX.text = `${v > 0 ? "+" : ""}${v}`;
+	}
+
+	solve() {
+		super.solve();
+		this.addChild(
+			new Sprite({
+				texture: Assets.get(`SpeedControlLock.png`),
+				anchor: 0.5,
+			}),
+		);
 	}
 }

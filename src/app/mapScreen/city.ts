@@ -19,6 +19,7 @@ export type City = {
 	}[][];
 	levelIndex: number;
 	antennaIndex: number;
+	levelsSolved: number;
 	hintsLeft: number;
 	onboardingDone: {
 		moveAround: boolean;
@@ -73,6 +74,7 @@ export const generateCity = (): City => {
 			y: 5 * 300,
 		},
 		map,
+		levelsSolved: 0,
 		levelIndex: 0,
 		antennaIndex: 0,
 		hintsLeft: 5,

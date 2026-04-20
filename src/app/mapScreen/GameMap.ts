@@ -271,14 +271,13 @@ export class GameMap extends Container {
 		this.movedBy = 0;
 	});
 
-	solvedAntennas = 0;
 	onLevelSolved(i: number, j: number) {
 		const antenna = this.antennas[i][j];
 		antenna?.turnOff();
 		this.city.map[i][j].antenna!.isSolved = true;
 		this.city.onboardingDone.solveLevel = true;
+		this.city.levelsSolved++;
 
-		this.solvedAntennas++;
 		const newPos = addAntenna(this.city);
 		if (!newPos) {
 			return;

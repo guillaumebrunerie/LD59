@@ -33,7 +33,7 @@ const ranges3: Ranges = {
 		offset: { min: 0, max: 8, step: 2 },
 	},
 	wave2: {
-		amplitude: { min: 0, max: 4 },
+		amplitude: { min: 1, max: 5 },
 		am: { min: 0, max: 3 },
 		frequency: { min: 12, max: 15, step: 0.5 },
 		shape: { min: 0, max: 2 },
@@ -251,3 +251,5 @@ export const levels = [
 	{ level: levelInfinity, count: 25 },
 	// Expert
 ];
+
+export const levelCount = levels.reduce((sum, { count }) => sum + count, 0);
