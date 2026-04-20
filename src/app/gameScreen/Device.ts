@@ -139,9 +139,9 @@ export class Device extends Container {
 		);
 
 		const waveformOptions = {
-			y: -340,
-			w: 250,
-			h: 100,
+			y: -570,
+			w: 425,
+			h: 170,
 		};
 		this.blueprint = this.addChild(
 			new Waveform({
