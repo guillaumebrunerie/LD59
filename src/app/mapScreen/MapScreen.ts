@@ -7,6 +7,7 @@ import { PausePopup } from "../pausePopup/PausePopup";
 import { GameMap } from "./GameMap";
 import { Device } from "../gameScreen/Device";
 import { generateCity } from "./city";
+import { Onboarding } from "./Onboarding";
 
 const TILE_SIZE = 300;
 
@@ -17,6 +18,7 @@ export class MapScreen extends Container {
 	gameMap: GameMap;
 	soundButton: SoundButton;
 	ticker: Ticker;
+	onboarding: Onboarding;
 	city = generateCity();
 
 	constructor() {
@@ -42,6 +44,11 @@ export class MapScreen extends Container {
 		);
 		this.soundButton = this.addChild(new SoundButton());
 
+		// this.onboarding = this.addChild(
+		// 	new Onboarding({ x: 1080 / 2, y: 1920 / 2, text: "hey" }),
+		// );
+		// this.addToTicker(this.onboarding);
+
 		this.addToTicker(this.gameMap);
 		this.ticker.start();
 	}
@@ -53,9 +60,6 @@ export class MapScreen extends Container {
 		}
 		const device = this.addChildAt(
 			new Device({
-				// scale: 1,
-				// x: 1400,
-				// y: 1080 / 2,
 				scale: 1,
 				x: 540,
 				y: 1920 / 2,
