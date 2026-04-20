@@ -9,6 +9,7 @@ export type Range = {
 export type KnobType = {
 	type:
 		| "vertical-slider"
+		| "vertical-slider2"
 		| "horizontal-slider"
 		| "horizontal-roller"
 		| "knob"

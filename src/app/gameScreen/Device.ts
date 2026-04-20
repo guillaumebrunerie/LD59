@@ -190,7 +190,6 @@ export class Device extends Container {
 		for (const knobSpec of options.level.device) {
 			const {
 				param: { range, get, set },
-				target,
 			} = getParamAndTarget(
 				this.waveform,
 				this.blueprint,
@@ -209,6 +208,19 @@ export class Device extends Container {
 							orientation: "vertical",
 							param,
 							wrapAround: false,
+							id: "",
+						}),
+					);
+					break;
+				case "vertical-slider2":
+					this.addChild(
+						new Slider({
+							x: knobSpec.x,
+							y: knobSpec.y,
+							orientation: "vertical",
+							param,
+							wrapAround: false,
+							id: "2",
 						}),
 					);
 					break;
@@ -220,6 +232,7 @@ export class Device extends Container {
 							orientation: "horizontal",
 							param,
 							wrapAround: false,
+							id: "",
 						}),
 					);
 					break;
@@ -231,19 +244,19 @@ export class Device extends Container {
 							orientation: "horizontal",
 							param,
 							wrapAround: true,
+							id: "",
 						}),
 					);
 					break;
-				case "knob":
-					this.addChild(
-						new Knob({
-							x: knobSpec.x,
-							y: knobSpec.y,
-							param,
-							target,
-						}),
-					);
-					break;
+				// case "knob":
+				// 	this.addChild(
+				// 		new Knob({
+				// 			x: knobSpec.x,
+				// 			y: knobSpec.y,
+				// 			param,
+				// 		}),
+				// 	);
+				// 	break;
 				case "vertical-buttons":
 					this.addChild(
 						new VerticalButtons({
@@ -339,8 +352,8 @@ export abstract class AbstractSlider extends Container {
 		this.target = param.get();
 	}
 
-	minY = 115;
-	maxY = -115;
+	minY = 220;
+	maxY = -220;
 	redraw() {}
 	update(ticker: Ticker) {
 		const dt = ticker.deltaMS / 1000;
@@ -413,6 +426,7 @@ export class Slider extends AbstractSlider {
 			param: Param;
 			orientation: "vertical" | "horizontal";
 			wrapAround: boolean;
+			id: string;
 		},
 	) {
 		super(options);
@@ -423,18 +437,18 @@ export class Slider extends AbstractSlider {
 		this.addChild(
 			new Sprite({
 				anchor: 0.5,
-				texture: Assets.get("SliderSocket.png"),
+				texture: Assets.get(`Slider${options.id}Socket.png`),
 			}),
 		);
 		this.knob = this.addChild(
 			new Sprite({
 				anchor: 0.5,
-				texture: Assets.get("Slider.png"),
+				texture: Assets.get(`Slider${options.id}.png`),
 			}),
 		);
 
 		this.interactive = true;
-		const hitArea = new Rectangle(-45, -150, 90, 300);
+		const hitArea = new Rectangle(-60, -275, 120, 550);
 		this.hitArea = hitArea;
 		// Uncomment to visualize hit area
 		// this.addChild(
@@ -472,62 +486,62 @@ export class Slider extends AbstractSlider {
 	// });
 }
 
-export class Knob extends AbstractSlider {
-	knob: Sprite;
+// export class Knob extends AbstractSlider {
+// 	knob: Sprite;
 
-	constructor(
-		options: ViewContainerOptions & {
-			param: Param;
-		},
-	) {
-		super(options);
-		this.angle = 90;
+// 	constructor(
+// 		options: ViewContainerOptions & {
+// 			param: Param;
+// 		},
+// 	) {
+// 		super(options);
+// 		this.angle = 90;
 
-		this.addChild(
-			new Sprite({
-				anchor: 0.5,
-				texture: Assets.get("Knob_01_Socket.png"),
-			}),
-		);
-		this.knob = this.addChild(
-			new Sprite({
-				anchor: 0.5,
-				texture: Assets.get("Knob_01.png"),
-			}),
-		);
+// 		this.addChild(
+// 			new Sprite({
+// 				anchor: 0.5,
+// 				texture: Assets.get("Knob_01_Socket.png"),
+// 			}),
+// 		);
+// 		this.knob = this.addChild(
+// 			new Sprite({
+// 				anchor: 0.5,
+// 				texture: Assets.get("Knob_01.png"),
+// 			}),
+// 		);
 
-		this.interactive = true;
-		const hitArea = new Rectangle(-80, -80, 160, 160);
-		this.hitArea = hitArea;
-		// Uncomment to visualize hit area
-		// this.addChild(
-		// 	new Graphics()
-		// 		.rect(hitArea.x, hitArea.y, hitArea.width, hitArea.height)
-		// 		.fill("#FF00FF20"),
-		// );
-	}
+// 		this.interactive = true;
+// 		const hitArea = new Rectangle(-80, -80, 160, 160);
+// 		this.hitArea = hitArea;
+// 		// Uncomment to visualize hit area
+// 		// this.addChild(
+// 		// 	new Graphics()
+// 		// 		.rect(hitArea.x, hitArea.y, hitArea.width, hitArea.height)
+// 		// 		.fill("#FF00FF20"),
+// 		// );
+// 	}
 
-	redraw() {
-		const angleRange = 120;
-		this.knob.angle =
-			-angleRange / 2 +
-			((this.param.get() - this.param.range.min) /
-				(this.param.range.max - this.param.range.min)) *
-				angleRange -
-			90;
-	}
+// 	redraw() {
+// 		const angleRange = 120;
+// 		this.knob.angle =
+// 			-angleRange / 2 +
+// 			((this.param.get() - this.param.range.min) /
+// 				(this.param.range.max - this.param.range.min)) *
+// 				angleRange -
+// 			90;
+// 	}
 
-	// onclick = (this.ontap = (event: FederatedPointerEvent) => {
-	// 	const clickedY = event.getLocalPosition(this).y;
-	// 	const value = this.param.get();
-	// 	if (clickedY > 0 && value >= this.param.minValue + 1) {
-	// 		this.param.change(-1, 8);
-	// 	} else if (clickedY < 0 && value <= this.param.maxValue - 1) {
-	// 		this.param.change(1, 8);
-	// 	}
-	// 	this.update();
-	// });
-}
+// 	// onclick = (this.ontap = (event: FederatedPointerEvent) => {
+// 	// 	const clickedY = event.getLocalPosition(this).y;
+// 	// 	const value = this.param.get();
+// 	// 	if (clickedY > 0 && value >= this.param.minValue + 1) {
+// 	// 		this.param.change(-1, 8);
+// 	// 	} else if (clickedY < 0 && value <= this.param.maxValue - 1) {
+// 	// 		this.param.change(1, 8);
+// 	// 	}
+// 	// 	this.update();
+// 	// });
+// }
 
 export class Button extends Container {
 	button: Sprite;

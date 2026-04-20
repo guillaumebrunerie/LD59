@@ -41,7 +41,7 @@ const ranges3: Ranges = {
 
 const device: DeviceSpecification = [
 	{
-		type: "vertical-slider",
+		type: "vertical-slider2",
 		x: -150,
 		y: 0,
 		param: "amplitude1",
