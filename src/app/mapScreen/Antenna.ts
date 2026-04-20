@@ -2,11 +2,13 @@ import {
 	AnimatedSprite,
 	Assets,
 	Sprite,
+	Texture,
 	Ticker,
 	type ViewContainerOptions,
 } from "pixi.js";
 import { Container } from "../../PausableContainer";
 import { getIdleAnimation } from "../utils/animation";
+import { randomCyclic } from "../../engine/utils/random";
 
 export class Antenna extends Container {
 	antennaId: string;
@@ -58,7 +60,16 @@ export class Antenna extends Container {
 
 		this.shockwave = this.addChild(
 			new AnimatedSprite({
-				textures: getIdleAnimation("RadioWave"),
+				textures: randomCyclic([
+					...Assets.get("RadioWave").animations["RadioWave"],
+					Texture.EMPTY,
+					Texture.EMPTY,
+					Texture.EMPTY,
+					Texture.EMPTY,
+					Texture.EMPTY,
+					Texture.EMPTY,
+					Texture.EMPTY,
+				]),
 				animationSpeed: 15 / 60,
 				scale: 5,
 				blendMode: "add",
