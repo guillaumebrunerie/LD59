@@ -59,6 +59,7 @@ export class MapScreen extends Container {
 				scale: 1,
 				x: 540,
 				y: 1920 / 2,
+				angle: 2,
 				level: antenna.level,
 				targetWaveData: antenna.blueprint,
 				initialWaveData: antenna.waveform,

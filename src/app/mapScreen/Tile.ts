@@ -47,6 +47,10 @@ export class Tile extends Container {
 				angle = -90;
 				break;
 			case "0000":
+			case "0001":
+			case "0010":
+			case "0100":
+			case "1000":
 				tileType = "MapTileEmpty";
 				break;
 		}

@@ -36,11 +36,12 @@ export class GameMap extends Container {
 				if (!v) {
 					return;
 				}
-				const hasLeft = j > 0 && city.map[i][j - 1];
+				const hasLeft = j > 0 && city.map[i][j - 1].hasTile;
 				const hasRight =
-					j < city.map[i].length - 1 && city.map[i][j + 1];
-				const hasUp = i > 0 && city.map[i - 1][j];
-				const hasDown = i < city.map.length - 1 && city.map[i + 1][j];
+					j < city.map[i].length - 1 && city.map[i][j + 1].hasTile;
+				const hasUp = i > 0 && city.map[i - 1][j].hasTile;
+				const hasDown =
+					i < city.map.length - 1 && city.map[i + 1][j].hasTile;
 
 				const neighbors =
 					(hasLeft ? "1" : "0") +
@@ -114,8 +115,8 @@ export class GameMap extends Container {
 		const height = 1920;
 		const angle = (5 / 180) * Math.PI;
 		const padding = TILE_SIZE / 4;
-		const cityWidth = (this.city.map[0].length - 1) * TILE_SIZE;
-		const cityHeight = (this.city.map.length - 1) * TILE_SIZE;
+		const cityWidth = (this.city.map[0].length - 2) * TILE_SIZE;
+		const cityHeight = (this.city.map.length - 2) * TILE_SIZE;
 
 		this.x += dx;
 		this.x = Math.min(
@@ -125,7 +126,9 @@ export class GameMap extends Container {
 					cityWidth * Math.sqrt(2) * Math.cos(Math.PI / 4 - angle) -
 					padding,
 			),
-			-width / 2 + padding,
+			-width / 2 -
+				TILE_SIZE * Math.sqrt(2) * Math.cos(Math.PI / 4 - angle) +
+				padding,
 		);
 
 		this.y += dy;
@@ -134,7 +137,10 @@ export class GameMap extends Container {
 				this.y,
 				height / 2 - cityHeight * Math.cos(angle) - padding,
 			),
-			-height / 2 + padding + cityHeight * Math.sin(angle),
+			-height / 2 -
+				TILE_SIZE * Math.cos(angle) +
+				padding +
+				cityHeight * Math.sin(angle),
 		);
 	}
 
