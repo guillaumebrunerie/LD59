@@ -13,9 +13,13 @@ export type KnobType = {
 		| "horizontal-slider"
 		| "horizontal-roller"
 		| "knob"
+		| "pulse"
+		| "shape"
 		| "horizontal-buttons"
 		| "vertical-buttons"
-		| "switch";
+		| "switch"
+		| "speed1"
+		| "speed2";
 	x: number;
 	y: number;
 	param:

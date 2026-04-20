@@ -26,7 +26,7 @@ const ranges2: Ranges = {
 const ranges3: Ranges = {
 	wave1: {
 		amplitude: { min: 4, max: 10 },
-		am: { min: 0, max: 2 },
+		am: { min: 0, max: 3 },
 		frequency: { min: 1, max: 5 },
 		shape: { min: 0, max: 2 },
 		speed: { min: -1.5, max: 1.5, step: 0.5 },
@@ -34,7 +34,7 @@ const ranges3: Ranges = {
 	},
 	wave2: {
 		amplitude: { min: 0, max: 4 },
-		am: { min: 0, max: 2 },
+		am: { min: 0, max: 3 },
 		frequency: { min: 12, max: 15, step: 0.5 },
 		shape: { min: 0, max: 2 },
 		speed: { min: -1.5, max: 1.5, step: 0.5 },
@@ -42,80 +42,52 @@ const ranges3: Ranges = {
 	},
 };
 
-const device: DeviceSpecification = [
+const halfDevice: DeviceSpecification = [
 	{
 		type: "vertical-slider",
-		x: -220,
-		y: 60,
+		x: -219,
+		y: 9,
 		param: "amplitude1",
 	},
 	{
 		type: "vertical-slider2",
-		x: -70,
-		y: 60,
+		x: -93,
+		y: 8,
 		param: "frequency1",
 	},
 	{
 		type: "horizontal-roller",
-		x: 180,
-		y: 50,
+		x: 134,
+		y: 26,
 		param: "offset1",
 	},
 	{
-		type: "switch",
-		x: 80,
-		y: -120,
+		type: "pulse",
+		x: 55,
+		y: -112,
 		param: "am1",
 	},
 	{
-		type: "switch",
-		x: 220,
-		y: -120,
+		type: "shape",
+		x: 201,
+		y: -113,
 		param: "shape1",
 	},
 	{
-		type: "horizontal-buttons",
-		x: 150,
-		y: 240,
+		type: "speed1",
+		x: 128,
+		y: 145,
 		param: "speed1",
 	},
-
-	{
-		type: "vertical-slider",
-		x: -150,
-		y: 300,
-		param: "amplitude2",
-	},
-	{
-		type: "horizontal-roller",
-		x: 80,
-		y: 300,
-		param: "offset2",
-	},
-	{
-		type: "vertical-slider",
-		x: -50,
-		y: 300,
-		param: "frequency2",
-	},
-	{
-		type: "switch",
-		x: 40,
-		y: 220,
-		param: "am2",
-	},
-	{
-		type: "switch",
-		x: 160,
-		y: 220,
-		param: "shape2",
-	},
-	{
-		type: "horizontal-buttons",
-		x: 100,
-		y: 380,
-		param: "speed2",
-	},
+];
+const device: DeviceSpecification = [
+	...halfDevice,
+	...halfDevice.map((knob) => ({
+		...knob,
+		y: knob.y + 514,
+		type: knob.type.replace("1", "2"),
+		param: knob.param.replace("1", "2"),
+	})),
 ];
 
 const level1: Level = {
@@ -266,16 +238,16 @@ const levelInfinity: Level = {
 };
 
 export const levels = [
-	// Beginner (16 levels)
-	{ level: level1, count: 5 },
-	{ level: level2, count: 3 },
-	{ level: level3, count: 3 },
-	{ level: level4, count: 5 },
-	// Intermediate (9 levels)
-	{ level: level5, count: 3 },
-	{ level: level6, count: 3 },
-	{ level: level7, count: 3 },
-	// Advanced
+	// // Beginner (16 levels)
+	// { level: level1, count: 5 },
+	// { level: level2, count: 3 },
+	// { level: level3, count: 3 },
+	// { level: level4, count: 5 },
+	// // Intermediate (9 levels)
+	// { level: level5, count: 3 },
+	// { level: level6, count: 3 },
+	// { level: level7, count: 3 },
+	// // Advanced
 	{ level: levelInfinity, count: 25 },
 	// Expert
 ];
