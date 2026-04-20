@@ -1,13 +1,16 @@
-- Add new antennas when solving a level
-- Multiple curves
+- Help + lives
+- Local storage + reset
 - Onboarding
-- Help
 - More levels
+- Music
+- Better movement, where we can click on the streets
 - Screen shake and blink green screen when matching
+- Waves on top of everything
+
 - Fix background
-- Local storage
 - Start screen
 - Landscape version
+- Multiple curves
 
 # End tasks
 - Update game name in index.html

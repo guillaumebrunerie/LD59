@@ -15,6 +15,7 @@ import {
 	type CombinedWaveData,
 } from "./Waveform";
 import type { Level, Range } from "./levelsUtils";
+import { mod } from "../utils/maths";
 
 const getParamAndTarget = (
 	waveform: Waveform,
@@ -207,7 +208,7 @@ export class Device extends Container {
 							y: knobSpec.y,
 							orientation: "vertical",
 							param,
-							target,
+							wrapAround: false,
 						}),
 					);
 					break;
@@ -218,7 +219,18 @@ export class Device extends Container {
 							y: knobSpec.y,
 							orientation: "horizontal",
 							param,
-							target,
+							wrapAround: false,
+						}),
+					);
+					break;
+				case "horizontal-roller":
+					this.addChild(
+						new Slider({
+							x: knobSpec.x,
+							y: knobSpec.y,
+							orientation: "horizontal",
+							param,
+							wrapAround: true,
 						}),
 					);
 					break;
@@ -312,19 +324,19 @@ export type Param = {
 export abstract class AbstractSlider extends Container {
 	param: Param;
 	target: number;
-	target2: number;
+	wrapAround: boolean;
 
 	constructor(
 		options: ViewContainerOptions & {
 			param: Param;
-			target: number;
+			wrapAround: boolean;
 		},
 	) {
 		super(options);
-		const { param, target } = options;
+		const { param, wrapAround } = options;
 		this.param = param;
-		this.target = target;
-		this.target2 = param.get();
+		this.wrapAround = wrapAround;
+		this.target = param.get();
 	}
 
 	minY = 115;
@@ -335,14 +347,14 @@ export abstract class AbstractSlider extends Container {
 		const speed = 8;
 
 		let value = this.param.get();
-		if (value < this.target2) {
+		if (value < this.target) {
 			value += dt * speed;
-			value = Math.min(value, this.target2);
+			value = Math.min(value, this.target);
 			this.param.set(value);
 		}
-		if (value > this.target2) {
+		if (value > this.target) {
 			value -= dt * speed;
-			value = Math.max(value, this.target2);
+			value = Math.max(value, this.target);
 			this.param.set(value);
 		}
 		this.redraw();
@@ -365,10 +377,13 @@ export abstract class AbstractSlider extends Container {
 			(-delta / (this.minY - this.maxY)) *
 			(this.param.range.max - this.param.range.min);
 		const previousValue = this.param.get();
-		const newValue = Math.max(
-			this.param.range.min,
-			Math.min(this.param.range.max, previousValue + valueDelta),
-		);
+		const newValue =
+			this.wrapAround ?
+				previousValue + valueDelta
+			:	Math.max(
+					this.param.range.min,
+					Math.min(this.param.range.max, previousValue + valueDelta),
+				);
 		const actualValueDelta = newValue - previousValue;
 		const actualDelta =
 			(-actualValueDelta /
@@ -376,26 +391,18 @@ export abstract class AbstractSlider extends Container {
 			(this.minY - this.maxY);
 		this.previousY += actualDelta;
 		this.param.set(newValue);
-		this.target2 = newValue;
+		this.target = newValue;
 	};
 
 	onpointerup = (this.onpointerupoutside = () => {
 		this.isPressed = false;
-		this.target2 = snap(this.param.range, this.param.get(), this.target);
+		this.target = snap(this.param.range, this.param.get());
 	});
 }
 
-const snap = (range: Range, value: number, target: number) => {
+const snap = (range: Range, value: number) => {
 	const { step = 1 } = range;
-	const nTarget = target / step;
-
-	let nValue = value / step;
-	if (nValue < nTarget) {
-		nValue = Math.round(nValue);
-	} else if (nValue > nTarget) {
-		nValue = Math.round(nValue);
-	}
-	return nValue * step;
+	return Math.round(value / step) * step;
 };
 
 export class Slider extends AbstractSlider {
@@ -404,8 +411,8 @@ export class Slider extends AbstractSlider {
 	constructor(
 		options: ViewContainerOptions & {
 			param: Param;
-			target: number;
 			orientation: "vertical" | "horizontal";
+			wrapAround: boolean;
 		},
 	) {
 		super(options);
@@ -471,7 +478,6 @@ export class Knob extends AbstractSlider {
 	constructor(
 		options: ViewContainerOptions & {
 			param: Param;
-			target: number;
 		},
 	) {
 		super(options);
@@ -648,7 +654,7 @@ export class Switch extends Container {
 		this.switch.hitArea = hitArea;
 		this.switch.on("pointerdown", () => {
 			const value = options.param.get();
-			const newValue = 1 - value;
+			const newValue = mod(value + 1, options.param.range.max + 1);
 			options.param.set(newValue);
 			this.redraw();
 		});
@@ -663,7 +669,8 @@ export class Switch extends Container {
 
 	redraw() {
 		this.switch.texture = Assets.get(
-			this.param.get() == 1 ? "ButtonOn.png" : "ButtonOff.png",
+			this.param.get() > 0 ? "ButtonOn.png" : "ButtonOff.png",
 		);
+		this.switch.blendMode = this.param.get() == 2 ? "add" : "normal";
 	}
 }
