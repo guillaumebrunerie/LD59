@@ -270,13 +270,11 @@ export class Device extends Container {
 					break;
 				case "horizontal-roller":
 					this.addChild(
-						new Slider({
+						new Roller({
 							x: knobSpec.x,
 							y: knobSpec.y,
 							orientation: "horizontal",
 							param,
-							wrapAround: true,
-							id: "",
 						}),
 					);
 					break;
@@ -493,6 +491,86 @@ export class Slider extends AbstractSlider {
 
 		this.interactive = true;
 		const hitArea = new Rectangle(-60, -275, 120, 550);
+		this.hitArea = hitArea;
+		// Uncomment to visualize hit area
+		// this.addChild(
+		// 	new Graphics()
+		// 		.rect(hitArea.x, hitArea.y, hitArea.width, hitArea.height)
+		// 		.fill("#FF00FF20"),
+		// );
+	}
+
+	redraw() {
+		this.knob.y =
+			this.minY +
+			((this.param.get() - this.param.range.min) /
+				(this.param.range.max - this.param.range.min)) *
+				(this.maxY - this.minY);
+	}
+
+	// onclick = (this.ontap = (event: FederatedPointerEvent) => {
+	// 	const clickedY = event.getLocalPosition(this).y;
+	// 	const clickedValue =
+	// 		this.param.minValue +
+	// 		((clickedY - this.minY) / (this.maxY - this.minY)) *
+	// 			(this.param.maxValue - this.param.minValue);
+
+	// 	const value = this.param.get();
+	// 	if (clickedValue < value - 1 && value >= this.param.minValue + 1) {
+	// 		this.param.set(value - 1, 8);
+	// 	} else if (
+	// 		clickedValue > value + 1 &&
+	// 		value <= this.param.maxValue - 1
+	// 	) {
+	// 		this.param.set(value + 1, 8);
+	// 	}
+	// 	this.update();
+	// });
+}
+
+export class Roller extends AbstractSlider {
+	knob: Sprite;
+
+	minY = 100;
+	maxY = -100;
+	constructor(
+		options: ViewContainerOptions & {
+			param: Param;
+			orientation: "vertical" | "horizontal";
+		},
+	) {
+		super({ ...options, wrapAround: true });
+		if (options.orientation === "horizontal") {
+			this.angle += 90;
+		}
+
+		this.knob = this.addChild(
+			new Sprite({
+				anchor: 0.5,
+				texture: Assets.get(`Slider3Stripe.png`),
+			}),
+		);
+		this.addChild(
+			new Sprite({
+				anchor: 0.5,
+				texture: Assets.get(`Slider3Shadow.png`),
+			}),
+		);
+		this.addChild(
+			new Sprite({
+				anchor: 0.5,
+				texture: Assets.get(`Slider3Socket.png`),
+			}),
+		);
+
+		this.interactive = true;
+		const mask = new Rectangle(-45, -210, 90, 420);
+		this.knob.mask = new Graphics()
+			.rect(mask.x, mask.y, mask.width, mask.height)
+			.fill(); //.fill("black");
+		this.addChild(this.knob.mask);
+
+		const hitArea = new Rectangle(-55, -220, 110, 440);
 		this.hitArea = hitArea;
 		// Uncomment to visualize hit area
 		// this.addChild(
