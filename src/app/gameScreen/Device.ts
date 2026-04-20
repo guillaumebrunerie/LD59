@@ -570,6 +570,7 @@ export abstract class AbstractSlider extends Knob {
 		}
 	};
 
+	factor = 1;
 	onglobalpointermove = (event: FederatedPointerEvent) => {
 		if (!this.isPressed) {
 			return;
@@ -578,7 +579,8 @@ export abstract class AbstractSlider extends Knob {
 		const delta = event.getLocalPosition(this).y - this.previousY;
 		const valueDelta =
 			(-delta / (this.minY - this.maxY)) *
-			(this.param.range.max - this.param.range.min);
+			(this.param.range.max - this.param.range.min) *
+			this.factor;
 		const previousValue = this.param.get();
 		const newValue =
 			this.wrapAround ?
@@ -589,9 +591,10 @@ export abstract class AbstractSlider extends Knob {
 				);
 		const actualValueDelta = newValue - previousValue;
 		const actualDelta =
-			(-actualValueDelta /
+			((-actualValueDelta /
 				(this.param.range.max - this.param.range.min)) *
-			(this.minY - this.maxY);
+				(this.minY - this.maxY)) /
+			this.factor;
 		this.previousY += actualDelta;
 		this.param.set(newValue);
 		this.target = newValue;
@@ -693,6 +696,7 @@ export class Roller extends AbstractSlider {
 
 	minY = 50;
 	maxY = -50;
+	factor = 0.3;
 	constructor(
 		options: KnobOptions & {
 			orientation: "vertical" | "horizontal";
