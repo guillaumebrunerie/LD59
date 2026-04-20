@@ -7,7 +7,6 @@ import {
 	type ViewContainerOptions,
 } from "pixi.js";
 import { Container } from "../../PausableContainer";
-import { getIdleAnimation } from "../utils/animation";
 import { randomCyclic } from "../../engine/utils/random";
 
 export class Antenna extends Container {

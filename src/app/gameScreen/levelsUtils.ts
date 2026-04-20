@@ -7,45 +7,53 @@ export type Range = {
 };
 
 export type KnobType = {
-	type: "vertical-slider" | "horizontal-slider" | "knob" | "buttons";
+	type:
+		| "vertical-slider"
+		| "horizontal-slider"
+		| "knob"
+		| "horizontal-buttons"
+		| "vertical-buttons"
+		| "switch";
 	x: number;
 	y: number;
 	param:
 		| "baseline"
 		| "amplitude1"
-		| "modulation1"
 		| "frequency1"
-		| "speed1"
 		| "offset1"
+		| "speed1"
+		| "am1"
+		| "fm1"
+		| "shape1"
 		| "amplitude2"
-		| "modulation2"
 		| "frequency2"
+		| "offset2"
 		| "speed2"
-		| "offset2";
+		| "am2"
+		| "fm2"
+		| "shape2";
 };
+
+export type DeviceSpecification = KnobType[];
 
 export type Ranges = {
 	baseline?: Range;
 	wave1?: {
-		amplitude?: {
-			base?: Range;
-			modulationStrength?: Range;
-			modulationSpeed?: Range;
-			modulationPhase?: Range;
-		};
+		amplitude?: Range;
+		am?: Range;
 		frequency?: Range;
+		fm?: Range;
+		shape?: Range;
 		speed?: Range;
 		offset?: Range;
 		phase?: Range;
 	};
 	wave2?: {
-		amplitude?: {
-			base?: Range;
-			modulationStrength?: Range;
-			modulationSpeed?: Range;
-			modulationPhase?: Range;
-		};
+		amplitude?: Range;
+		am?: Range;
 		frequency?: Range;
+		fm?: Range;
+		shape?: Range;
 		speed?: Range;
 		offset?: Range;
 		phase?: Range;
@@ -57,22 +65,20 @@ export type Level = {
 	toBeSolved: {
 		baseline?: true;
 		wave1?: {
-			amplitude?: {
-				base?: true;
-				modulationStrength?: true;
-				// modulationSpeed?: true;
-			};
+			amplitude?: true;
 			frequency?: true;
+			am?: true;
+			fm?: true;
+			shape?: true;
 			speed?: true;
 			offset?: true;
 		};
 		wave2?: {
-			amplitude?: {
-				base?: true;
-				modulationStrength?: true;
-				// modulationSpeed?: true;
-			};
+			amplitude?: true;
 			frequency?: true;
+			am?: true;
+			fm?: true;
+			shape?: true;
 			speed?: true;
 			offset?: true;
 		};
@@ -94,7 +100,13 @@ const zeroWaveData = (): CombinedWaveData => ({
 			speed: 1,
 			phase: 0,
 		},
-		frequency: 0,
+		frequency: {
+			base: 0,
+			amplitude: 0,
+			speed: 1,
+			phase: 0,
+		},
+		shape: 0,
 		speed: 0,
 		offset: 0,
 		phase: 0,
@@ -106,7 +118,13 @@ const zeroWaveData = (): CombinedWaveData => ({
 			speed: 1,
 			phase: 0,
 		},
-		frequency: 0,
+		frequency: {
+			base: 0,
+			amplitude: 0,
+			speed: 1,
+			phase: 0,
+		},
+		shape: 0,
 		speed: 0,
 		offset: 0,
 		phase: 0,
@@ -140,23 +158,31 @@ export const pickCombinedWaveData = (level: Level): CombinedWaveData => {
 	pickRange(result, "baseline", ranges.baseline);
 
 	for (const key of ["wave1", "wave2"] as const) {
-		pickRange(result[key].amplitude, "base", ranges[key]?.amplitude?.base);
-		pickRange(
-			result[key].amplitude,
-			"amplitude",
-			ranges[key]?.amplitude?.modulationStrength,
-		);
-		pickRange(
-			result[key].amplitude,
-			"speed",
-			ranges[key]?.amplitude?.modulationSpeed,
-		);
-		pickRange(
-			result[key].amplitude,
-			"phase",
-			ranges[key]?.amplitude?.modulationPhase,
-		);
-		pickRange(result[key], "frequency", ranges[key]?.frequency);
+		pickRange(result[key].amplitude, "base", ranges[key]?.amplitude);
+		pickRange(result[key].amplitude, "amplitude", ranges[key]?.am);
+		// pickRange(
+		// 	result[key].amplitude,
+		// 	"speed",
+		// 	ranges[key]?.amplitude?.modulationSpeed,
+		// );
+		// pickRange(
+		// 	result[key].amplitude,
+		// 	"phase",
+		// 	ranges[key]?.amplitude?.modulationPhase,
+		// );
+		pickRange(result[key].frequency, "base", ranges[key]?.frequency);
+		pickRange(result[key].frequency, "amplitude", ranges[key]?.fm);
+		pickRange(result[key], "shape", ranges[key]?.shape);
+		// pickRange(
+		// 	result[key].frequency,
+		// 	"speed",
+		// 	ranges[key]?.frequency?.modulationSpeed,
+		// );
+		// pickRange(
+		// 	result[key].frequency,
+		// 	"phase",
+		// 	ranges[key]?.frequency?.modulationPhase,
+		// );
 		pickRange(result[key], "speed", ranges[key]?.speed);
 		pickRange(result[key], "offset", ranges[key]?.offset);
 		pickRange(result[key], "phase", ranges[key]?.phase);
@@ -181,22 +207,29 @@ const pickSecondWaveData = (
 		pickRange(
 			result[key].amplitude,
 			"base",
-			level.toBeSolved[key]?.amplitude?.base &&
-				ranges[key]?.amplitude?.base,
+			level.toBeSolved[key]?.amplitude && ranges[key]?.amplitude,
 			blueprint[key].amplitude.base,
 		);
 		pickRange(
 			result[key].amplitude,
 			"amplitude",
-			level.toBeSolved[key]?.amplitude?.modulationStrength &&
-				ranges[key]?.amplitude?.modulationStrength,
-			blueprint[key].amplitude.amplitude,
+			level.toBeSolved[key]?.am && ranges[key]?.am,
+		);
+		pickRange(
+			result[key].frequency,
+			"base",
+			level.toBeSolved[key]?.frequency && ranges[key]?.frequency,
+			blueprint[key].frequency.base,
+		);
+		pickRange(
+			result[key].frequency,
+			"amplitude",
+			level.toBeSolved[key]?.fm && ranges[key]?.fm,
 		);
 		pickRange(
 			result[key],
-			"frequency",
-			level.toBeSolved[key]?.frequency && ranges[key]?.frequency,
-			blueprint[key].frequency,
+			"shape",
+			level.toBeSolved[key]?.shape && ranges[key]?.shape,
 		);
 		pickRange(
 			result[key],

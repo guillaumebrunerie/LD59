@@ -10,7 +10,6 @@ import { Player } from "./Player";
 import { Building } from "./Building";
 import { Antenna } from "./Antenna";
 import { addAntenna, hasBuildingAt, type City } from "./city";
-import { levels } from "../gameScreen/levels";
 
 const TILE_SIZE = 300;
 const playerOffset = -15;

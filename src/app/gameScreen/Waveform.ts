@@ -1,8 +1,8 @@
 import { Color, Graphics, Ticker, type ViewContainerOptions } from "pixi.js";
 import { Container } from "../../PausableContainer";
-import type { Param } from "./Device";
+import type { OptionalParam } from "./Device";
 import { mod } from "../utils/maths";
-import { assertReturn, type Level } from "./levelsUtils";
+import { type Level } from "./levelsUtils";
 
 type BasicWaveData = {
 	base: number;
@@ -13,7 +13,8 @@ type BasicWaveData = {
 
 type WaveData = {
 	amplitude: BasicWaveData;
-	frequency: number;
+	frequency: BasicWaveData;
+	shape: number;
 	speed: number;
 	offset: number;
 	phase: number;
@@ -29,23 +30,32 @@ const getFrequency = (waves: number) => {
 	return Math.sqrt((waves * 10) / (11 - waves));
 };
 
+const triangleCos = (x: number) =>
+	1 - (2 * Math.abs(mod(x + Math.PI, 2 * Math.PI) - Math.PI)) / Math.PI;
+
+const triangleSin = (x: number) => triangleCos(x - Math.PI / 2);
+
+const sawtoothSin = (x: number) =>
+	(mod(x + Math.PI, 2 * Math.PI) - Math.PI) / Math.PI;
+
 const basicWaveValue = (
 	{ base, amplitude, speed, phase }: BasicWaveData,
 	t: number,
 ) => {
-	return base + ((amplitude * base) / 5) * Math.sin(t * speed * 4 + phase);
+	return base + amplitude * Math.sin(t * speed * 4 + phase);
 };
 
 const waveValue = (
-	{ amplitude, frequency, speed, offset, phase }: WaveData,
+	{ amplitude, frequency, speed, offset, phase, shape }: WaveData,
 	gt: number,
 	u = 0,
 ): number => {
 	const b = basicWaveValue(amplitude, gt) / 10;
 	const c = (offset + phase) / 10;
-	const d = getFrequency(frequency);
-	const e = getFrequency(frequency) * (speed / 4);
-	return b * Math.cos((u * d - gt * e - c) * 2 * Math.PI);
+	const d = getFrequency(basicWaveValue(frequency, gt));
+	const e = getFrequency(basicWaveValue(frequency, gt)) * (speed / 4);
+	const fn = shape == 1 ? sawtoothSin : Math.cos;
+	return -b * fn((u * d - gt * e - c) * 2 * Math.PI);
 };
 
 const combinedWaveValue = (
@@ -70,7 +80,7 @@ const basicWaveDataMatch = (
 const waveDataMatch = (wavedata1: WaveData, wavedata2: WaveData) => {
 	return (
 		basicWaveDataMatch(wavedata1.amplitude, wavedata2.amplitude) &&
-		wavedata1.frequency == wavedata2.frequency &&
+		basicWaveDataMatch(wavedata1.frequency, wavedata2.frequency) &&
 		wavedata1.speed == wavedata2.speed &&
 		mod(
 			wavedata1.offset +
@@ -86,11 +96,25 @@ export const combinedWaveDataMatch = (
 	waveform1: CombinedWaveData,
 	waveform2: CombinedWaveData,
 ) => {
-	return (
-		waveform1.baseline == waveform2.baseline &&
-		waveDataMatch(waveform1.wave1, waveform2.wave1) &&
-		waveDataMatch(waveform1.wave2, waveform2.wave2)
-	);
+	for (const t of [-1, 0, 1]) {
+		for (const u of [-1, 0, 1]) {
+			if (
+				Math.abs(
+					combinedWaveValue(waveform1, t, u) -
+						combinedWaveValue(waveform2, t, u),
+				) > 0.01
+			) {
+				return false;
+			}
+		}
+	}
+	return true;
+
+	// return (
+	// 	waveform1.baseline == waveform2.baseline &&
+	// 	waveDataMatch(waveform1.wave1, waveform2.wave1) &&
+	// 	waveDataMatch(waveform1.wave2, waveform2.wave2)
+	// );
 };
 
 const STEPS = 100;
@@ -165,9 +189,9 @@ export class Waveform extends Container {
 		this.curve.stroke({ width: 4, color: this.color, join: "round" });
 	}
 
-	baselineParam(): Param {
+	baselineParam(): OptionalParam {
 		return {
-			range: assertReturn(this.level.ranges.baseline),
+			range: this.level.ranges.baseline,
 			get: () => this.waveData.baseline,
 			set: (value: number) => {
 				this.waveData.baseline = value;
@@ -175,9 +199,9 @@ export class Waveform extends Container {
 		};
 	}
 
-	amplitudeXParam(key: "wave1" | "wave2"): Param {
+	amplitudeXParam(key: "wave1" | "wave2"): OptionalParam {
 		return {
-			range: assertReturn(this.level.ranges[key]?.amplitude?.base),
+			range: this.level.ranges[key]?.amplitude,
 			get: () => this.waveData[key].amplitude.base,
 			set: (value: number) => {
 				this.waveData[key].amplitude.base = value;
@@ -185,11 +209,9 @@ export class Waveform extends Container {
 		};
 	}
 
-	modulationXParam(key: "wave1" | "wave2"): Param {
+	amXParam(key: "wave1" | "wave2"): OptionalParam {
 		return {
-			range: assertReturn(
-				this.level.ranges[key]?.amplitude?.modulationStrength,
-			),
+			range: this.level.ranges[key]?.am,
 			get: () => this.waveData[key].amplitude.amplitude,
 			set: (value: number) => {
 				this.waveData[key].amplitude.amplitude = value;
@@ -197,14 +219,18 @@ export class Waveform extends Container {
 		};
 	}
 
-	frequencyXParam(key: "wave1" | "wave2"): Param {
+	frequencyXParam(key: "wave1" | "wave2"): OptionalParam {
 		return {
-			range: assertReturn(this.level.ranges[key]?.frequency),
-			get: () => this.waveData[key].frequency,
+			range: this.level.ranges[key]?.frequency,
+			get: () => this.waveData[key].frequency.base,
 			set: (value: number) => {
-				const oldFrequency = getFrequency(this.waveData[key].frequency);
-				this.waveData[key].frequency = value;
-				const newFrequency = getFrequency(this.waveData[key].frequency);
+				const oldFrequency = getFrequency(
+					basicWaveValue(this.waveData[key].frequency, this.t),
+				);
+				this.waveData[key].frequency.base = value;
+				const newFrequency = getFrequency(
+					basicWaveValue(this.waveData[key].frequency, this.t),
+				);
 				const delta = newFrequency - oldFrequency;
 				this.waveData[key].phase -=
 					this.t * delta * this.waveData[key].speed * 2.5;
@@ -212,9 +238,29 @@ export class Waveform extends Container {
 		};
 	}
 
-	offsetXParam(key: "wave1" | "wave2"): Param {
+	fmXParam(key: "wave1" | "wave2"): OptionalParam {
 		return {
-			range: assertReturn(this.level.ranges[key]?.offset),
+			range: this.level.ranges[key]?.fm,
+			get: () => this.waveData[key].frequency.amplitude,
+			set: (value: number) => {
+				this.waveData[key].frequency.amplitude = value;
+			},
+		};
+	}
+
+	shapeXParam(key: "wave1" | "wave2"): OptionalParam {
+		return {
+			range: this.level.ranges[key]?.shape,
+			get: () => this.waveData[key].shape,
+			set: (value: number) => {
+				this.waveData[key].shape = value;
+			},
+		};
+	}
+
+	offsetXParam(key: "wave1" | "wave2"): OptionalParam {
+		return {
+			range: this.level.ranges[key]?.offset,
 			get: () => mod(this.waveData[key].offset, 10),
 			set: (value: number) => {
 				this.waveData[key].offset = value;
@@ -222,9 +268,9 @@ export class Waveform extends Container {
 		};
 	}
 
-	speedXParam(key: "wave1" | "wave2"): Param {
+	speedXParam(key: "wave1" | "wave2"): OptionalParam {
 		return {
-			range: assertReturn(this.level.ranges[key]?.speed),
+			range: this.level.ranges[key]?.speed,
 			get: () => this.waveData[key].speed,
 			set: (value: number) => {
 				const delta = value - this.waveData[key].speed;
@@ -232,7 +278,9 @@ export class Waveform extends Container {
 				this.waveData[key].phase -=
 					this.t *
 					delta *
-					getFrequency(this.waveData[key].frequency) *
+					getFrequency(
+						basicWaveValue(this.waveData[key].frequency, this.t),
+					) *
 					2.5;
 				// this.targetWaveData[key].phase =
 				// 	Math.round(this.waveData[key].phase / 2) * 2;

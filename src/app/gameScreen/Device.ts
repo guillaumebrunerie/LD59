@@ -32,15 +32,25 @@ const getParamAndTarget = (
 				param: waveform.amplitudeXParam("wave1"),
 				target: blueprint.amplitudeXParam("wave1").get(),
 			};
-		case "modulation1":
+		case "am1":
 			return {
-				param: waveform.modulationXParam("wave1"),
-				target: blueprint.modulationXParam("wave1").get(),
+				param: waveform.amXParam("wave1"),
+				target: blueprint.amXParam("wave1").get(),
 			};
 		case "frequency1":
 			return {
 				param: waveform.frequencyXParam("wave1"),
 				target: blueprint.frequencyXParam("wave1").get(),
+			};
+		case "fm1":
+			return {
+				param: waveform.fmXParam("wave1"),
+				target: blueprint.fmXParam("wave1").get(),
+			};
+		case "shape1":
+			return {
+				param: waveform.shapeXParam("wave1"),
+				target: blueprint.shapeXParam("wave1").get(),
 			};
 		case "offset1":
 			return {
@@ -57,15 +67,25 @@ const getParamAndTarget = (
 				param: waveform.amplitudeXParam("wave2"),
 				target: blueprint.amplitudeXParam("wave2").get(),
 			};
-		case "modulation2":
+		case "am2":
 			return {
-				param: waveform.modulationXParam("wave2"),
-				target: blueprint.modulationXParam("wave2").get(),
+				param: waveform.amXParam("wave2"),
+				target: blueprint.amXParam("wave2").get(),
 			};
 		case "frequency2":
 			return {
 				param: waveform.frequencyXParam("wave2"),
 				target: blueprint.frequencyXParam("wave2").get(),
+			};
+		case "fm2":
+			return {
+				param: waveform.fmXParam("wave2"),
+				target: blueprint.fmXParam("wave2").get(),
+			};
+		case "shape2":
+			return {
+				param: waveform.shapeXParam("wave2"),
+				target: blueprint.shapeXParam("wave2").get(),
 			};
 		case "offset2":
 			return {
@@ -167,11 +187,18 @@ export class Device extends Container {
 		// );
 
 		for (const knobSpec of options.level.device) {
-			const { param, target } = getParamAndTarget(
+			const {
+				param: { range, get, set },
+				target,
+			} = getParamAndTarget(
 				this.waveform,
 				this.blueprint,
 				knobSpec.param,
 			);
+			if (!range) {
+				continue;
+			}
+			const param = { range, get, set };
 			switch (knobSpec.type) {
 				case "vertical-slider":
 					this.addChild(
@@ -205,14 +232,29 @@ export class Device extends Container {
 						}),
 					);
 					break;
-				case "buttons":
+				case "vertical-buttons":
 					this.addChild(
-						new Buttons({
+						new VerticalButtons({
 							x: knobSpec.x,
 							y: knobSpec.y,
 							param,
 						}),
 					);
+					break;
+				case "horizontal-buttons":
+					this.addChild(
+						new HorizontalButtons({
+							x: knobSpec.x,
+							y: knobSpec.y,
+							param,
+						}),
+					);
+					break;
+				case "switch":
+					this.addChild(
+						new Switch({ x: knobSpec.x, y: knobSpec.y, param }),
+					);
+					break;
 			}
 		}
 	}
@@ -254,6 +296,12 @@ export class Device extends Container {
 		this.matchedSince = 0;
 	}
 }
+
+export type OptionalParam = {
+	range?: Range;
+	get: () => number;
+	set: (newValue: number) => void;
+};
 
 export type Param = {
 	range: Range;
@@ -519,7 +567,7 @@ export class Button extends Container {
 	}
 }
 
-export class Buttons extends Container {
+export class VerticalButtons extends Container {
 	constructor(options: ViewContainerOptions & { param: Param }) {
 		super(options);
 		const {
@@ -544,6 +592,78 @@ export class Buttons extends Container {
 				delta: step,
 				hitArea: new Rectangle(-55, -65, 110, 65),
 			}),
+		);
+	}
+}
+
+export class HorizontalButtons extends Container {
+	constructor(options: ViewContainerOptions & { param: Param }) {
+		super(options);
+		this.angle = 90;
+		const {
+			param: {
+				range: { step = 1 },
+			},
+		} = options;
+		this.addChild(
+			new Button({
+				y: 30,
+				param: options.param,
+				texture: "MoveDownBtn.png",
+				delta: -step,
+				hitArea: new Rectangle(-55, 0, 110, 65),
+			}),
+		);
+		this.addChild(
+			new Button({
+				y: -30,
+				param: options.param,
+				texture: "MoveUpBtn.png",
+				delta: step,
+				hitArea: new Rectangle(-55, -65, 110, 65),
+			}),
+		);
+	}
+}
+
+export class Switch extends Container {
+	switch: Sprite;
+	param: Param;
+
+	constructor(
+		options: ViewContainerOptions & {
+			param: Param;
+		},
+	) {
+		super(options);
+		this.param = options.param;
+
+		this.switch = this.addChild(
+			new Sprite({
+				anchor: 0.5,
+			}),
+		);
+		this.switch.interactive = true;
+		const hitArea = new Rectangle(-45, -45, 90, 90);
+		this.switch.hitArea = hitArea;
+		this.switch.on("pointerdown", () => {
+			const value = options.param.get();
+			const newValue = 1 - value;
+			options.param.set(newValue);
+			this.redraw();
+		});
+		this.redraw();
+		// Uncomment to visualize hit area
+		// this.addChild(
+		// 	new Graphics()
+		// 		.rect(hitArea.x, hitArea.y, hitArea.width, hitArea.height)
+		// 		.fill("#FF00FF20"),
+		// );
+	}
+
+	redraw() {
+		this.switch.texture = Assets.get(
+			this.param.get() == 1 ? "ButtonOn.png" : "ButtonOff.png",
 		);
 	}
 }

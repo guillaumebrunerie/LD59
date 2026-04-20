@@ -1,6 +1,6 @@
 export function resize(
-	w: number,
-	h: number,
+	_w: number,
+	_h: number,
 	minWidth: number,
 	minHeight: number,
 ) {
