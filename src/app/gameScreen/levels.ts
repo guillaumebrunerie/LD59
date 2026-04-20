@@ -1,67 +1,112 @@
 import type { Level } from "./levelsUtils";
 
 export const level1: Level = {
-	waves: {
-		baseline: { min: -5, max: 5 },
+	ranges: {
+		baseline: { min: -3, max: 3 },
 		wave1: {
 			amplitude: { base: { min: 1, max: 10 } },
-			waves: { min: 1, max: 7 },
+			frequency: { min: 1, max: 7 },
 			speed: { min: -2, max: 2 },
 			offset: { min: 0, max: 8, step: 2 },
 		},
 	},
+	toBeSolved: {
+		baseline: true,
+		wave1: {
+			amplitude: {
+				base: true,
+			},
+			offset: true,
+		},
+	},
 	condition: (waveData) => waveData.wave1.speed != 0,
-	conditionInitial: (blueprint, waveData) =>
-		waveData.wave1.speed == blueprint.wave1.speed,
 	device: [
 		{
 			type: "vertical-slider",
-			x: -125,
-			y: 100,
+			x: -150,
+			y: 0,
 			param: "baseline",
 		},
 		{
 			type: "vertical-slider",
-			x: 125,
-			y: 100,
+			x: -50,
+			y: 0,
 			param: "amplitude1",
 		},
+		// {
+		// 	type: "vertical-slider",
+		// 	x: 50,
+		// 	y: 0,
+		// 	param: "frequency1",
+		// },
 		{
-			type: "knob",
-			x: 0,
-			y: 100,
-			param: "frequency1",
-		},
-		{
-			type: "horizontal-slider",
-			x: 0,
-			y: 300,
+			type: "vertical-slider",
+			x: 150,
+			y: 0,
 			param: "offset1",
 		},
+
+		// {
+		// 	type: "vertical-slider",
+		// 	x: -150,
+		// 	y: 300,
+		// 	param: "baseline",
+		// },
+		// {
+		// 	type: "vertical-slider",
+		// 	x: -50,
+		// 	y: 300,
+		// 	param: "amplitude1",
+		// },
+		// {
+		// 	type: "vertical-slider",
+		// 	x: 50,
+		// 	y: 300,
+		// 	param: "frequency1",
+		// },
+		// {
+		// 	type: "vertical-slider",
+		// 	x: 150,
+		// 	y: 300,
+		// 	param: "offset1",
+		// },
 	],
 };
 
 export const level2: Level = {
-	waves: {
+	ranges: {
 		wave1: {
 			amplitude: { base: { min: 6, max: 10 } },
-			waves: { min: 1, max: 3, step: 0.5 },
+			frequency: { min: 1, max: 3, step: 0.5 },
 			speed: { min: -0.5, max: 0.5, step: 0.2 },
 			offset: { min: 0, max: 8, step: 2 },
 		},
 		wave2: {
 			amplitude: { base: { min: 1, max: 5 } },
-			waves: { min: 8, max: 10, step: 0.5 },
+			frequency: { min: 8, max: 10, step: 0.5 },
 			speed: { min: -0.5, max: 0.5, step: 0.2 },
 			offset: { min: 0, max: 8, step: 2 },
+		},
+	},
+	toBeSolved: {
+		wave1: {
+			amplitude: {
+				base: true,
+			},
+			frequency: true,
+			offset: true,
+		},
+		wave2: {
+			amplitude: {
+				base: true,
+			},
+			frequency: true,
+			offset: true,
 		},
 	},
 	condition: (waveData) =>
 		(waveData.wave1.speed != 0 || waveData.wave2.speed != 0) &&
 		waveData.wave1.speed != waveData.wave2.speed,
-	conditionInitial: (blueprint, waveData) =>
-		waveData.wave1.speed == blueprint.wave1.speed &&
-		waveData.wave2.speed == blueprint.wave2.speed,
 	device: [
 		{
 			type: "vertical-slider",
@@ -70,15 +115,15 @@ export const level2: Level = {
 			param: "amplitude1",
 		},
 		{
-			type: "knob",
-			x: 50,
-			y: -40,
+			type: "vertical-slider",
+			x: 0,
+			y: 10,
 			param: "frequency1",
 		},
 		{
-			type: "horizontal-slider",
-			x: 50,
-			y: 100,
+			type: "vertical-slider",
+			x: 150,
+			y: 10,
 			param: "offset1",
 		},
 
@@ -89,16 +134,155 @@ export const level2: Level = {
 			param: "amplitude2",
 		},
 		{
-			type: "knob",
-			x: 50,
-			y: 260,
+			type: "vertical-slider",
+			x: 0,
+			y: 310,
 			param: "frequency2",
 		},
 		{
-			type: "horizontal-slider",
-			x: 50,
-			y: 400,
+			type: "vertical-slider",
+			x: 150,
+			y: 310,
 			param: "offset2",
+		},
+	],
+};
+
+export const level3: Level = {
+	ranges: {
+		wave1: {
+			amplitude: {
+				base: { min: 1, max: 4, step: 0.5 },
+				modulationStrength: { min: 3, max: 6, step: 1 },
+			},
+			frequency: { min: 1, max: 7, step: 1 },
+			speed: { min: -1, max: 1, step: 0.5 },
+			offset: { min: 0, max: 8, step: 2 },
+		},
+	},
+	toBeSolved: {
+		wave1: {
+			amplitude: {
+				base: true,
+				// modulationStrength: true,
+			},
+			frequency: true,
+			speed: true,
+			offset: true,
+		},
+	},
+	condition: (waveData) => waveData.wave1.speed != 0,
+	device: [
+		{
+			type: "vertical-slider",
+			x: -150,
+			y: 0,
+			param: "speed1",
+		},
+		{
+			type: "vertical-slider",
+			x: -50,
+			y: 0,
+			param: "amplitude1",
+		},
+		{
+			type: "vertical-slider",
+			x: 50,
+			y: 0,
+			param: "frequency1",
+		},
+		{
+			type: "vertical-slider",
+			x: 150,
+			y: 0,
+			param: "offset1",
+		},
+	],
+};
+
+export const level4: Level = {
+	ranges: {
+		wave1: {
+			amplitude: { base: { min: 5, max: 8 } },
+			frequency: { min: 1, max: 3 },
+			speed: { min: -1, max: 1 },
+			offset: { min: 0, max: 8, step: 2 },
+		},
+		wave2: {
+			amplitude: { base: { min: 1, max: 3 } },
+			frequency: { min: 6, max: 10 },
+			speed: { min: -1, max: 1 },
+			offset: { min: 0, max: 8, step: 2 },
+		},
+	},
+	toBeSolved: {
+		wave1: {
+			amplitude: {
+				base: true,
+			},
+			frequency: true,
+			speed: true,
+			offset: true,
+		},
+		wave2: {
+			amplitude: {
+				base: true,
+			},
+			frequency: true,
+			speed: true,
+			offset: true,
+		},
+	},
+	condition: (waveData) => waveData.wave1.speed != 0,
+	device: [
+		{
+			type: "vertical-slider",
+			x: -150,
+			y: 0,
+			param: "amplitude1",
+		},
+		{
+			type: "vertical-slider",
+			x: -50,
+			y: 0,
+			param: "frequency1",
+		},
+		{
+			type: "vertical-slider",
+			x: 50,
+			y: 0,
+			param: "offset1",
+		},
+		{
+			type: "vertical-slider",
+			x: 150,
+			y: 0,
+			param: "speed1",
+		},
+
+		{
+			type: "vertical-slider",
+			x: -150,
+			y: 300,
+			param: "amplitude2",
+		},
+		{
+			type: "vertical-slider",
+			x: -50,
+			y: 300,
+			param: "frequency2",
+		},
+		{
+			type: "vertical-slider",
+			x: 50,
+			y: 300,
+			param: "offset2",
+		},
+		{
+			type: "vertical-slider",
+			x: 150,
+			y: 300,
+			param: "speed2",
 		},
 	],
 };

@@ -14,7 +14,6 @@ import {
 	Waveform,
 	type CombinedWaveData,
 } from "./Waveform";
-import { Label } from "../ui/Label";
 import type { Level, Range } from "./levelsUtils";
 
 const getParamAndTarget = (
@@ -32,6 +31,11 @@ const getParamAndTarget = (
 			return {
 				param: waveform.amplitudeXParam("wave1"),
 				target: blueprint.amplitudeXParam("wave1").get(),
+			};
+		case "modulation1":
+			return {
+				param: waveform.modulationXParam("wave1"),
+				target: blueprint.modulationXParam("wave1").get(),
 			};
 		case "frequency1":
 			return {
@@ -52,6 +56,11 @@ const getParamAndTarget = (
 			return {
 				param: waveform.amplitudeXParam("wave2"),
 				target: blueprint.amplitudeXParam("wave2").get(),
+			};
+		case "modulation2":
+			return {
+				param: waveform.modulationXParam("wave2"),
+				target: blueprint.modulationXParam("wave2").get(),
 			};
 		case "frequency2":
 			return {
@@ -107,7 +116,6 @@ export class Device extends Container {
 				texture: Assets.get("DeviceScreen.png"),
 			}),
 		);
-		this.addChild(new Battery({ x: -165, y: -420 }));
 
 		const waveformOptions = {
 			y: -340,
@@ -523,48 +531,6 @@ export class Buttons extends Container {
 				texture: "MoveUpBtn.png",
 				delta: 1,
 				hitArea: new Rectangle(-55, -65, 110, 65),
-			}),
-		);
-	}
-}
-
-class Battery extends Container {
-	constructor(options: ViewContainerOptions) {
-		super(options);
-		this.addChild(
-			new Sprite({
-				anchor: 0.5,
-				texture: Assets.get("BatteryBody.png"),
-			}),
-		);
-		this.addChild(
-			new Sprite({
-				anchor: 0.5,
-				texture: Assets.get("Battery01.png"),
-			}),
-		);
-		this.addChild(
-			new Sprite({
-				anchor: 0.5,
-				texture: Assets.get("Battery02.png"),
-			}),
-		);
-		this.addChild(
-			new Sprite({
-				anchor: 0.5,
-				texture: Assets.get("Battery03.png"),
-			}),
-		);
-		this.addChild(
-			new Sprite({
-				anchor: 0.5,
-				texture: Assets.get("Battery04.png"),
-			}),
-		);
-		this.addChild(
-			new Sprite({
-				anchor: 0.5,
-				texture: Assets.get("Battery05.png"),
 			}),
 		);
 	}

@@ -212,13 +212,15 @@ export class GameMap extends Container {
 			if (!hasBuildingAt(this.city, buildingI, buildingJ)) {
 				return;
 			}
-			if (!this.city[buildingI][buildingJ].antenna) {
-				return;
-			}
+			// if (!this.city[buildingI][buildingJ].antenna) {
+			// 	return;
+			// }
 			this.player.targetPosition = buildingPosition;
 			this.player.targetPosition.y += TILE_SIZE / 2 + playerOffset;
 			this.player.onReachedTarget = () => {
-				this.startLevel(buildingI, buildingJ);
+				if (this.city[buildingI][buildingJ].antenna) {
+					this.startLevel(buildingI, buildingJ);
+				}
 				this.player.onReachedTarget = undefined;
 			};
 		}

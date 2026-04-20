@@ -13,7 +13,7 @@ type BasicWaveData = {
 
 type WaveData = {
 	amplitude: BasicWaveData;
-	waves: number;
+	frequency: number;
 	speed: number;
 	offset: number;
 	phase: number;
@@ -37,14 +37,14 @@ const basicWaveValue = (
 };
 
 const waveValue = (
-	{ amplitude, waves, speed, offset, phase }: WaveData,
+	{ amplitude, frequency, speed, offset, phase }: WaveData,
 	gt: number,
 	u = 0,
 ): number => {
 	const b = basicWaveValue(amplitude, gt) / 10;
 	const c = (offset + phase) / 10;
-	const d = getFrequency(waves);
-	const e = getFrequency(waves) * (speed / 4);
+	const d = getFrequency(frequency);
+	const e = getFrequency(frequency) * (speed / 4);
 	return b * Math.cos((u * d - gt * e - c) * 2 * Math.PI);
 };
 
@@ -70,7 +70,7 @@ const basicWaveDataMatch = (
 const waveDataMatch = (wavedata1: WaveData, wavedata2: WaveData) => {
 	return (
 		basicWaveDataMatch(wavedata1.amplitude, wavedata2.amplitude) &&
-		wavedata1.waves == wavedata2.waves &&
+		wavedata1.frequency == wavedata2.frequency &&
 		wavedata1.speed == wavedata2.speed &&
 		mod(
 			wavedata1.offset +
@@ -167,7 +167,7 @@ export class Waveform extends Container {
 
 	baselineParam(): Param {
 		return {
-			range: assertReturn(this.level.waves.baseline),
+			range: assertReturn(this.level.ranges.baseline),
 			get: () => this.waveData.baseline,
 			set: (value: number) => {
 				this.waveData.baseline = value;
@@ -177,7 +177,7 @@ export class Waveform extends Container {
 
 	amplitudeXParam(key: "wave1" | "wave2"): Param {
 		return {
-			range: assertReturn(this.level.waves[key]?.amplitude?.base),
+			range: assertReturn(this.level.ranges[key]?.amplitude?.base),
 			get: () => this.waveData[key].amplitude.base,
 			set: (value: number) => {
 				this.waveData[key].amplitude.base = value;
@@ -185,14 +185,26 @@ export class Waveform extends Container {
 		};
 	}
 
+	modulationXParam(key: "wave1" | "wave2"): Param {
+		return {
+			range: assertReturn(
+				this.level.ranges[key]?.amplitude?.modulationStrength,
+			),
+			get: () => this.waveData[key].amplitude.amplitude,
+			set: (value: number) => {
+				this.waveData[key].amplitude.amplitude = value;
+			},
+		};
+	}
+
 	frequencyXParam(key: "wave1" | "wave2"): Param {
 		return {
-			range: assertReturn(this.level.waves[key]?.waves),
-			get: () => this.waveData[key].waves,
+			range: assertReturn(this.level.ranges[key]?.frequency),
+			get: () => this.waveData[key].frequency,
 			set: (value: number) => {
-				const oldFrequency = getFrequency(this.waveData[key].waves);
-				this.waveData[key].waves = value;
-				const newFrequency = getFrequency(this.waveData[key].waves);
+				const oldFrequency = getFrequency(this.waveData[key].frequency);
+				this.waveData[key].frequency = value;
+				const newFrequency = getFrequency(this.waveData[key].frequency);
 				const delta = newFrequency - oldFrequency;
 				this.waveData[key].phase -=
 					this.t * delta * this.waveData[key].speed * 2.5;
@@ -202,7 +214,7 @@ export class Waveform extends Container {
 
 	offsetXParam(key: "wave1" | "wave2"): Param {
 		return {
-			range: assertReturn(this.level.waves[key]?.offset),
+			range: assertReturn(this.level.ranges[key]?.offset),
 			get: () => mod(this.waveData[key].offset, 10),
 			set: (value: number) => {
 				this.waveData[key].offset = value;
@@ -212,7 +224,7 @@ export class Waveform extends Container {
 
 	speedXParam(key: "wave1" | "wave2"): Param {
 		return {
-			range: assertReturn(this.level.waves[key]?.speed),
+			range: assertReturn(this.level.ranges[key]?.speed),
 			get: () => this.waveData[key].speed,
 			set: (value: number) => {
 				const delta = value - this.waveData[key].speed;
@@ -220,7 +232,7 @@ export class Waveform extends Container {
 				this.waveData[key].phase -=
 					this.t *
 					delta *
-					getFrequency(this.waveData[key].waves) *
+					getFrequency(this.waveData[key].frequency) *
 					2.5;
 				// this.targetWaveData[key].phase =
 				// 	Math.round(this.waveData[key].phase / 2) * 2;

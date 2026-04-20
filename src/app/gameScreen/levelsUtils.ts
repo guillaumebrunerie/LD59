@@ -13,23 +13,28 @@ export type KnobType = {
 	param:
 		| "baseline"
 		| "amplitude1"
+		| "modulation1"
 		| "frequency1"
 		| "speed1"
 		| "offset1"
 		| "amplitude2"
+		| "modulation2"
 		| "frequency2"
 		| "speed2"
 		| "offset2";
 };
 
 export type Level = {
-	waves: {
+	ranges: {
 		baseline?: Range;
 		wave1?: {
 			amplitude?: {
 				base?: Range;
+				modulationStrength?: Range;
+				modulationSpeed?: Range;
+				modulationPhase?: Range;
 			};
-			waves?: Range;
+			frequency?: Range;
 			speed?: Range;
 			offset?: Range;
 			phase?: Range;
@@ -37,11 +42,37 @@ export type Level = {
 		wave2?: {
 			amplitude?: {
 				base?: Range;
+				modulationStrength?: Range;
+				modulationSpeed?: Range;
+				modulationPhase?: Range;
 			};
-			waves?: Range;
+			frequency?: Range;
 			speed?: Range;
 			offset?: Range;
 			phase?: Range;
+		};
+	};
+	toBeSolved: {
+		baseline?: true;
+		wave1?: {
+			amplitude?: {
+				base?: true;
+				modulationStrength?: true;
+				// modulationSpeed?: true;
+			};
+			frequency?: true;
+			speed?: true;
+			offset?: true;
+		};
+		wave2?: {
+			amplitude?: {
+				base?: true;
+				modulationStrength?: true;
+				// modulationSpeed?: true;
+			};
+			frequency?: true;
+			speed?: true;
+			offset?: true;
 		};
 	};
 	condition: (waveData: CombinedWaveData) => boolean;
@@ -61,7 +92,7 @@ const zeroWaveData = (): CombinedWaveData => ({
 			speed: 1,
 			phase: 0,
 		},
-		waves: 0,
+		frequency: 0,
 		speed: 0,
 		offset: 0,
 		phase: 0,
@@ -73,7 +104,7 @@ const zeroWaveData = (): CombinedWaveData => ({
 			speed: 1,
 			phase: 0,
 		},
-		waves: 0,
+		frequency: 0,
 		speed: 0,
 		offset: 0,
 		phase: 0,
@@ -96,21 +127,32 @@ const pickRange = <T extends string>(
 
 export const pickCombinedWaveData = (level: Level): CombinedWaveData => {
 	const result = zeroWaveData();
-	const data = level.waves;
+	const ranges = level.ranges;
 
-	pickRange(result, "baseline", data.baseline);
+	pickRange(result, "baseline", ranges.baseline);
 
-	pickRange(result.wave1.amplitude, "base", data.wave1?.amplitude?.base);
-	pickRange(result.wave1, "waves", data.wave1?.waves);
-	pickRange(result.wave1, "speed", data.wave1?.speed);
-	pickRange(result.wave1, "offset", data.wave1?.offset);
-	pickRange(result.wave1, "phase", data.wave1?.phase);
-
-	pickRange(result.wave2.amplitude, "base", data.wave2?.amplitude?.base);
-	pickRange(result.wave2, "waves", data.wave2?.waves);
-	pickRange(result.wave2, "speed", data.wave2?.speed);
-	pickRange(result.wave2, "offset", data.wave2?.offset);
-	pickRange(result.wave2, "phase", data.wave2?.phase);
+	for (const key of ["wave1", "wave2"] as const) {
+		pickRange(result[key].amplitude, "base", ranges[key]?.amplitude?.base);
+		pickRange(
+			result[key].amplitude,
+			"amplitude",
+			ranges[key]?.amplitude?.modulationStrength,
+		);
+		pickRange(
+			result[key].amplitude,
+			"speed",
+			ranges[key]?.amplitude?.modulationSpeed,
+		);
+		pickRange(
+			result[key].amplitude,
+			"phase",
+			ranges[key]?.amplitude?.modulationPhase,
+		);
+		pickRange(result[key], "frequency", ranges[key]?.frequency);
+		pickRange(result[key], "speed", ranges[key]?.speed);
+		pickRange(result[key], "offset", ranges[key]?.offset);
+		pickRange(result[key], "phase", ranges[key]?.phase);
+	}
 
 	if (!level.condition(result)) {
 		return pickCombinedWaveData(level);
@@ -122,8 +164,42 @@ const pickSecondWaveData = (
 	level: Level,
 	blueprint: CombinedWaveData,
 ): CombinedWaveData => {
-	const result = pickCombinedWaveData(level);
-	if (level.conditionInitial && !level.conditionInitial(blueprint, result)) {
+	const result = structuredClone(blueprint);
+	const ranges = level.ranges;
+
+	pickRange(result, "baseline", level.toBeSolved.baseline && ranges.baseline);
+
+	for (const key of ["wave1", "wave2"] as const) {
+		pickRange(
+			result[key].amplitude,
+			"base",
+			level.toBeSolved[key]?.amplitude?.base &&
+				ranges[key]?.amplitude?.base,
+		);
+		pickRange(
+			result[key].amplitude,
+			"amplitude",
+			level.toBeSolved[key]?.amplitude?.modulationStrength &&
+				ranges[key]?.amplitude?.modulationStrength,
+		);
+		pickRange(
+			result[key],
+			"frequency",
+			level.toBeSolved[key]?.frequency && ranges[key]?.frequency,
+		);
+		pickRange(
+			result[key],
+			"speed",
+			level.toBeSolved[key]?.speed && ranges[key]?.speed,
+		);
+		pickRange(
+			result[key],
+			"offset",
+			level.toBeSolved[key]?.offset && ranges[key]?.offset,
+		);
+	}
+
+	if (!level.condition(result)) {
 		return pickSecondWaveData(level, blueprint);
 	}
 	return result;
