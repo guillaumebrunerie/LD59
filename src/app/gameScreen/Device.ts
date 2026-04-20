@@ -105,6 +105,7 @@ export class Device extends Container {
 	blueprint: Waveform;
 	waveform: Waveform;
 	onEnd: (isMatch: boolean) => void;
+	batteryLights: Sprite[];
 
 	constructor(
 		options: ViewContainerOptions & {
@@ -171,10 +172,9 @@ export class Device extends Container {
 				anchor: 0.5,
 				texture: Assets.get("Device.png"),
 				interactive: true,
-				hitArea: new Rectangle(-225, -500, 450, 1000),
+				hitArea: new Rectangle(-380, -850, 760, 1700),
 			}),
 		);
-
 		// Uncomment to visualize hit area
 		// this.addChild(
 		// 	new Graphics()
@@ -186,6 +186,38 @@ export class Device extends Container {
 		// 		)
 		// 		.fill("#FF00FF20"),
 		// );
+		this.addChild(
+			new Sprite({
+				anchor: 0.5,
+				texture: Assets.get("HelpButton.png"),
+				interactive: true,
+				hitArea: new Rectangle(0, -930, 400, 150),
+				onpointerdown: () => {
+					this.askForHelp();
+				},
+			}),
+		);
+		// this.addChild(
+		// 	new Graphics()
+		// 		.rect(
+		// 			help.hitArea.x,
+		// 			help.hitArea.y,
+		// 			help.hitArea.width,
+		// 			help.hitArea.height,
+		// 		)
+		// 		.fill("#FF00FF20"),
+		// );
+		this.batteryLights = [];
+		for (let i = 1; i < 6; i++) {
+			this.batteryLights.push(
+				this.addChild(
+					new Sprite({
+						anchor: 0.5,
+						texture: Assets.get(`Battery_0${i}.png`),
+					}),
+				),
+			);
+		}
 
 		for (const knobSpec of options.level.device) {
 			const {
@@ -282,6 +314,18 @@ export class Device extends Container {
 					break;
 			}
 		}
+	}
+
+	batteryCount = 5;
+	askForHelp() {
+		this.batteryCount--;
+		this.redrawBatteryLights();
+	}
+
+	redrawBatteryLights() {
+		this.batteryLights.forEach((light, index) => {
+			light.visible = index < this.batteryCount;
+		});
 	}
 
 	isMatching = false;
