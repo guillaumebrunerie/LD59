@@ -60,7 +60,7 @@ export class Antenna extends Container {
 			new AnimatedSprite({
 				textures: getIdleAnimation("RadioWave"),
 				animationSpeed: 15 / 60,
-				scale: 3,
+				scale: 5,
 				blendMode: "add",
 				anchor: 0.5,
 				autoPlay: true,
