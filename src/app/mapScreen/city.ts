@@ -1,3 +1,4 @@
+import { randomInt } from "../../engine/utils/random";
 import { pickBothWaveData, type Level } from "../gameScreen/levelsUtils";
 import type { CombinedWaveData } from "../gameScreen/Waveform";
 
@@ -46,15 +47,23 @@ export const generateCity = (level: Level): City => {
 				})),
 		);
 
-	map.forEach((row, j) =>
-		row.forEach((data, i) => {
-			if (hasBuildingAt(map, i, j) && Math.random() < 0.2) {
-				data.antenna = pickBothWaveData(level);
-			}
-		}),
-	);
+	let count = 0;
+	while (count < 3) {
+		addAntenna(map, level);
+		count++;
+	}
 
 	return map;
+};
+
+export const addAntenna = (city: City, level: Level) => {
+	const i = randomInt(0, city[0].length - 1);
+	const j = randomInt(0, city.length - 1);
+	if (!hasBuildingAt(city, i, j) || city[j][i].antenna) {
+		addAntenna(city, level);
+	}
+	city[j][i].antenna = pickBothWaveData(level);
+	return { i, j };
 };
 
 export const hasBuildingAt = (map: City, i: number, j: number) =>
