@@ -106,6 +106,7 @@ export class Device extends Container {
 	waveform: Waveform;
 	onEnd: (isMatch: boolean) => void;
 	batteryLights: Sprite[];
+	knobs: Knob[];
 
 	constructor(
 		options: ViewContainerOptions & {
@@ -219,9 +220,11 @@ export class Device extends Container {
 			);
 		}
 
+		this.knobs = [];
 		for (const knobSpec of options.level.device) {
 			const {
 				param: { range, get, set },
+				target: desiredValue,
 			} = getParamAndTarget(
 				this.waveform,
 				this.blueprint,
@@ -233,81 +236,85 @@ export class Device extends Container {
 			const param = { range, get, set };
 			switch (knobSpec.type) {
 				case "vertical-slider":
-					this.addChild(
-						new Slider({
-							x: knobSpec.x,
-							y: knobSpec.y,
-							orientation: "vertical",
-							param,
-							wrapAround: false,
-							id: "",
-						}),
+					this.knobs.push(
+						this.addChild(
+							new Slider({
+								x: knobSpec.x,
+								y: knobSpec.y,
+								param,
+								desiredValue,
+								orientation: "vertical",
+								wrapAround: false,
+								id: "",
+							}),
+						),
 					);
 					break;
 				case "vertical-slider2":
-					this.addChild(
-						new Slider({
-							x: knobSpec.x,
-							y: knobSpec.y,
-							orientation: "vertical",
-							param,
-							wrapAround: false,
-							id: "2",
-						}),
+					this.knobs.push(
+						this.addChild(
+							new Slider({
+								x: knobSpec.x,
+								y: knobSpec.y,
+								param,
+								desiredValue,
+								orientation: "vertical",
+								wrapAround: false,
+								id: "2",
+							}),
+						),
 					);
 					break;
 				case "horizontal-slider":
-					this.addChild(
-						new Slider({
-							x: knobSpec.x,
-							y: knobSpec.y,
-							orientation: "horizontal",
-							param,
-							wrapAround: false,
-							id: "",
-						}),
+					this.knobs.push(
+						this.addChild(
+							new Slider({
+								x: knobSpec.x,
+								y: knobSpec.y,
+								param,
+								desiredValue,
+								orientation: "horizontal",
+								wrapAround: false,
+								id: "",
+							}),
+						),
 					);
 					break;
 				case "horizontal-roller":
-					this.addChild(
-						new Roller({
-							x: knobSpec.x,
-							y: knobSpec.y,
-							orientation: "horizontal",
-							param,
-						}),
-					);
-					break;
-				// case "knob":
-				// 	this.addChild(
-				// 		new Knob({
-				// 			x: knobSpec.x,
-				// 			y: knobSpec.y,
-				// 			param,
-				// 		}),
-				// 	);
-				// 	break;
-				case "vertical-buttons":
-					this.addChild(
-						new VerticalButtons({
-							x: knobSpec.x,
-							y: knobSpec.y,
-							param,
-						}),
+					this.knobs.push(
+						this.addChild(
+							new Roller({
+								x: knobSpec.x,
+								y: knobSpec.y,
+								param,
+								desiredValue,
+								orientation: "horizontal",
+							}),
+						),
 					);
 					break;
 				case "horizontal-buttons":
-					this.addChild(
-						new HorizontalButtons({
-							x: knobSpec.x,
-							y: knobSpec.y,
-							param,
-						}),
+					this.knobs.push(
+						this.addChild(
+							new HorizontalButtons({
+								x: knobSpec.x,
+								y: knobSpec.y,
+								param,
+								desiredValue,
+							}),
+						),
 					);
 					break;
 				case "switch":
-					this.addChild(
-						new Switch({ x: knobSpec.x, y: knobSpec.y, param }),
+					this.knobs.push(
+						this.addChild(
+							new Switch({
+								x: knobSpec.x,
+								y: knobSpec.y,
+								param,
+								desiredValue,
+							}),
+						),
 					);
 					break;
 			}
@@ -316,7 +323,15 @@ export class Device extends Container {
 
 	batteryCount = 5;
 	askForHelp() {
-		this.batteryCount--;
+		if (this.batteryCount > 0) {
+			this.batteryCount--;
+			for (const knob of this.knobs) {
+				if (!knob.isSolved()) {
+					knob.solve();
+					break;
+				}
+			}
+		}
 		this.redrawBatteryLights();
 	}
 
@@ -376,22 +391,42 @@ export type Param = {
 	set: (newValue: number) => void;
 };
 
-export abstract class AbstractSlider extends Container {
+type KnobOptions = ViewContainerOptions & {
 	param: Param;
+	desiredValue: number;
+};
+
+export class Knob extends Container {
+	param: Param;
+	desiredValue: number;
+	constructor(options: KnobOptions) {
+		super(options);
+		this.param = options.param;
+		this.desiredValue = options.desiredValue;
+	}
+
+	solve() {
+		this.param.set(this.desiredValue);
+	}
+
+	isSolved() {
+		return this.param.get() === this.desiredValue;
+	}
+}
+
+export abstract class AbstractSlider extends Knob {
 	target: number;
 	wrapAround: boolean;
 
 	constructor(
-		options: ViewContainerOptions & {
-			param: Param;
+		options: KnobOptions & {
 			wrapAround: boolean;
 		},
 	) {
 		super(options);
-		const { param, wrapAround } = options;
-		this.param = param;
+		const { wrapAround } = options;
 		this.wrapAround = wrapAround;
-		this.target = param.get();
+		this.target = this.param.get();
 	}
 
 	minY = 220;
@@ -413,6 +448,10 @@ export abstract class AbstractSlider extends Container {
 			this.param.set(value);
 		}
 		this.redraw();
+	}
+
+	solve() {
+		this.target = this.desiredValue;
 	}
 
 	isPressed = false;
@@ -464,8 +503,7 @@ export class Slider extends AbstractSlider {
 	knob: Sprite;
 
 	constructor(
-		options: ViewContainerOptions & {
-			param: Param;
+		options: KnobOptions & {
 			orientation: "vertical" | "horizontal";
 			wrapAround: boolean;
 			id: string;
@@ -534,8 +572,7 @@ export class Roller extends AbstractSlider {
 	minY = 100;
 	maxY = -100;
 	constructor(
-		options: ViewContainerOptions & {
-			param: Param;
+		options: KnobOptions & {
 			orientation: "vertical" | "horizontal";
 		},
 	) {
@@ -608,63 +645,6 @@ export class Roller extends AbstractSlider {
 	// });
 }
 
-// export class Knob extends AbstractSlider {
-// 	knob: Sprite;
-
-// 	constructor(
-// 		options: ViewContainerOptions & {
-// 			param: Param;
-// 		},
-// 	) {
-// 		super(options);
-// 		this.angle = 90;
-
-// 		this.addChild(
-// 			new Sprite({
-// 				anchor: 0.5,
-// 				texture: Assets.get("Knob_01_Socket.png"),
-// 			}),
-// 		);
-// 		this.knob = this.addChild(
-// 			new Sprite({
-// 				anchor: 0.5,
-// 				texture: Assets.get("Knob_01.png"),
-// 			}),
-// 		);
-
-// 		this.interactive = true;
-// 		const hitArea = new Rectangle(-80, -80, 160, 160);
-// 		this.hitArea = hitArea;
-// 		// Uncomment to visualize hit area
-// 		// this.addChild(
-// 		// 	new Graphics()
-// 		// 		.rect(hitArea.x, hitArea.y, hitArea.width, hitArea.height)
-// 		// 		.fill("#FF00FF20"),
-// 		// );
-// 	}
-
-// 	redraw() {
-// 		const angleRange = 120;
-// 		this.knob.angle =
-// 			-angleRange / 2 +
-// 			((this.param.get() - this.param.range.min) /
-// 				(this.param.range.max - this.param.range.min)) *
-// 				angleRange -
-// 			90;
-// 	}
-
-// 	// onclick = (this.ontap = (event: FederatedPointerEvent) => {
-// 	// 	const clickedY = event.getLocalPosition(this).y;
-// 	// 	const value = this.param.get();
-// 	// 	if (clickedY > 0 && value >= this.param.minValue + 1) {
-// 	// 		this.param.change(-1, 8);
-// 	// 	} else if (clickedY < 0 && value <= this.param.maxValue - 1) {
-// 	// 		this.param.change(1, 8);
-// 	// 	}
-// 	// 	this.update();
-// 	// });
-// }
-
 export class Button extends Container {
 	button: Sprite;
 	delta: number;
@@ -709,37 +689,37 @@ export class Button extends Container {
 	}
 }
 
-export class VerticalButtons extends Container {
-	constructor(options: ViewContainerOptions & { param: Param }) {
-		super(options);
-		const {
-			param: {
-				range: { step = 1 },
-			},
-		} = options;
-		this.addChild(
-			new Button({
-				y: 0,
-				param: options.param,
-				texture: "MoveDownBtn.png",
-				delta: -step,
-				hitArea: new Rectangle(-55, 0, 110, 65),
-			}),
-		);
-		this.addChild(
-			new Button({
-				y: 0,
-				param: options.param,
-				texture: "MoveUpBtn.png",
-				delta: step,
-				hitArea: new Rectangle(-55, -65, 110, 65),
-			}),
-		);
-	}
-}
+// export class VerticalButtons extends Container {
+// 	constructor(options: ViewContainerOptions & { param: Param }) {
+// 		super(options);
+// 		const {
+// 			param: {
+// 				range: { step = 1 },
+// 			},
+// 		} = options;
+// 		this.addChild(
+// 			new Button({
+// 				y: 0,
+// 				param: options.param,
+// 				texture: "MoveDownBtn.png",
+// 				delta: -step,
+// 				hitArea: new Rectangle(-55, 0, 110, 65),
+// 			}),
+// 		);
+// 		this.addChild(
+// 			new Button({
+// 				y: 0,
+// 				param: options.param,
+// 				texture: "MoveUpBtn.png",
+// 				delta: step,
+// 				hitArea: new Rectangle(-55, -65, 110, 65),
+// 			}),
+// 		);
+// 	}
+// }
 
-export class HorizontalButtons extends Container {
-	constructor(options: ViewContainerOptions & { param: Param }) {
+export class HorizontalButtons extends Knob {
+	constructor(options: KnobOptions) {
 		super(options);
 		this.angle = 90;
 		const {
@@ -768,17 +748,11 @@ export class HorizontalButtons extends Container {
 	}
 }
 
-export class Switch extends Container {
+export class Switch extends Knob {
 	switch: Sprite;
-	param: Param;
 
-	constructor(
-		options: ViewContainerOptions & {
-			param: Param;
-		},
-	) {
+	constructor(options: KnobOptions) {
 		super(options);
-		this.param = options.param;
 
 		this.switch = this.addChild(
 			new Sprite({
