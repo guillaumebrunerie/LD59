@@ -10,6 +10,7 @@ import { Player } from "./Player";
 import { Building } from "./Building";
 import { Antenna } from "./Antenna";
 import { addAntenna, hasBuildingAt, type City } from "./city";
+import { engine } from "../../getEngine";
 
 const TILE_SIZE = 300;
 
@@ -271,6 +272,8 @@ export class GameMap extends Container {
 				}
 				this.player.onReachedTarget = undefined;
 			};
+			engine().audio.playSound("CarEngineStart");
+			// engine().audio.playSound("CarEngineLoop", { loop: true });
 		}
 		this.movedBy = 0;
 	});

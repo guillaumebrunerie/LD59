@@ -10,6 +10,7 @@ import { generateCity, SAVE_KEY } from "./city";
 import { Onboarding } from "./Onboarding";
 import { Label } from "../ui/Label";
 import { levelCount, levels } from "../gameScreen/levels";
+import { sound } from "@pixi/sound";
 
 const TILE_SIZE = 300;
 
@@ -101,6 +102,9 @@ export class MapScreen extends Container {
 			this.onboarding.y = 5.5 * TILE_SIZE;
 			this.onboarding.setText("Click/tap on an antenna to analyze it");
 		}
+		// sound.stop("CarEngineLoop");
+		// engine().audio.playSound("CarEngineLoop");
+		engine().audio.playSound("CarEngineStop");
 	}
 
 	onMovedSlider() {

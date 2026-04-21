@@ -1,4 +1,5 @@
 import {
+	AnimatedSprite,
 	Assets,
 	Color,
 	FederatedPointerEvent,
@@ -19,6 +20,7 @@ import type { Level, Range, ToBeSolved } from "./levelsUtils";
 import { mod } from "../utils/maths";
 import { randomItem } from "../../engine/utils/random";
 import { Label } from "../ui/Label";
+import { engine } from "../../getEngine";
 
 const getParamAndTarget = (
 	waveform: Waveform,
@@ -440,12 +442,12 @@ export class Device extends Container {
 	update(ticker: Ticker) {
 		if (this.isMatching) {
 			this.matchedSince += ticker.deltaMS / 1000;
-			if (this.matchedSince > 0.7) {
-				this.onEnd(
-					true,
-					this.knobs.some((knob) => knob.hinted),
-				);
-			}
+			// if (this.matchedSince > 0.7) {
+			// 	this.onEnd(
+			// 		true,
+			// 		this.knobs.some((knob) => knob.hinted),
+			// 	);
+			// }
 		}
 		this.blueprint.update(ticker);
 		this.waveform.update(ticker);
@@ -461,6 +463,24 @@ export class Device extends Container {
 			this.isMatching = true;
 			this.knobs.forEach((knob) => knob.freeze());
 			navigator.vibrate?.(200);
+			engine().audio.playSound("Win");
+			this.addChild(
+				new AnimatedSprite({
+					scale: 2,
+					x: -500,
+					y: -870,
+					textures: Assets.get("DeviceWin").animations["DeviceWin"],
+					animationSpeed: 15 / 60,
+					autoPlay: true,
+					loop: false,
+					onComplete: () => {
+						this.onEnd(
+							true,
+							this.knobs.some((knob) => knob.hinted),
+						);
+					},
+				}),
+			);
 			// console.log("MATCH!");
 			// console.log(this.waveform.waveData, this.blueprint.waveData);
 		}

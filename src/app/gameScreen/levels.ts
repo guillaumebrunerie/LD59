@@ -11,6 +11,15 @@ const ranges1: Ranges = {
 };
 
 // Intermediate
+const ranges12: Ranges = {
+	wave1: {
+		amplitude: { min: 2, max: 10 },
+		frequency: { min: 1, max: 9 },
+		shape: { min: 0, max: 2 },
+		speed: { min: -1.5, max: 1.5, step: 0.5 },
+		offset: { min: 0, max: 8, step: 2 },
+	},
+};
 const ranges2: Ranges = {
 	wave1: {
 		amplitude: { min: 2, max: 10 },
@@ -203,7 +212,7 @@ const level4: Level = {
 };
 
 const level5: Level = {
-	ranges: ranges2,
+	ranges: ranges12,
 	toBeSolved: {
 		wave1: {
 			amplitude: true,
@@ -347,8 +356,8 @@ const level11: Level = {
 	device,
 };
 
-const levelInfinity: Level = {
-	ranges: ranges3,
+const level12: Level = {
+	ranges: ranges6,
 	toBeSolved: {
 		wave1: {
 			amplitude: true,
@@ -388,7 +397,7 @@ export const levels = [
 	{ level: level10, count: 4 },
 	{ level: level11, count: 4 },
 	// Expert (10 levels)
-	{ level: levelInfinity, count: 10 },
+	{ level: level12, count: 10 },
 ];
 
 export const levelCount = levels.reduce((sum, { count }) => sum + count, 0);
