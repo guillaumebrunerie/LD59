@@ -1,7 +1,4 @@
-- Onboarding
-- Local storage + reset
 - Music & sounds (Win, Car start/loop/end, clicks)
-- More levels
 
 - Animate device
 - Better movement

@@ -26,6 +26,66 @@ const ranges2: Ranges = {
 const ranges3: Ranges = {
 	wave1: {
 		amplitude: { min: 4, max: 10 },
+		// am: { min: 0, max: 3 },
+		frequency: { min: 1, max: 5 },
+		// shape: { min: 0, max: 2 },
+		speed: { min: -1.5, max: 1.5, step: 0.5 },
+		offset: { min: 0, max: 8, step: 2 },
+	},
+	wave2: {
+		amplitude: { min: 1, max: 5 },
+		// am: { min: 0, max: 3 },
+		frequency: { min: 12, max: 15, step: 0.5 },
+		// shape: { min: 0, max: 2 },
+		speed: { min: -1.5, max: 1.5, step: 0.5 },
+		offset: { min: 0, max: 8, step: 2 },
+	},
+};
+
+// Advanced
+const ranges4: Ranges = {
+	wave1: {
+		amplitude: { min: 4, max: 10 },
+		am: { min: 0, max: 3 },
+		frequency: { min: 1, max: 5 },
+		shape: { min: 0, max: 2 },
+		speed: { min: -1.5, max: 1.5, step: 0.5 },
+		offset: { min: 0, max: 8, step: 2 },
+	},
+	wave2: {
+		amplitude: { min: 1, max: 5 },
+		// am: { min: 0, max: 3 },
+		frequency: { min: 12, max: 15, step: 0.5 },
+		// shape: { min: 0, max: 2 },
+		speed: { min: -1.5, max: 1.5, step: 0.5 },
+		offset: { min: 0, max: 8, step: 2 },
+	},
+};
+
+// Advanced
+const ranges5: Ranges = {
+	wave1: {
+		amplitude: { min: 4, max: 10 },
+		// am: { min: 0, max: 3 },
+		frequency: { min: 1, max: 5 },
+		// shape: { min: 0, max: 2 },
+		speed: { min: -1.5, max: 1.5, step: 0.5 },
+		offset: { min: 0, max: 8, step: 2 },
+	},
+	wave2: {
+		amplitude: { min: 1, max: 5 },
+		am: { min: 0, max: 3 },
+		frequency: { min: 12, max: 15, step: 0.5 },
+		shape: { min: 0, max: 2 },
+		speed: { min: -1.5, max: 1.5, step: 0.5 },
+		offset: { min: 0, max: 8, step: 2 },
+	},
+};
+
+// Advanced
+const ranges6: Ranges = {
+	wave1: {
+		amplitude: { min: 4, max: 10 },
 		am: { min: 0, max: 3 },
 		frequency: { min: 1, max: 5 },
 		shape: { min: 0, max: 2 },
@@ -187,30 +247,105 @@ const level7: Level = {
 	device,
 };
 
-// const level8: Level = {
-// 	ranges: ranges3,
-// 	toBeSolved: {
-// 		wave1: {
-// 			amplitude: true,
-// 			frequency: true,
-// 			am: true,
-// 			shape: true,
-// 			speed: true,
-// 			offset: true,
-// 		},
-// 		wave2: {
-// 			amplitude: true,
-// 			frequency: true,
-// 			am: true,
-// 			shape: true,
-// 			speed: true,
-// 			offset: true,
-// 		},
-// 	},
-// 	condition: (waveData) =>
-// 		waveData.wave1.speed != 0 || waveData.wave2.speed != 0,
-// 	device,
-// };
+const level8: Level = {
+	ranges: ranges3,
+	toBeSolved: {
+		wave1: {
+			amplitude: true,
+			// frequency: true,
+			// am: true,
+			// shape: true,
+			// speed: true,
+			offset: true,
+		},
+		wave2: {
+			amplitude: true,
+			// frequency: true,
+			// am: true,
+			// shape: true,
+			// speed: true,
+			offset: true,
+		},
+	},
+	condition: (waveData) =>
+		waveData.wave1.speed != 0 || waveData.wave2.speed != 0,
+	device,
+};
+
+const level9: Level = {
+	ranges: ranges3,
+	toBeSolved: {
+		wave1: {
+			amplitude: true,
+			frequency: true,
+			// am: true,
+			// shape: true,
+			speed: true,
+			offset: true,
+		},
+		wave2: {
+			amplitude: true,
+			frequency: true,
+			// am: true,
+			// shape: true,
+			speed: true,
+			offset: true,
+		},
+	},
+	condition: (waveData) =>
+		waveData.wave1.speed != 0 || waveData.wave2.speed != 0,
+	device,
+};
+
+const level10: Level = {
+	ranges: ranges4,
+	toBeSolved: {
+		wave1: {
+			amplitude: true,
+			frequency: true,
+			am: true,
+			shape: true,
+			speed: true,
+			offset: true,
+		},
+		wave2: {
+			amplitude: true,
+			// frequency: true,
+			// am: true,
+			// shape: true,
+			// speed: true,
+			offset: true,
+		},
+	},
+	condition: (waveData) =>
+		waveData.wave1.speed != 0 || waveData.wave2.speed != 0,
+	device,
+};
+
+const level11: Level = {
+	ranges: ranges5,
+	toBeSolved: {
+		wave1: {
+			amplitude: true,
+			// frequency: true,
+			// am: true,
+			// shape: true,
+			// speed: true,
+			offset: true,
+		},
+		wave2: {
+			amplitude: true,
+			frequency: true,
+			am: true,
+			shape: true,
+			speed: true,
+			offset: true,
+		},
+	},
+	condition: (waveData) =>
+		waveData.wave1.speed != 0 || waveData.wave2.speed != 0,
+	device,
+};
 
 const levelInfinity: Level = {
 	ranges: ranges3,
@@ -247,9 +382,13 @@ export const levels = [
 	{ level: level5, count: 3 },
 	{ level: level6, count: 3 },
 	{ level: level7, count: 3 },
-	// Advanced
-	{ level: levelInfinity, count: 25 },
-	// Expert
+	// Advanced (15 levels)
+	{ level: level8, count: 3 },
+	{ level: level9, count: 4 },
+	{ level: level10, count: 4 },
+	{ level: level11, count: 4 },
+	// Expert (10 levels)
+	{ level: levelInfinity, count: 10 },
 ];
 
 export const levelCount = levels.reduce((sum, { count }) => sum + count, 0);

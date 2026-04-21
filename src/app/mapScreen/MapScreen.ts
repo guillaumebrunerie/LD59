@@ -182,7 +182,6 @@ export class MapScreen extends Container {
 			this.onboarding.angle = 0;
 			this.onboarding.setText("Use the sliders to modify the signal");
 			this.onboarding.visible = true;
-			// this.onboarding.darkening.visible = false;
 		}
 	}
 
