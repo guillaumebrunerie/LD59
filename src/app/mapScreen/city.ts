@@ -50,7 +50,15 @@ export const SAVE_KEY = "mixed-signals-save";
 export const generateCity = (): City => {
 	if (localStorage.getItem(SAVE_KEY)) {
 		try {
-			return JSON.parse(localStorage.getItem(SAVE_KEY)!) as City;
+			const city = JSON.parse(localStorage.getItem(SAVE_KEY)!) as City;
+			if (
+				isNaN(city.hintsLeft) ||
+				city.hintsLeft < 0 ||
+				city.hintsLeft > 5
+			) {
+				city.hintsLeft = 5;
+			}
+			return city;
 		} catch {
 			// Ignore errors
 		}

@@ -142,7 +142,7 @@ export class MapScreen extends Container {
 					this.onboarding.visible = false;
 					if (isMatch) {
 						this.gameMap.onLevelSolved(i, j);
-						if (!isHinted) {
+						if (!isHinted && this.city.hintsLeft < 5) {
 							this.city.hintsLeft++;
 						}
 						this.redrawProgress();
@@ -157,6 +157,21 @@ export class MapScreen extends Container {
 							);
 						}
 						this.saveProgress();
+						if (this.city.levelsSolved == levelCount) {
+							this.addChild(
+								new Label({
+									x: 1080 / 2,
+									y: 1920 / 2,
+									text: "CONGRATULATIONS!",
+									style: {
+										fontFamily: "Roboto",
+										fill: "#DDD",
+										fontSize: 100,
+										fontWeight: "bold",
+									},
+								}),
+							);
+						}
 					}
 				},
 				useHint: () => {
