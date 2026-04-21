@@ -41,7 +41,7 @@ export class StartScreen extends Container {
 	}
 
 	async startGame() {
-		engine().audio.playMusic("Music", { volume: 0.3 });
+		engine().audio.playMusic("Music", { volume: 0.5 });
 		engine().audio.playSound("Click");
 		await engine().navigation.showScreen(MapScreen);
 	}

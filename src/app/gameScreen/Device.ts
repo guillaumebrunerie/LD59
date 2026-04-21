@@ -17,7 +17,6 @@ import {
 } from "./Waveform";
 import type { Level, Range, ToBeSolved } from "./levelsUtils";
 import { mod } from "../utils/maths";
-import { userSettings } from "../utils/userSettings";
 import { randomItem } from "../../engine/utils/random";
 import { Label } from "../ui/Label";
 
@@ -156,6 +155,8 @@ export class Device extends Container {
 	blueprint: Waveform;
 	waveform: Waveform;
 	onEnd: (isSolved: boolean, isHinted: boolean) => void;
+	useHint: () => boolean;
+	getHintsLeft: () => number;
 	batteryLights: Sprite[];
 	knobs: Knob[];
 
@@ -164,12 +165,16 @@ export class Device extends Container {
 			targetWaveData: CombinedWaveData;
 			initialWaveData: CombinedWaveData;
 			onEnd: (isSolved: boolean, isHinted: boolean) => void;
+			useHint: () => boolean;
+			getHintsLeft: () => number;
 			onMovedSlider: () => void;
 			level: Level;
 		},
 	) {
 		super(options);
 		this.onEnd = options.onEnd;
+		this.useHint = options.useHint;
+		this.getHintsLeft = options.getHintsLeft;
 		const darkOverlay = this.addChild(
 			new Graphics().rect(-1000, -1000, 2000, 2000).fill("#20200080"),
 		);
@@ -408,11 +413,7 @@ export class Device extends Container {
 	}
 
 	askForHelp() {
-		userSettings.hintsLeft.set(5);
-		const hintsLeft = userSettings.hintsLeft.get();
-		if (hintsLeft > 0) {
-			userSettings.hintsLeft.set(hintsLeft - 1);
-
+		if (this.useHint()) {
 			for (const priority of [2, 1, 0]) {
 				const prioKnobs = this.knobs.filter(
 					(knob) =>
@@ -428,7 +429,7 @@ export class Device extends Container {
 	}
 
 	redrawBatteryLights() {
-		const hintsLeft = userSettings.hintsLeft.get();
+		const hintsLeft = this.getHintsLeft();
 		this.batteryLights.forEach((light, index) => {
 			light.visible = index < hintsLeft;
 		});

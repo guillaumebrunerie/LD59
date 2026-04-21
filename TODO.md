@@ -1,8 +1,8 @@
 - Onboarding
-- More levels
 - Local storage + reset
 - Start screen
 - Music & sounds
+- More levels
 
 - Animate device
 - Better movement

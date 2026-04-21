@@ -141,6 +141,15 @@ export class MapScreen extends Container {
 						this.redrawProgress();
 					}
 				},
+				useHint: () => {
+					if (this.city.hintsLeft > 0) {
+						this.city.hintsLeft--;
+						return true;
+					} else {
+						return false;
+					}
+				},
+				getHintsLeft: () => this.city.hintsLeft,
 				onMovedSlider: () => {
 					this.onMovedSlider();
 				},
