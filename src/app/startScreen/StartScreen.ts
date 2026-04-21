@@ -17,8 +17,7 @@ export class StartScreen extends Container {
 
 		this.logo = this.addChild(
 			new Sprite({
-				texture: Assets.get("Logo.png"),
-				anchor: 0.5,
+				texture: Assets.get("Logo.jpg"),
 			}),
 		);
 		this.startButton = this.addChild(
@@ -35,8 +34,6 @@ export class StartScreen extends Container {
 	resize(width: number, height: number) {
 		super.resize(width, height);
 		this.startButton.position.set(width / 2, (3 * height) / 4);
-		this.logo.position.set(width / 2, height / 3);
-		// this.background.position.set(width / 2, height / 2);
 		this.soundButton.resize(width, height);
 	}
 
