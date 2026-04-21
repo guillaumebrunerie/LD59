@@ -87,12 +87,16 @@ export class GameMap extends Container {
 		this.antennas = city.map.map((row, i) =>
 			row.map((data, j) => {
 				if (data.antenna) {
-					return this.addChild(
+					const antenna = this.addChild(
 						new Antenna({
 							x: j * TILE_SIZE - TILE_SIZE / 2,
 							y: i * TILE_SIZE - TILE_SIZE / 2,
 						}),
 					);
+					if (data.antenna.isSolved) {
+						antenna.turnOff();
+					}
+					return antenna;
 				} else {
 					return undefined;
 				}

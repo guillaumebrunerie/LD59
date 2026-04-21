@@ -459,6 +459,7 @@ export class Device extends Container {
 			this.waveform.color = new Color("green");
 			this.eventMode = "none";
 			this.isMatching = true;
+			this.knobs.forEach((knob) => knob.freeze());
 			navigator.vibrate?.(200);
 			// console.log("MATCH!");
 			// console.log(this.waveform.waveData, this.blueprint.waveData);
@@ -516,6 +517,11 @@ export class Knob extends Container {
 		this.hinted = true;
 	}
 
+	isFrozen = false;
+	freeze() {
+		this.isFrozen = true;
+	}
+
 	isSolved() {
 		return this.param.get() === this.desiredValue;
 	}
@@ -540,6 +546,9 @@ export abstract class AbstractSlider extends Knob {
 	maxY = -this.minY;
 	redraw() {}
 	update(ticker: Ticker) {
+		if (this.isFrozen) {
+			return;
+		}
 		const dt = ticker.deltaMS / 1000;
 		const speed = 8;
 

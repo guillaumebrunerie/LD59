@@ -85,8 +85,8 @@ const device: DeviceSpecification = [
 	...halfDevice.map((knob) => ({
 		...knob,
 		y: knob.y + 514,
-		type: knob.type.replace("1", "2"),
-		param: knob.param.replace("1", "2"),
+		type: knob.type.replace("1", "2") as never,
+		param: knob.param.replace("1", "2") as never,
 	})),
 ];
 

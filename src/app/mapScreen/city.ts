@@ -1,6 +1,6 @@
 import { randomInt } from "../../engine/utils/random";
 import { levels } from "../gameScreen/levels";
-import { pickBothWaveData, type Level } from "../gameScreen/levelsUtils";
+import { pickBothWaveData } from "../gameScreen/levelsUtils";
 import type { CombinedWaveData } from "../gameScreen/Waveform";
 
 export type City = {
@@ -8,10 +8,14 @@ export type City = {
 		x: number;
 		y: number;
 	};
+	cameraPosition: {
+		x: number;
+		y: number;
+	};
 	map: {
 		hasTile: boolean;
 		antenna?: {
-			level: Level;
+			levelIndex: number;
 			blueprint: CombinedWaveData;
 			waveform: CombinedWaveData;
 			isSolved: boolean;
@@ -26,9 +30,11 @@ export type City = {
 		startLevel: boolean;
 		moveSlider: boolean;
 		solveLevel: boolean;
+		solveMoreLevels: boolean;
 	};
 };
 
+export const SAVE_KEY = "mixed-signals-save";
 // const mapStr = `
 // 0001110000
 // 0111111000
@@ -42,6 +48,14 @@ export type City = {
 // 0000110000
 // `;
 export const generateCity = (): City => {
+	if (localStorage.getItem(SAVE_KEY)) {
+		try {
+			return JSON.parse(localStorage.getItem(SAVE_KEY)!) as City;
+		} catch {
+			// Ignore errors
+		}
+	}
+
 	const mapStr = `
 000000000000
 011111111110
@@ -67,11 +81,15 @@ export const generateCity = (): City => {
 					hasTile: v === "1",
 				})),
 		);
-	const skipOnboarding = true;
+	const skipOnboarding = false;
 	const city: City = {
 		playerPosition: {
 			x: 4 * 300 + 150,
 			y: 5 * 300,
+		},
+		cameraPosition: {
+			x: -300 * 6,
+			y: -300 * 4,
 		},
 		map,
 		levelsSolved: 0,
@@ -83,6 +101,7 @@ export const generateCity = (): City => {
 			startLevel: skipOnboarding,
 			moveSlider: skipOnboarding,
 			solveLevel: skipOnboarding,
+			solveMoreLevels: skipOnboarding,
 		},
 	};
 
@@ -105,7 +124,7 @@ const addAntennaAt = (city: City, i: number, j: number): boolean => {
 	}
 
 	const { level, count } = levels[city.levelIndex];
-	city.map[i][j].antenna = pickBothWaveData(level);
+	city.map[i][j].antenna = pickBothWaveData(level, city.levelIndex);
 
 	city.antennaIndex++;
 	if (city.antennaIndex == count) {

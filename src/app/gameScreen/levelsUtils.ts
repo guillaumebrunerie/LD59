@@ -260,15 +260,16 @@ const pickSecondWaveData = (
 };
 export const pickBothWaveData = (
 	level: Level,
+	levelIndex: number,
 ): {
-	level: Level;
+	levelIndex: number;
 	blueprint: CombinedWaveData;
 	waveform: CombinedWaveData;
 	isSolved: false;
 } => {
 	const blueprint = pickCombinedWaveData(level);
 	const waveform = pickSecondWaveData(level, blueprint);
-	return { level, blueprint, waveform, isSolved: false };
+	return { levelIndex, blueprint, waveform, isSolved: false };
 };
 
 export const assertReturn = <T>(v?: T): T => {

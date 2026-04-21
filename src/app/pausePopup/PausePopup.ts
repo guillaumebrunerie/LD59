@@ -3,41 +3,35 @@ import { BlurFilter, Container, Graphics } from "pixi.js";
 import { engine } from "../../getEngine";
 import { Label } from "../ui/Label";
 import { FancyButton } from "@pixi/ui";
+import { SAVE_KEY } from "../mapScreen/city";
 
 /** Popup that shows up when gameplay is paused */
 export class PausePopup extends Container {
 	constructor() {
 		super();
 
-		const width = 800;
-		const height = 300;
-		const x = 0;
-		const y = 0;
+		// const width = 800;
+		// const height = 300;
+		// const x = 0;
+		// const y = 0;
 
 		const bg = this.addChild(
 			new Graphics()
 				.rect(-1920 / 2, -1920 / 2, 1920, 1920)
-				.fill("#00000080")
-				.rect(x - width / 2, y - height / 2, width, height)
-				.cut(),
+				.fill("#00000040"),
 		);
 		bg.cursor = "pointer";
 		bg.interactive = true;
 		bg.on("pointertap", () => engine().navigation.dismissPopup());
 
-		this.addChild(
-			new Graphics()
-				.rect(x - width / 2, y - height / 2, width, height)
-				.fill("#ffffff40"),
-		);
-
 		const resumeButton = this.addChild(
 			new FancyButton({
 				text: new Label({
-					text: `Resume`,
+					text: `Go back to the game`,
 					style: {
-						fontFamily: "SueEllenFrancisco",
-						fill: "white",
+						fontFamily: "Roboto",
+						fill: "#DDD",
+						fontWeight: "bold",
 						// stroke: { color: "black", width: 6 },
 						fontSize: 70,
 					},
@@ -46,6 +40,48 @@ export class PausePopup extends Container {
 		);
 		resumeButton.y = -75;
 		resumeButton.on("pointertap", () => engine().navigation.dismissPopup());
+
+		const resetButton = this.addChild(
+			new FancyButton({
+				text: new Label({
+					text: `Reset all progress`,
+					style: {
+						fontFamily: "Roboto",
+						fill: "#D22",
+						fontWeight: "bold",
+						// stroke: { color: "black", width: 6 },
+						fontSize: 70,
+					},
+				}),
+			}),
+		);
+		resetButton.y = 150;
+		resetButton.on("pointertap", () => {
+			resetConfirmButton.visible = true;
+		});
+
+		const resetConfirmButton = this.addChild(
+			new FancyButton({
+				text: new Label({
+					text: `Confirm reset`,
+					style: {
+						fontFamily: "Roboto",
+						fill: "#D00",
+						fontWeight: "bold",
+						// stroke: { color: "black", width: 6 },
+						fontSize: 70,
+					},
+				}),
+			}),
+		);
+		resetConfirmButton.visible = false;
+		resetConfirmButton.y = 300;
+		resetConfirmButton.on("pointertap", () => this.onReset());
+	}
+
+	onReset() {
+		localStorage.removeItem(SAVE_KEY);
+		window.location.reload();
 	}
 
 	/** Resize the popup, fired whenever window size changes */

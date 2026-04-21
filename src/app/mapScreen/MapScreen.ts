@@ -6,10 +6,10 @@ import { PauseButton } from "../ui/PauseButton";
 import { PausePopup } from "../pausePopup/PausePopup";
 import { GameMap } from "./GameMap";
 import { Device } from "../gameScreen/Device";
-import { generateCity } from "./city";
+import { generateCity, SAVE_KEY } from "./city";
 import { Onboarding } from "./Onboarding";
 import { Label } from "../ui/Label";
-import { levelCount } from "../gameScreen/levels";
+import { levelCount, levels } from "../gameScreen/levels";
 
 const TILE_SIZE = 300;
 
@@ -31,8 +31,8 @@ export class MapScreen extends Container {
 		this.gameContainer = this.addChild(new Container());
 		this.gameMap = this.gameContainer.addChild(
 			new GameMap({
-				x: -TILE_SIZE * 6,
-				y: -TILE_SIZE * 4,
+				x: this.city.cameraPosition.x,
+				y: this.city.cameraPosition.y,
 				angle: -5,
 				city: this.city,
 				startLevel: (i: number, j: number) => this.startLevel(i, j),
@@ -86,17 +86,20 @@ export class MapScreen extends Container {
 	}
 
 	onFinishedMoving(hasAntennaToSolve: boolean) {
+		this.onboarding.visible = false;
+		if (this.city.onboardingDone.solveLevel) {
+			this.city.onboardingDone.solveMoreLevels = true;
+		}
 		this.city.onboardingDone.moveAround = true;
 		if (hasAntennaToSolve) {
 			this.city.onboardingDone.startLevel = true;
 		}
-		this.onboarding.visible = false;
 
 		if (!this.city.onboardingDone.startLevel) {
 			this.onboarding.visible = true;
 			this.onboarding.x = 5.5 * TILE_SIZE;
 			this.onboarding.y = 5.5 * TILE_SIZE;
-			this.onboarding.setText("Click/tap on the antennas to solve them");
+			this.onboarding.setText("Click/tap on an antenna to analyze it");
 		}
 	}
 
@@ -106,7 +109,7 @@ export class MapScreen extends Container {
 		if (!this.city.onboardingDone.solveLevel) {
 			this.onboarding.visible = true;
 			this.onboarding.x = 540;
-			this.onboarding.y = 400;
+			this.onboarding.y = 550;
 			this.onboarding.angle = 0;
 			this.onboarding.setText(
 				"Match the signal to deactivate the antenna",
@@ -126,7 +129,7 @@ export class MapScreen extends Container {
 				x: 520,
 				y: 1010,
 				angle: 2,
-				level: antenna.level,
+				level: levels[antenna.levelIndex].level,
 				targetWaveData: antenna.blueprint,
 				initialWaveData: antenna.waveform,
 				onEnd: (isMatch: boolean, isHinted: boolean) => {
@@ -139,6 +142,17 @@ export class MapScreen extends Container {
 							this.city.hintsLeft++;
 						}
 						this.redrawProgress();
+						if (!this.city.onboardingDone.solveMoreLevels) {
+							this.addChild(this.onboarding);
+							this.onboarding.visible = true;
+							this.onboarding.x = 540;
+							this.onboarding.y = 100;
+							this.onboarding.angle = 0;
+							this.onboarding.setText(
+								"Deactivate all remaining antennas to finish the game",
+							);
+						}
+						this.saveProgress();
 					}
 				},
 				useHint: () => {
@@ -163,13 +177,21 @@ export class MapScreen extends Container {
 			this.onMovedSlider();
 		} else {
 			this.addChild(this.onboarding);
-			this.onboarding.x = 400;
-			this.onboarding.y = 950;
+			this.onboarding.x = 600;
+			this.onboarding.y = 1080;
 			this.onboarding.angle = 0;
 			this.onboarding.setText("Use the sliders to modify the signal");
 			this.onboarding.visible = true;
 			// this.onboarding.darkening.visible = false;
 		}
+	}
+
+	saveProgress() {
+		this.city.playerPosition.x = this.gameMap.player.x;
+		this.city.playerPosition.y = this.gameMap.player.y;
+		this.city.cameraPosition.x = this.gameMap.x;
+		this.city.cameraPosition.y = this.gameMap.y;
+		localStorage.setItem(SAVE_KEY, JSON.stringify(this.city));
 	}
 
 	redrawProgress() {

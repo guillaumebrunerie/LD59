@@ -73,31 +73,31 @@ const combinedWaveValue = (
 	return -baseline / 10 + waveValue(wave1, gt, u) + waveValue(wave2, gt, u);
 };
 
-const basicWaveDataMatch = (
-	wavedata1: BasicWaveData,
-	wavedata2: BasicWaveData,
-) => {
-	return (
-		wavedata1.base == wavedata2.base &&
-		wavedata1.amplitude == wavedata2.amplitude &&
-		wavedata1.speed == wavedata2.speed
-	); // && mod(wavedata1.phase - wavedata2.phase, 10) == 0;
-};
+// const basicWaveDataMatch = (
+// 	wavedata1: BasicWaveData,
+// 	wavedata2: BasicWaveData,
+// ) => {
+// 	return (
+// 		wavedata1.base == wavedata2.base &&
+// 		wavedata1.amplitude == wavedata2.amplitude &&
+// 		wavedata1.speed == wavedata2.speed
+// 	); // && mod(wavedata1.phase - wavedata2.phase, 10) == 0;
+// };
 
-const waveDataMatch = (wavedata1: WaveData, wavedata2: WaveData) => {
-	return (
-		basicWaveDataMatch(wavedata1.amplitude, wavedata2.amplitude) &&
-		basicWaveDataMatch(wavedata1.frequency, wavedata2.frequency) &&
-		wavedata1.speed == wavedata2.speed &&
-		mod(
-			wavedata1.offset +
-				wavedata1.phase -
-				wavedata2.offset -
-				wavedata2.phase,
-			10,
-		) == 0
-	);
-};
+// const waveDataMatch = (wavedata1: WaveData, wavedata2: WaveData) => {
+// 	return (
+// 		basicWaveDataMatch(wavedata1.amplitude, wavedata2.amplitude) &&
+// 		basicWaveDataMatch(wavedata1.frequency, wavedata2.frequency) &&
+// 		wavedata1.speed == wavedata2.speed &&
+// 		mod(
+// 			wavedata1.offset +
+// 				wavedata1.phase -
+// 				wavedata2.offset -
+// 				wavedata2.phase,
+// 			10,
+// 		) == 0
+// 	);
+// };
 
 export const combinedWaveDataMatch = (
 	waveform1: CombinedWaveData,
