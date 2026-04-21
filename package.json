@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "tsc && eslint .",
     "dev": "vite --host",
-    "pack": "npm run build && rm Game.zip && zip -r Game.zip dist"
+    "pack": "npm run build && rm MixedSignals.zip && zip -r MixedSignals.zip dist"
   },
   "dependencies": {
     "@pixi/sound": "^6.0.1",

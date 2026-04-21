@@ -481,8 +481,6 @@ export class Device extends Container {
 					},
 				}),
 			);
-			// console.log("MATCH!");
-			// console.log(this.waveform.waveData, this.blueprint.waveData);
 		}
 		for (const child of this.children) {
 			child.update?.(ticker);
